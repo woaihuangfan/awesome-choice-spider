@@ -1,66 +1,44 @@
 package com.fan.service
 
-import cn.hutool.core.date.DateUtil
-import cn.hutool.core.thread.ThreadUtil
 import cn.hutool.core.thread.ThreadUtil.sleep
-import cn.hutool.core.util.PageUtil
 import com.fan.client.SearchClient
 import com.fan.db.entity.Notice
-import com.fan.db.entity.SearchLog
 import com.fan.db.entity.Source
 import com.fan.db.repository.NoticeRepository
 import com.fan.db.repository.SearchLogRepository
 import com.fan.db.repository.SourceRepository
+import com.fan.enums.SearchType
 import com.fan.filter.SummaryFilterChain
 import com.fan.response.NoticeItem
 import com.fan.response.WebNoticeResponseSearchResult
 import jakarta.transaction.Transactional
 import org.springframework.stereotype.Component
-import java.util.UUID
 
 private const val ROWS = 20
 
 @Component
-class WebDataCollector(
+class SearchKeywordDataCollector(
     private val noticeRepository: NoticeRepository,
     private val summaryFilterChain: SummaryFilterChain,
     private val sourceRepository: SourceRepository,
     private val searchLogRepository: SearchLogRepository
-) : DataCollector {
+) : AbstractDataCollector(sourceRepository, searchLogRepository) {
 
 
     @Transactional
-    override fun start(keyword: String) {
-        ThreadUtil.execute {
-            println("==========开始爬取==========")
-            val requestId = UUID.randomUUID().toString()
-            startSearchNotice(keyword, requestId)
-            println("==========爬取结束==========")
-            searchLogRepository.save(
-                SearchLog(
-                    keyword = keyword,
-                    date = DateUtil.now(),
-                    count = sourceRepository.countByRequestId(requestId)
-                )
-            )
-        }
-    }
-
-
-    private fun startSearchNotice(keyword: String, requestId: String) {
-//        val totalPage = detectTotalPages(keyword)
-//        println("总页数：$totalPage")
+    override fun doCollect(param: String, type: SearchType, requestId: String) {
         for (i in 1..100) {
             sleep(1000)
             println("==========开始爬取第 $i 页==========")
             try {
-                val webNoticeResponseSearchResult = SearchClient.searchWeb(keyword, i, ROWS)
+                val webNoticeResponseSearchResult = SearchClient.searchWeb(param, i, ROWS)
                 filterAndSave(webNoticeResponseSearchResult, requestId)
             } catch (e: Exception) {
                 e.printStackTrace()
             }
         }
     }
+
 
     private fun filterAndSave(
         webNoticeResponseSearchResult: WebNoticeResponseSearchResult,
@@ -78,13 +56,12 @@ class WebDataCollector(
 
     private fun saveOrUpdateNotice(noticeItem: NoticeItem) {
         val notice = Notice(
+            stock = "",
             code = noticeItem.code,
             columnCode = noticeItem.columnCode,
             title = noticeItem.title,
-            content = noticeItem.content,
-            date = noticeItem.date,
-            securityFullName = noticeItem.securityFullName,
-            url = noticeItem.url
+            date = noticeItem.date.substring(0, 10),
+            securityFullName = noticeItem.securityFullName
         )
         noticeRepository.save(
             notice
@@ -104,14 +81,6 @@ class WebDataCollector(
         )
 
         sourceRepository.save(source)
-    }
-
-    private fun detectTotalPages(keyword: String): Int {
-        val pageNumber = 1
-        val response = SearchClient.searchWeb(keyword, pageNumber, ROWS)
-        val hitsTotal = response.hitsTotal
-        val totalPages = PageUtil.totalPage(hitsTotal, ROWS)
-        return totalPages
     }
 
 }

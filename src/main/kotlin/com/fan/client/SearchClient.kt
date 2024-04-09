@@ -5,15 +5,21 @@ import cn.hutool.http.HttpRequest
 import cn.hutool.json.JSONUtil
 import com.fan.response.Data
 import com.fan.response.NoticeResponseSearchResult
+import com.fan.response.SearchByCodeResponse
 import com.fan.response.WebNoticeResponseSearchResult
 import com.google.gson.Gson
 import java.net.URLEncoder
 
 object SearchClient {
+    private const val DUMMY_CALLBACK = "dummy"
     private const val URL =
         "https://choicegw.eastmoney.com/app/report/web/app/search/notice?keyWord=%s&startIndex=%d&rows=%d"
 
     private const val WEB_URL = "https://search-api-web.eastmoney.com/search/jsonp?cb=%s&param=%s&_=%s"
+
+    private const val SEARCH_BY_CODE_URL =
+        "https://np-anotice-stock.eastmoney.com/api/security/ann?cb=$DUMMY_CALLBACK&sr=-1&page_size=50&page_index=%s&ann_type=BJA&client_source=web&stock_list=%s"
+
 
     private val headers: Map<String, String>
         get() {
@@ -38,6 +44,17 @@ object SearchClient {
         return data
     }
 
+    fun searchByCode(code: String, index: Int, rows: Int): SearchByCodeResponse {
+        try {
+            val body = HttpRequest.get(SEARCH_BY_CODE_URL.format(index, code)).execute().body()
+            val result = body.replace("$DUMMY_CALLBACK(", "").replace(")", "")
+            return Gson().fromJson(result, SearchByCodeResponse::class.java)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            throw e
+        }
+    }
+
     fun searchWeb(keyword: String, index: Int, rows: Int): WebNoticeResponseSearchResult {
         val body =
             HttpRequest.get(
@@ -48,7 +65,7 @@ object SearchClient {
                 )
             ).execute()
                 .body()
-        val result = body.replace("dummy(", "").replace(")", "")
+        val result = body.replace("$DUMMY_CALLBACK(", "").replace(")", "")
         return Gson().fromJson(result, WebNoticeResponseSearchResult::class.java)
     }
 

@@ -15,9 +15,9 @@ class SearchLog(
     val count: Int,
     @Column(name = "date", nullable = false)
     var date: String,
-    @Column(name = "keyword", nullable = false)
-    var keyword: String,
+    @Column(name = "param", nullable = false)
+    var param: String,
+    @Column(name = "type", nullable = false)
+    var type: String,
 
-    ) {
-
-}
+    )

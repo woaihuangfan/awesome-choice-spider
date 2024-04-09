@@ -8,6 +8,5 @@ import org.springframework.stereotype.Repository
 @Repository
 interface NoticeRepository : JpaRepository<Notice, Long> {
 
-
     fun findByStatus(status: String): List<Notice>
 }

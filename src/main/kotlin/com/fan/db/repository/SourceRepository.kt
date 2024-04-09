@@ -6,6 +6,6 @@ import org.springframework.stereotype.Repository
 
 
 @Repository
-interface SourceRepository : JpaRepository<Source, Long> {
-    fun countByRequestId(requstId: String): Int
+interface SourceRepository : JpaRepository<Source, Long>, CountByRequestIdRepository {
+    override fun countByRequestId(requestId: String): Int
 }

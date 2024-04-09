@@ -1,5 +1,7 @@
 package com.fan.service
 
-interface DataCollector {
-    fun start(keyword: String)
+import com.fan.enums.SearchType
+
+fun interface DataCollector {
+    fun start(param: String, type: SearchType)
 }

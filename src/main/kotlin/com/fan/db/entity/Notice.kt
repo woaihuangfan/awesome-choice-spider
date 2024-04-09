@@ -16,19 +16,17 @@ class Notice(
     val id: Long? = null,
     @Column(name = "code", nullable = false)
     val code: String,
+
+    @Column(name = "stock", nullable = false)
+    val stock: String,
     @Column(name = "columnCode", nullable = false)
     var columnCode: String,
     @Column(name = "title", nullable = false)
     var title: String,
-    @Lob
-    @Column(name = "content", nullable = false)
-    var content: String,
     @Column(name = "date", nullable = false)
     var date: String,
     @Column(name = "securityFullName", nullable = false)
     var securityFullName: String,
-    @Column(name = "url", nullable = false)
-    var url: String,
     @Column(name = "status", nullable = false)
     var status: String? = ""
 

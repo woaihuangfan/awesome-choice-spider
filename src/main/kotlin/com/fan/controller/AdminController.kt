@@ -1,6 +1,8 @@
 package com.fan.controller
 
-import com.fan.service.WebDataCollector
+import com.fan.enums.SearchType
+import com.fan.service.SearchByCodeCollector
+import com.fan.service.SearchKeywordDataCollector
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
@@ -10,17 +12,24 @@ import java.io.IOException
 
 @RestController
 @RequestMapping("/admin")
-class AdminController(private val webDataCollector: WebDataCollector) {
+class AdminController(
+    searchKeywordDataCollector: SearchKeywordDataCollector,
+    searchByCodeCollector: SearchByCodeCollector
+) {
+    private val collectorMap = mapOf(
+        SearchType.KEYWORD.typeName to searchKeywordDataCollector,
+        SearchType.CODE.typeName to searchByCodeCollector
+    )
 
     @GetMapping(value = ["/start"])
     fun start(
-        @RequestParam keyword: String,
+        @RequestParam param: String,
+        @RequestParam type: SearchType,
     ): String {
         try {
-//            val keywords = listOf("续聘", "会计", "审计", "聘用", "2024")
-//            keywords.forEach { keyword ->
-            webDataCollector.start(keyword)
-//            }
+            if (collectorMap.containsKey(type.typeName)) {
+                collectorMap[type.typeName]!!.start(param, type)
+            }
         } catch (e: IOException) {
             e.printStackTrace()
         }
