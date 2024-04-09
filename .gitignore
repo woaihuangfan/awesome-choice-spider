@@ -38,3 +38,4 @@ out/
 db/
 ### Kotlin ###
 .kotlin
+derby.log
