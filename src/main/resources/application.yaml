@@ -1,0 +1,23 @@
+spring:
+  application:
+    name: awesome-choice-spider
+  datasource:
+    username: fan
+    password: 123456
+    url: jdbc:derby:db;create=true
+    driver-class-name: org.apache.derby.jdbc.EmbeddedDriver
+  sql:
+    init:
+      schema-locations: classpath:database/create_tables.sql
+      #      data-locations: classpath:database/init_data.sql
+      mode: always
+      continue-on-error: true
+
+  jpa:
+    show-sql: false
+    database: derby
+    hibernate:
+      ddl-auto: create
+#logging:
+#  level:
+#    root: debug
