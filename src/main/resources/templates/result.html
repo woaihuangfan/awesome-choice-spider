@@ -10,8 +10,11 @@
 <div style="padding: 15px;">
     <blockquote class="layui-elem-quote">
         <div class="layui-btn-container">
+            <button class="layui-btn" lay-submit lay-filter="demo-table-export" onclick="start()">开始采集（TODO)
+            </button>
             <button class="layui-btn" lay-submit lay-filter="demo-table-export" onclick="exportExcel()">export（TODO)
             </button>
+
         </div>
     </blockquote>
 
@@ -36,8 +39,13 @@
 <script src="//cdn.staticfile.org/layui/2.9.7/layui.js"></script>
 <script>
     function exportExcel() {
-        console.log(11)
         layui.$.get('/excel/result', function (data) {
+            // 处理接口返回的数据
+            console.log(data);
+        });
+    }
+    function start() {
+        layui.$.get('/admin/start', function (data) {
             // 处理接口返回的数据
             console.log(data);
         });

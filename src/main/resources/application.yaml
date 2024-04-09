@@ -17,7 +17,7 @@ spring:
     show-sql: false
     database: derby
     hibernate:
-      ddl-auto: validate
+      ddl-auto: update
   thymeleaf:
     cache: false   #缓存，如果要热部署设置为false
     prefix: classpath:/templates/  #静态页面前置目录
