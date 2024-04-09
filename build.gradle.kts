@@ -14,6 +14,7 @@ version = "0.0.1-SNAPSHOT"
 
 val hutoolVersion = "5.8.26"
 val gsonVersion = "2.8.8"
+val poiVersion = "5.2.5"
 java {
     sourceCompatibility = JavaVersion.VERSION_21
 }
@@ -30,8 +31,10 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("cn.hutool:hutool-all:$hutoolVersion")
     implementation("org.apache.derby:derby")
+    implementation("org.apache.poi:poi:$poiVersion")
+    implementation("org.apache.poi:poi-ooxml:$poiVersion")
+    implementation("com.google.code.gson:gson")
 
-    implementation("com.google.code.gson:gson:2.8.8")
     implementation("org.apache.derby:derby")
     implementation("org.apache.derby:derbytools")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
