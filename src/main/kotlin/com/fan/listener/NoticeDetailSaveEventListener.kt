@@ -30,12 +30,13 @@ class NoticeDetailSaveEventListener(
             val accountCompanyName = AccountCompanyExtractor.extractAccountCompanyName(detail.content, code)
             if (!accountCompanyName.contains(code)) {
                 val result = Result(
-                    name = notice.securityFullName.orEmpty(),
+                    noticeId = detail.noticeId,
+                    name = notice.securityFullName,
                     stock = detail.stock,
                     date = notice.date.substring(
                         0,
                         10
-                    ).orEmpty(),
+                    ),
                     accountCompanyName = accountCompanyName,
                     code = code
                 )

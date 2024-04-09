@@ -7,5 +7,4 @@ import org.springframework.stereotype.Repository
 
 @Repository
 interface SourceRepository : JpaRepository<Source, Long> {
-    fun findByCode(code: String): List<Source>?
 }

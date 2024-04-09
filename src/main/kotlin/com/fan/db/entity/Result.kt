@@ -13,6 +13,10 @@ class Result(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long? = null,
+
+    @Column(name = "notice_id", nullable = false)
+    val noticeId: Long,
+
     @Column(name = "name", nullable = false)
     val name: String,
     @Column(name = "stock", nullable = false)

@@ -17,7 +17,24 @@ spring:
     show-sql: false
     database: derby
     hibernate:
-      ddl-auto: create
+      ddl-auto: validate
+  thymeleaf:
+    cache: false   #缓存，如果要热部署设置为false
+    prefix: classpath:/templates/  #静态页面前置目录
+    check-template-location: true  #本地模板检查
+    suffix: .html  #页面后缀
+    encoding: UTF-8  #页面编码
+    servlet:
+      content-type: text/html  #页面类型
+    mode: HTML  #页面模式，其实可以设置为HTML5、LEGACYHTML5（非严格检查格式，这个还需要其他包引入）
+  mvc:
+    static-path-pattern: /**  #静态资源父级路径
+  web:
+    resources:
+      static-locations: classpath:/resources/,classpath:/static/  #静态资源映射目录
+
+
+
 #logging:
 #  level:
 #    root: debug

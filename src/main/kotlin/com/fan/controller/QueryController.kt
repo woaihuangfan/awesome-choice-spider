@@ -1,16 +1,17 @@
 package com.fan.controller
 
 import com.fan.db.entity.Notice
-import com.fan.db.entity.NoticeDetailFailLog
 import com.fan.db.entity.NoticeDetailFetchFailedLog
-import com.fan.db.entity.Result
 import com.fan.db.repository.NoticeDetailFailLogRepository
 import com.fan.db.repository.NoticeDetailFetchFailedLogRepository
 import com.fan.db.repository.NoticeRepository
 import com.fan.db.repository.ResultRepository
 import com.fan.db.repository.SourceRepository
+import com.fan.dto.PageResult
+import org.springframework.data.domain.PageRequest
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 
 
@@ -41,13 +42,21 @@ class QueryController(
     }
 
     @GetMapping(value = ["/result"])
-    fun result(): MutableList<Result> {
-        return resultRepository.findAll()
+    fun result(
+        @RequestParam page: Int,
+        @RequestParam limit: Int,
+    ): PageResult {
+        val pageable: PageRequest = PageRequest.of(page - 1, limit)
+        return PageResult.success(resultRepository.findAll(pageable))
     }
 
     @GetMapping(value = ["/errors"])
-    fun errors(): MutableList<NoticeDetailFailLog> {
-        return noticeDetailFailLogRepository.findAll()
+    fun errors(
+        @RequestParam page: Int,
+        @RequestParam limit: Int,
+    ): PageResult {
+        val pageable: PageRequest = PageRequest.of(page - 1, limit)
+        return PageResult.success(noticeDetailFailLogRepository.findAll(pageable))
     }
 
     @GetMapping(value = ["/fetchErrors"])

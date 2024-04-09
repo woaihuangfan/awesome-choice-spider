@@ -25,11 +25,11 @@ repositories {
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.boot:spring-boot-starter-web")
+    implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("cn.hutool:hutool-all:$hutoolVersion")
     implementation("org.apache.derby:derby")
-//    implementation("org.springframework.boot:spring-boot-starter-data-jdbc")
 
     implementation("com.google.code.gson:gson:2.8.8")
     implementation("org.apache.derby:derby")
