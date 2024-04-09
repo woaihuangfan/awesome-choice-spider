@@ -10,8 +10,6 @@
 <div style="padding: 15px;">
     <blockquote class="layui-elem-quote">
         <div class="layui-btn-container">
-            <button class="layui-btn" lay-submit lay-filter="demo-table-export" onclick="start()">开始采集（TODO)
-            </button>
             <button class="layui-btn" lay-submit lay-filter="demo-table-export" onclick="exportExcel()">export（TODO)
             </button>
 
@@ -24,9 +22,9 @@
             <thead>
             <tr>
                 <th lay-data="{field:'id', width:80}">ID</th>
-                <th lay-data="{field:'name', width:120}">公司名称</th>
+                <th lay-data="{field:'name', width:150}">公司名称</th>
                 <th lay-data="{field:'stock', width:120}">证券代码</th>
-                <th lay-data="{field:'date',width:80}">公告日期</th>
+                <th lay-data="{field:'date',width:120}">公告日期</th>
                 <th lay-data="{field:'accountCompanyName'}">会计师事务所</th>
                 <th lay-data="{field:'code'}">公告代码</th>
                 <th lay-data="{field:'amount'}">合同金额</th>
@@ -40,12 +38,6 @@
 <script>
     function exportExcel() {
         layui.$.get('/excel/result', function (data) {
-            // 处理接口返回的数据
-            console.log(data);
-        });
-    }
-    function start() {
-        layui.$.get('/admin/start', function (data) {
             // 处理接口返回的数据
             console.log(data);
         });

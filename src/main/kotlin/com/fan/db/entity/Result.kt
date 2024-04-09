@@ -25,7 +25,7 @@ class Result(
     val date: String,
     @Column(name = "accountCompanyName", nullable = false)
     val accountCompanyName: String,
-    @Column(name = "code", nullable = false)
+    @Column(name = "code", nullable = false, unique = true)
     val code: String,
     @Column(name = "amount", nullable = true)
     val amount: String? = ""

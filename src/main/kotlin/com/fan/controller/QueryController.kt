@@ -6,6 +6,7 @@ import com.fan.db.repository.NoticeDetailFailLogRepository
 import com.fan.db.repository.NoticeDetailFetchFailedLogRepository
 import com.fan.db.repository.NoticeRepository
 import com.fan.db.repository.ResultRepository
+import com.fan.db.repository.SearchLogRepository
 import com.fan.db.repository.SourceRepository
 import com.fan.dto.PageResult
 import org.springframework.data.domain.PageRequest
@@ -22,7 +23,8 @@ class QueryController(
     private val resultRepository: ResultRepository,
     private val noticeDetailFailLogRepository: NoticeDetailFailLogRepository,
     private val sourceRepository: SourceRepository,
-    private val noticeDetailFetchFailedLogRepository: NoticeDetailFetchFailedLogRepository
+    private val noticeDetailFetchFailedLogRepository: NoticeDetailFetchFailedLogRepository,
+    private val searchLogRepository: SearchLogRepository
 ) {
 
     @GetMapping(value = ["/sources"])
@@ -68,5 +70,14 @@ class QueryController(
     fun countFetchErrors(): Int {
         val all = noticeDetailFetchFailedLogRepository.findAll()
         return all.map { it.code }.toSet().size
+    }
+
+    @GetMapping(value = ["/searchLog"])
+    fun searchLog(
+        @RequestParam page: Int,
+        @RequestParam limit: Int,
+    ): PageResult {
+        val pageable: PageRequest = PageRequest.of(page - 1, limit)
+        return PageResult.success(searchLogRepository.findAll(pageable))
     }
 }

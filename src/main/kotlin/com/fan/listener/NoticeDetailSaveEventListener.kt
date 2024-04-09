@@ -29,6 +29,12 @@ class NoticeDetailSaveEventListener(
             val notice = noticeRepository.findById(detail.noticeId).get()
             val accountCompanyName = AccountCompanyExtractor.extractAccountCompanyName(detail.content, code)
             if (!accountCompanyName.contains(code)) {
+
+                val exist = resultRepository.findByCode(code)
+                if (exist != null) {
+                    return
+                }
+
                 val result = Result(
                     noticeId = detail.noticeId,
                     name = notice.securityFullName,

@@ -27,8 +27,10 @@ class Source(
     var securityFullName: String,
     @Column(name = "url", nullable = false)
     var url: String,
-    @Column(name = "status", nullable = false)
-    var status: String? = ""
+    @Column(name = "status", nullable = true)
+    var status: String? = "",
+    @Column(name = "request_id", nullable = false)
+    var requestId: String
 
 ) {
 
