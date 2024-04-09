@@ -33,7 +33,20 @@ spring:
     resources:
       static-locations: classpath:/resources/,classpath:/static/  #静态资源映射目录
 
-
+#management:
+#  endpoint:
+#    shutdown:
+#      enabled: true
+#  server:
+#    address: 127.0.0.1
+#    port: 8000
+#  endpoints:
+#    web:
+#      base-path: /ops
+#      path-mapping:
+#        shutdown: shutdown
+#      exposure:
+#        include: info, health, shutdown
 
 #logging:
 #  level:

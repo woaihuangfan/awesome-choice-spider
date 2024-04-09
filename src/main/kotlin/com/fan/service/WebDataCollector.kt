@@ -62,15 +62,15 @@ class WebDataCollector(
 
     }
 
-    private fun saveOrUpdateNotice(notice: NoticeItem) {
+    private fun saveOrUpdateNotice(noticeItem: NoticeItem) {
         val notice = Notice(
-            code = notice.code,
-            columnCode = notice.columnCode,
-            title = notice.title,
-            content = notice.content,
-            date = notice.date,
-            securityFullName = notice.securityFullName,
-            url = notice.url
+            code = noticeItem.code,
+            columnCode = noticeItem.columnCode,
+            title = noticeItem.title,
+            content = noticeItem.content,
+            date = noticeItem.date,
+            securityFullName = noticeItem.securityFullName,
+            url = noticeItem.url
         )
         noticeRepository.save(
             notice
