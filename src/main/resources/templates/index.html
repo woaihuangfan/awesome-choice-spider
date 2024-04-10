@@ -31,15 +31,16 @@
         <div class="layui-side-scroll">
             <!-- 左侧导航区域（可配合layui已有的垂直导航） -->
             <ul class="layui-nav layui-nav-tree" lay-filter="test">
-                <li class="layui-nav-item"><a href="javascript:;  onclick=loadPage('/result.html')">汇总查询</a></li>
-                <li class="layui-nav-item"><a href="javascript:; onclick=loadPage('/error.html')">错误分析</a></li>
-                <li class="layui-nav-item"><a href="javascript:; onclick=loadPage('/log.html')">采集分析</a></li>
+                <li class="layui-nav-item"  class="menu-item" id="first"><a href="javascript:;  onclick=loadPage('/titleRule.html')">规则管理</a></li>
+                <li class="layui-nav-item"  class="menu-item"><a href="javascript:; onclick=loadPage('/log.html')">采集分析</a></li>
+                <li class="layui-nav-item"  class="menu-item"><a href="javascript:;  onclick=loadPage('/result.html')">汇总查询</a></li>
+                <li class="layui-nav-item"  class="menu-item"><a href="javascript:; onclick=loadPage('/error.html')">错误分析</a></li>
             </ul>
         </div>
     </div>
     <div class="layui-body">
         <!-- 内容主体区域 -->
-        <iframe id="contentFrame" src="/result.html" style="width: 100%; height: 100%;"></iframe>
+        <iframe id="contentFrame" src="/titleRule.html" style="width: 100%; height: 100%;"></iframe>
     </div>
     <div class="layui-footer">
         <!-- 底部固定区域 -->
@@ -49,6 +50,16 @@
 
 <script src="//cdn.staticfile.org/layui/2.9.7/layui.js"></script>
 <script>
+    layui.use('jquery', function(){
+        var $ = layui.jquery;
+
+        // 页面加载时，默认选中规则管理菜单项
+        $(function(){
+            $('.menu-item').removeClass('layui-this'); // 移除所有菜单项的选中状态
+            $('#first').addClass('layui-this'); // 添加规则管理菜单项的选中状态
+        });
+    });
+
     // 使用 AJAX 加载页面内容
     function loadPage(url) {
         document.getElementById('contentFrame').src = url;

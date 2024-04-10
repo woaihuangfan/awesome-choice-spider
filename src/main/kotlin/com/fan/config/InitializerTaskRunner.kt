@@ -1,19 +1,47 @@
 package com.fan.config
 
+import cn.hutool.core.date.DateUtil
 import cn.hutool.core.io.resource.ClassPathResource
 import cn.hutool.core.util.NumberUtil.isNumber
 import cn.hutool.poi.excel.ExcelUtil
 import com.fan.db.entity.Company
+import com.fan.db.entity.TitleFilterRule
 import com.fan.db.repository.CompanyRepository
+import com.fan.db.repository.TitleFilterRuleRepository
 import org.springframework.boot.ApplicationArguments
 import org.springframework.boot.ApplicationRunner
 import org.springframework.stereotype.Component
+import org.springframework.util.CollectionUtils
 
 @Component
 class InitializerTaskRunner(
-    private val companyRepository: CompanyRepository
+    private val companyRepository: CompanyRepository, private val titleFilterRuleRepository: TitleFilterRuleRepository
 ) : ApplicationRunner {
     override fun run(args: ApplicationArguments) {
+        addCompany()
+        initDefaultTitleRule()
+    }
+
+    private fun initDefaultTitleRule() {
+        titleFilterRuleRepository.deleteAll()
+        getInitialTitleFilterRules().forEach {
+            val existedKeywords = titleFilterRuleRepository.findAllByKeyword(it.keyword)
+            if (CollectionUtils.isEmpty(existedKeywords)) {
+                titleFilterRuleRepository.save(it)
+            }
+        }
+
+    }
+
+    private fun getInitialTitleFilterRules(): List<TitleFilterRule> {
+        return getTitleKeywords().map { TitleFilterRule(keyword = it) }
+    }
+
+    private fun getTitleKeywords(): List<String> {
+        return listOf("${DateUtil.thisYear().toString()}年度", "会计师事务所")
+    }
+
+    private fun addCompany() {
         val stocks = readStocks()
         stocks.forEach { stock ->
             val exist = companyRepository.findByStock(stock)
@@ -21,7 +49,6 @@ class InitializerTaskRunner(
                 companyRepository.save(Company(stock = stock))
             }
         }
-
     }
 
     private fun readStocks(): ArrayList<String> {
