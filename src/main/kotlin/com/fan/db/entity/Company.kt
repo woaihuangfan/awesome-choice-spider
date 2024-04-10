@@ -6,12 +6,12 @@ import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 
-@Entity(name = "codes")
+@Entity(name = "company")
 class Company(
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     val id: Long? = null,
-    @Column(name = "code", nullable = false, unique = true)
+    @Column(name = "stock", nullable = false, unique = true)
     val stock: String,
 
     @Column(name = "company_name", nullable = true)

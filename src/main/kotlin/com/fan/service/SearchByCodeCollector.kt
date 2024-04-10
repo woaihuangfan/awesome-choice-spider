@@ -7,7 +7,7 @@ import com.fan.client.SearchClient
 import com.fan.db.entity.Notice
 import com.fan.db.entity.NoticeSearchHistory
 import com.fan.db.entity.SearchByCodeSource
-import com.fan.db.repository.CodeRepository
+import com.fan.db.repository.CompanyRepository
 import com.fan.db.repository.NoticeRepository
 import com.fan.db.repository.NoticeSearchHistoryRepository
 import com.fan.db.repository.SearchByCodeSourceRepository
@@ -27,7 +27,7 @@ class SearchByCodeCollector(
     private val noticeRepository: NoticeRepository,
     private val searchFilterChain: SearchFilterChain,
     private val searchByCodeSourceRepository: SearchByCodeSourceRepository,
-    private val codeRepository: CodeRepository,
+    private val companyRepository: CompanyRepository,
     private val noticeSearchHistoryRepository: NoticeSearchHistoryRepository,
     searchLogRepository: SearchLogRepository
 
@@ -36,7 +36,7 @@ class SearchByCodeCollector(
 
     @Transactional
     override fun doCollect(param: String, type: SearchType, requestId: String) {
-        val codeEntities = codeRepository.findAll()
+        val codeEntities = companyRepository.findAll()
         for (entity in codeEntities) {
             sleep(100)
             val stock = entity.stock
@@ -117,13 +117,13 @@ class SearchByCodeCollector(
 
     private fun updateCompanyName(item: Item, stock: String) {
         val companyName = item.codes.first().short_name
-        val company = codeRepository.findByStock(stock)
+        val company = companyRepository.findByStock(stock)
         company?.let {
             if (StringUtils.hasText(company.companyName) && company.companyName != companyName) {
                 println("==========证券代码为【${stock}】的公司名称发生变化，原公司名称为【${company.companyName}】，新公司名称为【${companyName}】==========")
             }
             it.companyName = companyName
-            codeRepository.save(it)
+            companyRepository.save(it)
         }
     }
 

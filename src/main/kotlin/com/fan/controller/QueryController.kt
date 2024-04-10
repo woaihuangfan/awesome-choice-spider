@@ -1,9 +1,12 @@
 package com.fan.controller
 
+import cn.hutool.core.date.DateUtil
 import com.fan.db.entity.Notice
 import com.fan.db.entity.NoticeDetailFetchFailedLog
+import com.fan.db.repository.CompanyRepository
 import com.fan.db.repository.NoticeDetailFailLogRepository
 import com.fan.db.repository.NoticeDetailFetchFailedLogRepository
+import com.fan.db.repository.NoticeDetailRepository
 import com.fan.db.repository.NoticeRepository
 import com.fan.db.repository.ResultRepository
 import com.fan.db.repository.SearchLogRepository
@@ -24,7 +27,9 @@ class QueryController(
     private val noticeDetailFailLogRepository: NoticeDetailFailLogRepository,
     private val sourceRepository: SourceRepository,
     private val noticeDetailFetchFailedLogRepository: NoticeDetailFetchFailedLogRepository,
-    private val searchLogRepository: SearchLogRepository
+    private val searchLogRepository: SearchLogRepository,
+    private val companyRepository: CompanyRepository,
+    private val noticeDetailRepository: NoticeDetailRepository,
 ) {
 
     @GetMapping(value = ["/sources"])
@@ -79,5 +84,24 @@ class QueryController(
     ): PageResult {
         val pageable: PageRequest = PageRequest.of(page - 1, limit)
         return PageResult.success(searchLogRepository.findAll(pageable))
+    }
+
+
+    @GetMapping(value = ["/notConcluded"])
+    fun notConcluded(
+        @RequestParam page: Int,
+        @RequestParam limit: Int,
+    ): PageResult {
+        val pageable: PageRequest = PageRequest.of(page - 1, limit)
+        return PageResult.success(companyRepository.findCompanyNoticeDetails(DateUtil.thisYear().toString(), pageable))
+    }
+
+    @GetMapping(value = ["/detail"])
+    fun detail(
+        @RequestParam page: Int,
+        @RequestParam limit: Int,
+    ): PageResult {
+        val pageable: PageRequest = PageRequest.of(page - 1, limit)
+        return PageResult.success(noticeDetailRepository.findAll(pageable))
     }
 }

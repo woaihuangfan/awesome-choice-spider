@@ -12,7 +12,6 @@ class Blog(
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     val id: Long? = null,
-    @Lob
-    @Column(name = "title", nullable = false)
+    @Column(name = "title", nullable = false, length = 8196)
     val title: String
 )

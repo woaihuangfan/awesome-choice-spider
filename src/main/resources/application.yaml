@@ -4,8 +4,10 @@ spring:
   datasource:
     username: fan
     password: 123456
-    url: jdbc:derby:database;create=true
-    driver-class-name: org.apache.derby.jdbc.EmbeddedDriver
+#    url: jdbc:derby:database;create=true
+    url: jdbc:derby://localhost:1527/database;create=true
+    driver-class-name: org.apache.derby.jdbc.ClientDriver
+#    driver-class-name: org.apache.derby.jdbc.EmbeddedDriver
   sql:
     init:
       schema-locations: classpath:database/create_tables.sql
@@ -51,3 +53,5 @@ spring:
 #logging:
 #  level:
 #    root: debug
+server:
+  port: 8082

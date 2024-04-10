@@ -21,8 +21,7 @@ class NoticeDetail(
     @Column(name = "code", nullable = false, unique = true)
     val code: String,
 
-    @Lob
-    @Column(name = "title", nullable = false)
+    @Column(name = "title", nullable = false, length = 8196)
     val title: String,
 
     @Lob

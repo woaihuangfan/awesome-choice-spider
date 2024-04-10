@@ -31,6 +31,7 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("cn.hutool:hutool-all:$hutoolVersion")
     implementation("org.apache.derby:derby")
+    implementation("org.apache.derby:derbyclient")
     implementation("org.apache.poi:poi:$poiVersion")
     implementation("org.apache.poi:poi-ooxml:$poiVersion")
     implementation("com.google.code.gson:gson")

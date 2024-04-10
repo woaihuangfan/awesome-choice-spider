@@ -4,21 +4,21 @@ import cn.hutool.core.io.resource.ClassPathResource
 import cn.hutool.core.util.NumberUtil.isNumber
 import cn.hutool.poi.excel.ExcelUtil
 import com.fan.db.entity.Company
-import com.fan.db.repository.CodeRepository
+import com.fan.db.repository.CompanyRepository
 import org.springframework.boot.ApplicationArguments
 import org.springframework.boot.ApplicationRunner
 import org.springframework.stereotype.Component
 
 @Component
 class InitializerTaskRunner(
-    private val codeRepository: CodeRepository
+    private val companyRepository: CompanyRepository
 ) : ApplicationRunner {
     override fun run(args: ApplicationArguments) {
         val stocks = readStocks()
         stocks.forEach { stock ->
-            val exist = codeRepository.findByStock(stock)
+            val exist = companyRepository.findByStock(stock)
             if (exist == null) {
-                codeRepository.save(Company(stock = stock))
+                companyRepository.save(Company(stock = stock))
             }
         }
 

@@ -22,8 +22,7 @@ class Notice(
     val stock: String,
     @Column(name = "columnCode", nullable = false)
     var columnCode: String,
-    @Lob
-    @Column(name = "title", nullable = false)
+    @Column(name = "title", nullable = false, length = 8196)
     var title: String,
     @Column(name = "date", nullable = false)
     var date: String,

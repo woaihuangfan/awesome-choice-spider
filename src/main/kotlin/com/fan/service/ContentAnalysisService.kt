@@ -80,17 +80,21 @@ class ContentAnalysisService(
     }
 
     fun logErrorRecord(detail: NoticeDetail) {
-        val notice = noticeRepository.findById(detail.noticeId)
-        val year = DateUtil.parseDate(notice.get().date).year().toString()
-        noticeDetailFailLogRepository.save(
-            NoticeDetailFailLog(
-                code = detail.code,
-                content = detail.content,
-                stock = detail.stock,
-                title = detail.content,
-                noticeId = detail.noticeId,
-                year = year
+        val exist = noticeDetailFailLogRepository.findByCode(detail.code)
+        if (exist == null) {
+            val notice = noticeRepository.findById(detail.noticeId)
+            val year = DateUtil.parseDate(notice.get().date).year().toString()
+            noticeDetailFailLogRepository.save(
+                NoticeDetailFailLog(
+                    code = detail.code,
+                    content = detail.content,
+                    stock = detail.stock,
+                    title = detail.title,
+                    noticeId = detail.noticeId,
+                    year = year
+                )
             )
-        )
+        }
+
     }
 }
