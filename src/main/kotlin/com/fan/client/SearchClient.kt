@@ -46,7 +46,7 @@ object SearchClient {
 
     fun searchByCode(code: String, index: Int, rows: Int): SearchByCodeResponse {
         try {
-            val body = HttpRequest.get(SEARCH_BY_CODE_URL.format(index, rows, code)).execute().body()
+            val body = HttpRequest.get(SEARCH_BY_CODE_URL.format(rows, index, code)).execute().body()
             val result = body.replace("$DUMMY_CALLBACK(", "").replace(")", "")
             return Gson().fromJson(result, SearchByCodeResponse::class.java)
         } catch (e: Exception) {

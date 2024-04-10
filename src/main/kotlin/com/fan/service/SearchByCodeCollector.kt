@@ -40,7 +40,7 @@ class SearchByCodeCollector(
         for (entity in codeEntities) {
             sleep(100)
             val stock = entity.stock
-            val year = DateUtil.tomorrow().year().toString()
+            val year = DateUtil.thisYear().toString()
             val noticeSearchHistory = noticeSearchHistoryRepository.findByStockAndYear(stock, year)
             val isLatest = noticeSearchHistory?.let {
                 val today = DateUtil.parseDate(DateUtil.today()).dayOfYear()
@@ -101,7 +101,7 @@ class SearchByCodeCollector(
         if (searchByCodeResponse.success == 1) {
             searchByCodeResponse.data.list.forEach { item ->
                 val year = DateUtil.parseDate(item.notice_date).year()
-                val currentYear = DateUtil.tomorrow().year()
+                val currentYear = DateUtil.thisYear()
                 if (year < currentYear) {
                     throw RuntimeException("0")
                 }
@@ -134,10 +134,11 @@ class SearchByCodeCollector(
         noticeRepository.findByStockAndCode(stock, code)?.let {
             return
         }
+        val columnCode = if (noticeItem.columns.isNotEmpty()) noticeItem.columns.first().column_code else ""
         val notice = Notice(
             stock = stock,
             code = code,
-            columnCode = noticeItem.columns.first().column_code,
+            columnCode = columnCode,
             title = noticeItem.title,
             date = noticeItem.notice_date.substring(0, 10),
             securityFullName = codes.short_name,
@@ -156,15 +157,16 @@ class SearchByCodeCollector(
         searchByCodeSourceRepository.findByStockAndTitleAndDate(code, title, date)?.let {
             return
         }
+        val column = if (item.columns.isNotEmpty()) item.columns.first() else null
         val source = SearchByCodeSource(
             stock = item.codes.first().stock_code,
             code = code,
-            columnCode = item.columns.first().column_code,
-            columnName = item.columns.first().column_name,
+            columnCode = column?.column_code ?: "",
+            columnName = column?.column_name ?: "",
             title = title,
             date = date,
             requestId = requestId,
-            year = DateUtil.tomorrow().year().toString()
+            year = DateUtil.thisYear().toString()
         )
         searchByCodeSourceRepository.save(source)
     }

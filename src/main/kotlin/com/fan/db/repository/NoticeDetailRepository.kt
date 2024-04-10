@@ -7,4 +7,5 @@ import org.springframework.stereotype.Repository
 
 @Repository
 interface NoticeDetailRepository : JpaRepository<NoticeDetail, Long> {
+    fun findByCode(code: String): NoticeDetail
 }

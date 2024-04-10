@@ -8,4 +8,9 @@ import org.springframework.stereotype.Repository
 @Repository
 interface NoticeDetailFailLogRepository : JpaRepository<NoticeDetailFailLog, Long> {
 
+    fun findAllByYear(year: String): List<NoticeDetailFailLog>
+
+    fun findByCode(code: String): NoticeDetailFailLog?
+
+    fun deleteByCode(code: String)
 }

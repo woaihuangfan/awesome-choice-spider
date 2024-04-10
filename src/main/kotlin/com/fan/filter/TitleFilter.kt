@@ -10,6 +10,6 @@ class TitleFilter : SearchFilter {
     }
 
     override fun doFilter(item: Item): Boolean {
-        return item.title.contains("2024") && item.title.contains("会计")
+        return item.title.contains("2024年度") && item.title.contains("会计师事务所")
     }
 }

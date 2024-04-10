@@ -12,11 +12,15 @@ class NoticeDetailFailLog(
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     val id: Long? = null,
-    @Column(name = "code", nullable = false)
+
+    @Column(name = "notice_id", nullable = false)
+    val noticeId: Long,
+
+    @Column(name = "code", nullable = false, unique = true)
     val code: String,
 
     @Lob
-@Column(name = "title", nullable = false)
+    @Column(name = "title", nullable = false)
     val title: String,
 
     @Lob
@@ -24,7 +28,10 @@ class NoticeDetailFailLog(
     val content: String,
 
     @Column(name = "stock", nullable = false)
-    val stock: String
+    val stock: String,
+
+    @Column(name = "`year`", nullable = false)
+    val year: String
 ) {
 
 }
