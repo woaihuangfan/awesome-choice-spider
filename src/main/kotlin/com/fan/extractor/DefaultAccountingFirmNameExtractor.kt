@@ -25,7 +25,8 @@ object DefaultAccountingFirmNameExtractor {
 
 
             for (pattern in patterns) {
-                val matcher = Pattern.compile(pattern).matcher(announcement)
+                val matcher =
+                    Pattern.compile(pattern).matcher(announcement.replace(" ", "").replace("\r", "").replace("\n", ""))
                 while (matcher.find()) {
                     val name = matcher.group()
                     if (!name.startsWith("的") && !name.startsWith("请")) {
