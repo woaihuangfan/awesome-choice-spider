@@ -48,11 +48,6 @@ object NoticeDetailClient {
 
     }
 
-    fun fetchWebDetailSearchedByCode(code: String): NoticeDetailPO? {
-
-        return null
-    }
-
     fun fetchWebDetailSearchedByKeyWord(infoCode: String): NoticeDetailPO? {
         ThreadUtil.sleep(300)
         val index = 1

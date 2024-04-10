@@ -5,8 +5,8 @@ import com.fan.response.NoticeItem
 
 class TitleFilter : SearchFilter {
 
-    override fun doFilter(content: NoticeItem): Boolean {
-        return content.title.contains("2024") && content.title.contains("会计")
+    override fun doFilter(noticeItem: NoticeItem): Boolean {
+        return noticeItem.title.contains("2024") && noticeItem.title.contains("会计")
     }
 
     override fun doFilter(item: Item): Boolean {
