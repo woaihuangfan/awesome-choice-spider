@@ -28,7 +28,9 @@ class Result(
     @Column(name = "code", nullable = false, unique = true)
     val code: String,
     @Column(name = "amount", nullable = true)
-    val amount: String? = ""
+    val amount: String? = "",
+    @Column(name = "year", nullable = false, unique = true)
+    val year: String,
 ) {
 
     @DomainEvents

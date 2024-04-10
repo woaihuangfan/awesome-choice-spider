@@ -21,14 +21,14 @@ class SearchKeywordDataCollector(
     private val noticeRepository: NoticeRepository,
     private val summaryFilterChain: SummaryFilterChain,
     private val sourceRepository: SourceRepository,
-    private val searchLogRepository: SearchLogRepository
+    searchLogRepository: SearchLogRepository
 ) : AbstractDataCollector(sourceRepository, searchLogRepository) {
 
 
     @Transactional
     override fun doCollect(param: String, type: SearchType, requestId: String) {
         for (i in 1..100) {
-            sleep(1000)
+            sleep(100)
             println("==========开始爬取第 $i 页==========")
             try {
                 val webNoticeResponseSearchResult = SearchClient.searchWeb(param, i, ROWS)
@@ -61,7 +61,8 @@ class SearchKeywordDataCollector(
             columnCode = noticeItem.columnCode,
             title = noticeItem.title,
             date = noticeItem.date.substring(0, 10),
-            securityFullName = noticeItem.securityFullName
+            securityFullName = noticeItem.securityFullName,
+            source = SearchType.KEYWORD.typeName
         )
         noticeRepository.save(
             notice

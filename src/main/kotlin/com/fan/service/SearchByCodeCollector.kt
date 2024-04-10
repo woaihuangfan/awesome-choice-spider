@@ -25,6 +25,7 @@ class SearchByCodeCollector(
     private val summaryFilterChain: SummaryFilterChain,
     private val searchByCodeSourceRepository: SearchByCodeSourceRepository,
     private val codeRepository: CodeRepository,
+//    private val noticeHistoryRepository: NoticeHistoryRepository,
     searchLogRepository: SearchLogRepository
 
 ) : AbstractDataCollector(searchByCodeSourceRepository, searchLogRepository) {
@@ -34,20 +35,23 @@ class SearchByCodeCollector(
     override fun doCollect(param: String, type: SearchType, requestId: String) {
         val codeEntities = codeRepository.findAll()
         for (entity in codeEntities) {
-            sleep(1000)
+            sleep(100)
             println("==========开始爬取证券代码为【${entity.code}】的公司的当年度的公告==========")
             val totalPages = getTotalPages(entity.code)
             for (i in 1..totalPages) {
-                sleep(1000)
-                println("==========开始爬取第 $i 页, 共 $totalPages==========")
+                sleep(100)
+                println("==========开始爬取第 $i 页, 共【$totalPages】页==========")
                 try {
-                    val searchByCodeResponse = SearchClient.searchByCode(param, i, ROWS)
-                    filterAndSave(searchByCodeResponse, requestId)
+                    val searchByCodeResponse = SearchClient.searchByCode(entity.code, i, ROWS)
+                    filterAndSave(searchByCodeResponse, requestId, entity.code)
                 } catch (e: Exception) {
-                    e.printStackTrace()
+
                     if (e.message == "0") {
+
                         println("==========当年度公告爬取完成，将停止爬取==========")
                         break
+                    } else {
+                        e.printStackTrace()
                     }
                 }
             }
@@ -57,12 +61,14 @@ class SearchByCodeCollector(
 
     private fun getTotalPages(code: String): Int {
         val searchByCodeResponse = SearchClient.searchByCode(code, 1, 1)
-        return PageUtil.totalPage(searchByCodeResponse.data.total_hits, 50)
+        val totalHits = searchByCodeResponse.data.total_hits
+        println("==========证券代码为【${code}】的公司查询到的公告总数为:$totalHits==========")
+        return PageUtil.totalPage(totalHits, 50)
     }
 
 
     private fun filterAndSave(
-        searchByCodeResponse: SearchByCodeResponse, requestId: String
+        searchByCodeResponse: SearchByCodeResponse, requestId: String, code: String
     ) {
         if (searchByCodeResponse.success == 1) {
             searchByCodeResponse.data.list.forEach { item ->
@@ -71,11 +77,22 @@ class SearchByCodeCollector(
                 if (year < currentYear) {
                     throw RuntimeException("0")
                 }
+
+                updateCompanyName(item, code)
                 saveOriginalData(item, requestId)
                 if (summaryFilterChain.doFilter(item)) {
                     saveOrUpdateNotice(item)
                 }
             }
+        }
+    }
+
+    private fun updateCompanyName(item: Item, code: String) {
+        val companyName = item.codes.first().short_name
+        val company = codeRepository.findByCode(code = code)
+        company?.let {
+            it.companyName = companyName
+            codeRepository.save(it)
         }
     }
 
@@ -88,6 +105,7 @@ class SearchByCodeCollector(
             title = noticeItem.title,
             date = noticeItem.notice_date.substring(0, 10),
             securityFullName = codes.short_name,
+            source = SearchType.CODE.typeName
         )
         noticeRepository.save(
             notice
@@ -101,7 +119,8 @@ class SearchByCodeCollector(
             columnName = item.columns.first().column_name,
             title = item.title,
             date = item.notice_date.substring(0, 10),
-            requestId = requestId
+            requestId = requestId,
+            year = DateUtil.tomorrow().year().toString()
         )
         searchByCodeSourceRepository.save(source)
     }

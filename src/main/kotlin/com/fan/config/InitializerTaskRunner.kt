@@ -15,8 +15,13 @@ class InitializerTaskRunner(
 ) : ApplicationRunner {
     override fun run(args: ApplicationArguments) {
         val codes = readCodes()
-        val codeEntities = codes.map { Code(code = it) }
-        codeRepository.saveAll(codeEntities)
+        codes.forEach { code ->
+            val exist = codeRepository.findByCode(code)
+            if (exist == null) {
+                codeRepository.save(Code(code = code))
+            }
+        }
+
     }
 
     private fun readCodes(): ArrayList<String> {

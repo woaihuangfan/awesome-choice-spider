@@ -1,5 +1,6 @@
 package com.fan.listener
 
+import cn.hutool.core.date.DateUtil
 import cn.hutool.core.thread.ThreadUtil
 import com.fan.db.entity.NoticeDetailFailLog
 import com.fan.db.entity.Result
@@ -23,7 +24,7 @@ class NoticeDetailSaveEventListener(
     @EventListener
     fun handleEvent(event: NoticeDetailSaveEvent) {
         try {
-            ThreadUtil.sleep(1000)
+            ThreadUtil.sleep(100)
             val detail = event.noticeDetail
             val code = detail.code
             val notice = noticeRepository.findById(detail.noticeId).get()
@@ -44,7 +45,8 @@ class NoticeDetailSaveEventListener(
                         10
                     ),
                     accountCompanyName = accountCompanyName,
-                    code = code
+                    code = code,
+                    year = DateUtil.parseDate(notice.date).year().toString()
                 )
                 resultRepository.save(result)
                 println(result.toString())
@@ -53,7 +55,8 @@ class NoticeDetailSaveEventListener(
                     NoticeDetailFailLog(
                         code = detail.code,
                         content = detail.content,
-                        stock = detail.stock
+                        stock = detail.stock,
+                        title = detail.content
                     )
                 )
             }

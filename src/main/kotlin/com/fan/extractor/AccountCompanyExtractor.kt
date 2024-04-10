@@ -7,6 +7,9 @@ object AccountCompanyExtractor {
             result = notice.substringAfter("机构名称：").substringBefore("成立日期：")
         }
         if (result.length > 30 || result.length < 5) {
+            result = notice.substringAfter("机构名称：").substringBefore("（2")
+        }
+        if (result.length > 30 || result.length < 5) {
             result = notice.substringAfter("同意续聘").substringBefore("为公司 ")
         }
         if (result.length > 30 || result.length < 5) {

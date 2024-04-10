@@ -22,6 +22,10 @@ class NoticeDetail(
     val code: String,
 
     @Lob
+@Column(name = "title", nullable = false)
+    val title: String,
+
+    @Lob
     @Column(name = "content", nullable = false)
     val content: String,
 

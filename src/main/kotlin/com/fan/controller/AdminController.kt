@@ -7,7 +7,6 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
-import java.io.IOException
 
 
 @RestController
@@ -23,16 +22,10 @@ class AdminController(
 
     @GetMapping(value = ["/start"])
     fun start(
-        @RequestParam param: String,
-        @RequestParam type: SearchType,
+        @RequestParam(required = false) param: String = "",
+        @RequestParam type: String,
     ): String {
-        try {
-            if (collectorMap.containsKey(type.typeName)) {
-                collectorMap[type.typeName]!!.start(param, type)
-            }
-        } catch (e: IOException) {
-            e.printStackTrace()
-        }
-        return "success"
+        val collector = collectorMap[type]
+        return collector?.start(param, SearchType.from(type)) ?: "invalid type"
     }
 }

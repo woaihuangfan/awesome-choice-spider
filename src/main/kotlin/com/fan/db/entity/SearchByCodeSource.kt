@@ -7,8 +7,8 @@ import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.persistence.Lob
 
-@Entity(name = "source")
-class Source(
+@Entity(name = "search_by_code_source")
+class SearchByCodeSource(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long? = null,
@@ -16,23 +16,18 @@ class Source(
     val code: String,
     @Column(name = "columnCode", nullable = false)
     var columnCode: String,
+    @Column(name = "columnName", nullable = false)
+    var columnName: String,
     @Lob
-@Column(name = "title", nullable = false)
+    @Column(name = "title", nullable = false)
     var title: String,
-    @Lob
-    @Column(name = "content", nullable = false)
-    var content: String,
+
     @Column(name = "date", nullable = false)
     var date: String,
-    @Column(name = "securityFullName", nullable = false)
-    var securityFullName: String,
-    @Column(name = "url", nullable = false)
-    var url: String,
-    @Column(name = "status", nullable = true)
-    var status: String? = "",
+    @Column(name = "year", nullable = false)
+    var year: String,
     @Column(name = "request_id", nullable = false)
     var requestId: String
-
 ) {
 
 }

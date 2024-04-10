@@ -18,7 +18,7 @@ object SearchClient {
     private const val WEB_URL = "https://search-api-web.eastmoney.com/search/jsonp?cb=%s&param=%s&_=%s"
 
     private const val SEARCH_BY_CODE_URL =
-        "https://np-anotice-stock.eastmoney.com/api/security/ann?cb=$DUMMY_CALLBACK&sr=-1&page_size=50&page_index=%s&ann_type=BJA&client_source=web&stock_list=%s"
+        "https://np-anotice-stock.eastmoney.com/api/security/ann?cb=$DUMMY_CALLBACK&sr=-1&page_size=50&page_index=%s&ann_type=A&client_source=web&stock_list=%s&f_node=0&s_node="
 
 
     private val headers: Map<String, String>

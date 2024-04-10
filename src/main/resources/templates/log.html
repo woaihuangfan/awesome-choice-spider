@@ -18,13 +18,15 @@
     <!--    </blockquote>-->
     <div class="layui-form-item">
         <div class="layui-input-group">
-            <div class="layui-input-prefix">
-                开始采集
-            </div>
-            <input id="searchInput" type="text" placeholder="带任意前置和后置内容" class="layui-input">
-            <div class="layui-input-split layui-input-suffix" style="cursor: pointer;" onclick="start()">
-                <i class="layui-icon layui-icon-search"></i>
-            </div>
+            <button type="button" class="layui-btn" onclick="start()">开始采集</button>
+            <!--            <div class="layui-input-prefix">-->
+            <!--                开始采集-->
+            <!--            </div>-->
+            <!--            <input id="searchInput" type="text" placeholder="关键字或者留空根据内置证券代码搜索全部数据"-->
+            <!--                   class="layui-input">-->
+            <!--            <div class="layui-input-split layui-input-suffix" style="cursor: pointer;" onclick="start()">-->
+            <!--                <i class="layui-icon layui-icon-search"></i>-->
+            <!--            </div>-->
         </div>
     </div>
 
@@ -46,8 +48,7 @@
 <script src="//cdn.staticfile.org/layui/2.9.7/layui.js"></script>
 <script>
     function start() {
-        var keyword = layui.$('#searchInput').val();
-        layui.$.get('/admin/start?keyword=' + keyword, function (data) {
+        layui.$.get('/admin/start?type=code&param=', function (data) {
             // 处理接口返回的数据
             console.log(data);
         });

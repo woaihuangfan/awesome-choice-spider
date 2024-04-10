@@ -48,8 +48,13 @@ object NoticeDetailClient {
 
     }
 
-    fun fetchWebDetail(infoCode: String): NoticeDetailPO? {
-        ThreadUtil.sleep(3000)
+    fun fetchWebDetailSearchedByCode(code: String): NoticeDetailPO? {
+
+        return null
+    }
+
+    fun fetchWebDetailSearchedByKeyWord(infoCode: String): NoticeDetailPO? {
+        ThreadUtil.sleep(300)
         val index = 1
         val url = WEB_DETAIL_URL.format(infoCode, index, DateUtil.current())
         val response = HttpRequest.get(url).execute()
@@ -64,6 +69,7 @@ object NoticeDetailClient {
                 val cleanContent = HtmlUtil.cleanHtmlTag(unescapedContent)
                 return NoticeDetailPO(
                     code = infoCode,
+                    title = detail.data?.notice_title ?: "<标题未找到>",
                     content = cleanContent,
                     stock = detail.data?.security?.first()?.stock.orEmpty()
                 )

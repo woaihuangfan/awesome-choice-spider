@@ -5,26 +5,21 @@ import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
-import jakarta.persistence.Lob
 
-@Entity(name = "notice_detail_fail_log")
-class NoticeDetailFailLog(
+@Entity(name = "notice_history")
+class NoticeHistory(
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     val id: Long? = null,
     @Column(name = "code", nullable = false)
     val code: String,
+    @Column(name = "count", nullable = false)
+    val count: Int,
+    @Column(name = "date", nullable = false)
+    var date: String,
+    @Column(name = "year", nullable = false)
+    var year: Int,
+    @Column(name = "status", nullable = false)
+    var status: String,
 
-    @Lob
-@Column(name = "title", nullable = false)
-    val title: String,
-
-    @Lob
-    @Column(name = "content", nullable = false)
-    val content: String,
-
-    @Column(name = "stock", nullable = false)
-    val stock: String
-) {
-
-}
+    )

@@ -16,7 +16,7 @@ class ResultSaveEventListener(
     @EventListener
     fun handleEvent(event: ResultSaveEvent) {
         try {
-            ThreadUtil.sleep(1000)
+            ThreadUtil.sleep(100)
             val notice = noticeRepository.findById(event.result.noticeId).get()
             notice.status = "Done"
             noticeRepository.save(notice)
