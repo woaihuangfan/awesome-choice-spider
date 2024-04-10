@@ -8,7 +8,7 @@ import com.fan.db.repository.NoticeRepository
 import com.fan.db.repository.SearchLogRepository
 import com.fan.db.repository.SourceRepository
 import com.fan.enums.SearchType
-import com.fan.filter.SummaryFilterChain
+import com.fan.filter.SearchFilterChain
 import com.fan.response.NoticeItem
 import com.fan.response.WebNoticeResponseSearchResult
 import jakarta.transaction.Transactional
@@ -19,7 +19,7 @@ private const val ROWS = 20
 @Component
 class SearchKeywordDataCollector(
     private val noticeRepository: NoticeRepository,
-    private val summaryFilterChain: SummaryFilterChain,
+    private val searchFilterChain: SearchFilterChain,
     private val sourceRepository: SourceRepository,
     searchLogRepository: SearchLogRepository
 ) : AbstractDataCollector(sourceRepository, searchLogRepository) {
@@ -46,7 +46,7 @@ class SearchKeywordDataCollector(
     ) {
         webNoticeResponseSearchResult.result.noticeWeb.forEach { notice ->
             saveOriginalData(notice, requestId)
-            if (summaryFilterChain.doFilter(notice)) {
+            if (searchFilterChain.doFilter(notice)) {
                 saveOrUpdateNotice(notice)
             }
         }

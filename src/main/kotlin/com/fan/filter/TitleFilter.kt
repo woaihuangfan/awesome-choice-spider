@@ -3,7 +3,7 @@ package com.fan.filter
 import com.fan.response.Item
 import com.fan.response.NoticeItem
 
-class TitleFilter : SummaryFilter {
+class TitleFilter : SearchFilter {
 
     override fun doFilter(content: NoticeItem): Boolean {
         return content.title.contains("2024") && content.title.contains("会计")

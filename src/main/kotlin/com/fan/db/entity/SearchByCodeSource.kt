@@ -18,13 +18,13 @@ class SearchByCodeSource(
     var columnCode: String,
     @Column(name = "columnName", nullable = false)
     var columnName: String,
-    @Lob
-    @Column(name = "title", nullable = false)
+
+    @Column(name = "title", nullable = false, length = 8196)
     var title: String,
 
     @Column(name = "date", nullable = false)
     var date: String,
-    @Column(name = "year", nullable = false)
+    @Column(name = "`year`", nullable = false)
     var year: String,
     @Column(name = "request_id", nullable = false)
     var requestId: String

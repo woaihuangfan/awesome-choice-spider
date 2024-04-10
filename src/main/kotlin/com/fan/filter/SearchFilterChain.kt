@@ -5,15 +5,15 @@ import com.fan.response.NoticeItem
 import org.springframework.stereotype.Component
 
 @Component
-class SummaryFilterChain {
-    private val summaryFilters: MutableList<SummaryFilter> = mutableListOf()
+class SearchFilterChain {
+    private val searchFilters: MutableList<SearchFilter> = mutableListOf()
 
     init {
-        summaryFilters.add(TitleFilter())
+        searchFilters.add(TitleFilter())
     }
 
     fun doFilter(content: NoticeItem): Boolean {
-        for (filter in summaryFilters) {
+        for (filter in searchFilters) {
             if (!filter.doFilter(content)) {
                 return false
             }
@@ -22,7 +22,7 @@ class SummaryFilterChain {
     }
 
     fun doFilter(content: Item): Boolean {
-        for (filter in summaryFilters) {
+        for (filter in searchFilters) {
             if (!filter.doFilter(content)) {
                 return false
             }

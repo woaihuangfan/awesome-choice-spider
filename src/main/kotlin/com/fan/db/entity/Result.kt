@@ -29,7 +29,7 @@ class Result(
     val code: String,
     @Column(name = "amount", nullable = true)
     val amount: String? = "",
-    @Column(name = "year", nullable = false, unique = true)
+    @Column(name = "`year`", nullable = false)
     val year: String,
 ) {
 

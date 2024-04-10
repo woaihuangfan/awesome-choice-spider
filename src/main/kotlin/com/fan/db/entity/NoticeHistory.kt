@@ -17,8 +17,8 @@ class NoticeHistory(
     val count: Int,
     @Column(name = "date", nullable = false)
     var date: String,
-    @Column(name = "year", nullable = false)
-    var year: Int,
+    @Column(name = "`year`", nullable = false)
+    var year: String,
     @Column(name = "status", nullable = false)
     var status: String,
 
