@@ -31,6 +31,7 @@ class NoticeSaveEventListener(
         val code = notice.code
         try {
             ThreadUtil.sleep(100)
+
             val detail = fetchWebDetailSearchedByKeyWord(code)
             if (Objects.isNull(detail)) {
                 return

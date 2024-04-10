@@ -23,7 +23,6 @@ class InitializerTaskRunner(
     }
 
     private fun initDefaultTitleRule() {
-        titleFilterRuleRepository.deleteAll()
         getInitialTitleFilterRules().forEach {
             val existedKeywords = titleFilterRuleRepository.findAllByKeyword(it.keyword)
             if (CollectionUtils.isEmpty(existedKeywords)) {

@@ -42,6 +42,6 @@ class AdminController(
     fun reAllocateAll(
     ): String {
         contentAnalysisService.reAnalysisAll()
-        return "success"
+        return "任务启动成功，请稍后查询"
     }
 }

@@ -1,6 +1,7 @@
 package com.fan.service
 
 import cn.hutool.core.date.DateUtil
+import cn.hutool.core.thread.ThreadUtil
 import com.fan.db.entity.NoticeDetail
 import com.fan.db.entity.NoticeDetailFailLog
 import com.fan.db.entity.Result
@@ -39,8 +40,11 @@ class ContentAnalysisService(
     }
 
     fun reAnalysisAll() {
-        fetchDetail()
-        analysisDetail()
+        ThreadUtil.execAsync {
+            fetchDetail()
+            analysisDetail()
+        }
+
     }
 
     private fun fetchDetail() {
