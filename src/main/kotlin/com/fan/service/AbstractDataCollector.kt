@@ -36,7 +36,7 @@ abstract class AbstractDataCollector(
             lock.decrementAndGet()
         }
 
-        return "success"
+        return "开始采集，请稍后查询"
     }
 
     protected abstract fun doCollect(param: String, type: SearchType, requestId: String)
