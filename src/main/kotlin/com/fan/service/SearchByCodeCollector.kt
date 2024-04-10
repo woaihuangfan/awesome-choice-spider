@@ -5,9 +5,11 @@ import cn.hutool.core.thread.ThreadUtil.sleep
 import cn.hutool.core.util.PageUtil
 import com.fan.client.SearchClient
 import com.fan.db.entity.Notice
+import com.fan.db.entity.NoticeSearchHistory
 import com.fan.db.entity.SearchByCodeSource
 import com.fan.db.repository.CodeRepository
 import com.fan.db.repository.NoticeRepository
+import com.fan.db.repository.NoticeSearchHistoryRepository
 import com.fan.db.repository.SearchByCodeSourceRepository
 import com.fan.db.repository.SearchLogRepository
 import com.fan.enums.SearchType
@@ -26,7 +28,7 @@ class SearchByCodeCollector(
     private val searchFilterChain: SearchFilterChain,
     private val searchByCodeSourceRepository: SearchByCodeSourceRepository,
     private val codeRepository: CodeRepository,
-//    private val noticeHistoryRepository: NoticeHistoryRepository,
+    private val noticeSearchHistoryRepository: NoticeSearchHistoryRepository,
     searchLogRepository: SearchLogRepository
 
 ) : AbstractDataCollector(searchByCodeSourceRepository, searchLogRepository) {
@@ -37,19 +39,44 @@ class SearchByCodeCollector(
         val codeEntities = codeRepository.findAll()
         for (entity in codeEntities) {
             sleep(100)
-            println("==========开始爬取证券代码为【${entity.stock}】的公司的当年度的公告==========")
-            val totalPages = getTotalPages(entity.stock)
+            val stock = entity.stock
+            val year = DateUtil.tomorrow().year().toString()
+            val noticeSearchHistory = noticeSearchHistoryRepository.findByStockAndYear(stock, year)
+            val isLatest = noticeSearchHistory?.let {
+                val today = DateUtil.parseDate(DateUtil.today()).dayOfYear()
+                val lastUpdatedDate = DateUtil.parseDate(noticeSearchHistory.lastUpdatedDate).dayOfYear()
+                if (lastUpdatedDate >= today) {
+                    println("==========证券代码为【${stock}】的公司的当年度( $year )的公告数据已存在，共${it.count}条记录，将跳过==========")
+                    return@let true
+                }
+                return@let false
+            } ?: false
+
+            if (isLatest) {
+                continue
+            }
+            println("==========开始爬取证券代码为【${stock}】的公司的当年度的公告==========")
+            val totalPages = getTotalPages(stock)
             for (i in 1..totalPages) {
                 sleep(100)
                 println("==========开始爬取第 $i 页, 共【$totalPages】页==========")
                 try {
-                    val searchByCodeResponse = SearchClient.searchByCode(entity.stock, i, ROWS)
-                    filterAndSave(searchByCodeResponse, requestId, entity.stock)
+                    val searchByCodeResponse = SearchClient.searchByCode(stock, i, ROWS)
+                    filterAndSave(searchByCodeResponse, requestId, stock)
                 } catch (e: Exception) {
 
                     if (e.message == "0") {
 
-                        println("==========当年度公告爬取完成，将停止爬取==========")
+                        val count = searchByCodeSourceRepository.countByStockAndYear(stock, year)
+                        noticeSearchHistoryRepository.save(
+                            NoticeSearchHistory(
+                                stock = stock,
+                                year = year,
+                                count = count,
+                                lastUpdatedDate = DateUtil.now()
+                            )
+                        )
+                        println("==========证券代码为【${stock}】的公司 ${year}年度公告爬取完成(共${count}条记录)，将停止爬取==========")
                         break
                     } else {
                         e.printStackTrace()
@@ -126,10 +153,11 @@ class SearchByCodeCollector(
         val code = item.art_code
         val title = item.title
         val date = item.notice_date.substring(0, 10)
-        searchByCodeSourceRepository.findByCodeAndTitleAndDate(code, title, date)?.let {
+        searchByCodeSourceRepository.findByStockAndTitleAndDate(code, title, date)?.let {
             return
         }
         val source = SearchByCodeSource(
+            stock = item.codes.first().stock_code,
             code = code,
             columnCode = item.columns.first().column_code,
             columnName = item.columns.first().column_name,

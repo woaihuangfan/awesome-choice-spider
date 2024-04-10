@@ -5,7 +5,6 @@ import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
-import jakarta.persistence.Lob
 
 @Entity(name = "search_by_code_source")
 class SearchByCodeSource(
@@ -14,6 +13,9 @@ class SearchByCodeSource(
     val id: Long? = null,
     @Column(name = "code", nullable = false)
     val code: String,
+
+    @Column(name = "stock", nullable = false)
+    val stock: String,
     @Column(name = "columnCode", nullable = false)
     var columnCode: String,
     @Column(name = "columnName", nullable = false)

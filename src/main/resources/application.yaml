@@ -4,7 +4,7 @@ spring:
   datasource:
     username: fan
     password: 123456
-    url: jdbc:derby:db;create=true
+    url: jdbc:derby:database;create=true
     driver-class-name: org.apache.derby.jdbc.EmbeddedDriver
   sql:
     init:
