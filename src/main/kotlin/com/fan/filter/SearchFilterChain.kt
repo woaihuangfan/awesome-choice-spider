@@ -5,11 +5,13 @@ import com.fan.response.NoticeItem
 import org.springframework.stereotype.Component
 
 @Component
-class SearchFilterChain {
+class SearchFilterChain(
+    titleFilter: TitleFilter
+) {
     private val searchFilters: MutableList<SearchFilter> = mutableListOf()
 
     init {
-        searchFilters.add(TitleFilter())
+        searchFilters.add(titleFilter)
     }
 
     fun doFilter(content: NoticeItem): Boolean {

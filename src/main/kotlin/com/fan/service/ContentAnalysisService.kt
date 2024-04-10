@@ -8,7 +8,9 @@ import com.fan.db.repository.NoticeDetailFailLogRepository
 import com.fan.db.repository.NoticeDetailRepository
 import com.fan.db.repository.NoticeRepository
 import com.fan.db.repository.ResultRepository
+import com.fan.db.repository.SearchByCodeSourceRepository
 import com.fan.extractor.DefaultAccountingFirmNameExtractor.extractAccountingFirmName
+import com.fan.filter.TitleFilter
 import org.springframework.stereotype.Component
 
 @Component
@@ -16,7 +18,10 @@ class ContentAnalysisService(
     private val noticeDetailRepository: NoticeDetailRepository,
     private val noticeRepository: NoticeRepository,
     private val resultRepository: ResultRepository,
-    private val noticeDetailFailLogRepository: NoticeDetailFailLogRepository
+    private val noticeDetailFailLogRepository: NoticeDetailFailLogRepository,
+    private val searchByCodeSourceRepository: SearchByCodeSourceRepository,
+    private val titleFilter: TitleFilter,
+    private val noticeService: NoticeService,
 ) {
 
 
@@ -25,14 +30,29 @@ class ContentAnalysisService(
         val failedRecords = noticeDetailFailLogRepository.findAllByYear(year)
         failedRecords.forEach { record ->
             val detail = noticeDetailRepository.findByCode(record.code)
-            if (doAnalysis(detail)) {
-                noticeDetailFailLogRepository.delete(record)
+            detail?.let {
+                if (doAnalysis(detail)) {
+                    noticeDetailFailLogRepository.delete(record)
+                }
             }
         }
     }
 
     fun reAnalysisAll() {
+        fetchDetail()
+        analysisDetail()
+    }
 
+    private fun fetchDetail() {
+        searchByCodeSourceRepository.findAll().forEach { notice ->
+            if (titleFilter.doFilter(notice.title)) {
+                noticeService.saveOrUpdateNotice(notice)
+            }
+
+        }
+    }
+
+    private fun analysisDetail() {
         val allDetails = noticeDetailRepository.findAll()
         val results = resultRepository.findAll()
         val codes = results.map { it.code }
@@ -55,22 +75,22 @@ class ContentAnalysisService(
             val accountCompanyName = extractAccountingFirmName(detail.content)
             val noticeYear = DateUtil.parseDate(notice.date).year().toString()
             if (accountCompanyName.isNotBlank()) {
-                val exist = resultRepository.findByCode(code)
-                if (exist == null) {
-                    val result = Result(
-                        noticeId = detail.noticeId,
-                        name = notice.securityFullName,
-                        stock = detail.stock,
-                        date = notice.date.substring(
-                            0,
-                            10
-                        ),
-                        accountCompanyName = accountCompanyName,
-                        code = code,
-                        year = noticeYear
-                    )
-                    resultRepository.save(result)
+                val exist = resultRepository.findByStockAndYear(code, noticeYear)
+                val result = Result(
+                    noticeId = detail.noticeId,
+                    name = notice.securityFullName,
+                    stock = detail.stock,
+                    date = notice.date.substring(
+                        0, 10
+                    ),
+                    accountCompanyName = accountCompanyName,
+                    code = code,
+                    year = noticeYear
+                )
+                exist?.let {
+                    result.id = exist.id
                 }
+                resultRepository.save(result)
                 return true
             }
         } catch (e: Exception) {

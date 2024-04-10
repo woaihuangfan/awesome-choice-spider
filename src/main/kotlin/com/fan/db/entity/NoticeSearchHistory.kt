@@ -12,7 +12,7 @@ class NoticeSearchHistory(
     @GeneratedValue(strategy = GenerationType.AUTO)
     val id: Long? = null,
 
-    @Column(name = "stock", nullable = false, unique = true)
+    @Column(name = "stock", nullable = false)
     val stock: String,
 
     @Column(name = "count", nullable = false)

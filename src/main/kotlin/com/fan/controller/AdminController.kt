@@ -33,13 +33,15 @@ class AdminController(
 
     @GetMapping(value = ["/reAnalysis"])
     fun reAllocate(
-    ) {
+    ): String {
         contentAnalysisService.reAnalysis()
+        return "success"
     }
 
     @GetMapping(value = ["/reAnalysisAll"])
     fun reAllocateAll(
-    ) {
+    ): String {
         contentAnalysisService.reAnalysisAll()
+        return "success"
     }
 }

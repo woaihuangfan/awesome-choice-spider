@@ -4,11 +4,9 @@ import cn.hutool.core.date.DateUtil
 import cn.hutool.core.thread.ThreadUtil.sleep
 import cn.hutool.core.util.PageUtil
 import com.fan.client.SearchClient
-import com.fan.db.entity.Notice
 import com.fan.db.entity.NoticeSearchHistory
 import com.fan.db.entity.SearchByCodeSource
 import com.fan.db.repository.CompanyRepository
-import com.fan.db.repository.NoticeRepository
 import com.fan.db.repository.NoticeSearchHistoryRepository
 import com.fan.db.repository.SearchByCodeSourceRepository
 import com.fan.db.repository.SearchLogRepository
@@ -24,7 +22,7 @@ private const val ROWS = 50
 
 @Component
 class SearchByCodeCollector(
-    private val noticeRepository: NoticeRepository,
+    private val noticeService: NoticeService,
     private val searchFilterChain: SearchFilterChain,
     private val searchByCodeSourceRepository: SearchByCodeSourceRepository,
     private val companyRepository: CompanyRepository,
@@ -109,7 +107,7 @@ class SearchByCodeCollector(
                 updateCompanyName(item, stock)
                 saveOriginalData(item, requestId)
                 if (searchFilterChain.doFilter(item)) {
-                    saveOrUpdateNotice(item)
+                    noticeService.saveOrUpdateNotice(item)
                 }
             }
         }
@@ -127,27 +125,6 @@ class SearchByCodeCollector(
         }
     }
 
-    private fun saveOrUpdateNotice(noticeItem: Item) {
-        val codes = noticeItem.codes.first()
-        val stock = codes.stock_code
-        val code = noticeItem.art_code
-        noticeRepository.findByStockAndCode(stock, code)?.let {
-            return
-        }
-        val columnCode = if (noticeItem.columns.isNotEmpty()) noticeItem.columns.first().column_code else ""
-        val notice = Notice(
-            stock = stock,
-            code = code,
-            columnCode = columnCode,
-            title = noticeItem.title,
-            date = noticeItem.notice_date.substring(0, 10),
-            securityFullName = codes.short_name,
-            source = SearchType.CODE.typeName
-        )
-        noticeRepository.save(
-            notice
-        )
-    }
 
     private fun saveOriginalData(item: Item, requestId: String) {
 
@@ -166,7 +143,8 @@ class SearchByCodeCollector(
             title = title,
             date = date,
             requestId = requestId,
-            year = DateUtil.thisYear().toString()
+            year = DateUtil.thisYear().toString(),
+            companyName = item.codes.first().short_name
         )
         searchByCodeSourceRepository.save(source)
     }

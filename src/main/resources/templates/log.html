@@ -18,7 +18,12 @@
     <!--    </blockquote>-->
     <div class="layui-form-item">
         <div class="layui-input-group">
-            <button type="button" class="layui-btn" onclick="start()">开始采集</button>
+            <div class="layui-btn-container">
+                <button type="button" class="layui-btn " onclick="start()">开始采集</button>
+                <button type="button" class="layui-btn layui-bg-blue" onclick="reAnalysis()">重新分析失败数据</button>
+                <button type="button" class="layui-btn layui-bg-orange" onclick="reAnalysisAll()">重新分析全部数据</button>
+            </div>
+
             <!--            <div class="layui-input-prefix">-->
             <!--                开始采集-->
             <!--            </div>-->
@@ -49,6 +54,20 @@
 <script>
     function start() {
         layui.$.get('/admin/start?type=code&param=', function (data) {
+            // 处理接口返回的数据
+            alert(data);
+        });
+    }
+
+    function reAnalysis() {
+        layui.$.get('/admin/reAnalysis', function (data) {
+            // 处理接口返回的数据
+            alert(data);
+        });
+    }
+
+    function reAnalysisAll() {
+        layui.$.get('/admin/reAnalysisAll', function (data) {
             // 处理接口返回的数据
             alert(data);
         });

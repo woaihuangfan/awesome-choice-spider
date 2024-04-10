@@ -12,7 +12,7 @@ import org.springframework.data.domain.DomainEvents
 class Result(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id: Long? = null,
+    var id: Long? = null,
 
     @Column(name = "notice_id", nullable = false)
     val noticeId: Long,

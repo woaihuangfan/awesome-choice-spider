@@ -5,8 +5,8 @@ spring:
     username: fan
     password: 123456
     url: jdbc:derby:database;create=true
-#    url: jdbc:derby://localhost:1527/database;create=true
-#    driver-class-name: org.apache.derby.jdbc.ClientDriver
+    #    url: jdbc:derby://localhost:1527/database;create=true
+    #    driver-class-name: org.apache.derby.jdbc.ClientDriver
     driver-class-name: org.apache.derby.jdbc.EmbeddedDriver
   sql:
     init:

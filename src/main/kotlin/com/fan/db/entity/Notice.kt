@@ -13,7 +13,7 @@ import org.springframework.data.domain.DomainEvents
 class Notice(
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    val id: Long? = null,
+    var id: Long? = null,
 
     @Column(name = "code", nullable = false, unique = true)
     val code: String,

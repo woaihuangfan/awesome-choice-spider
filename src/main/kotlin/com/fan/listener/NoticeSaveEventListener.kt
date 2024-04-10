@@ -44,6 +44,10 @@ class NoticeSaveEventListener(
                         noticeId = notice.id!!,
                         title = detail.title
                     )
+                val exist = noticeDetailRepository.findByCode(code)
+                exist?.let {
+                    noticeDetail.id = exist.id
+                }
                 noticeDetailRepository.save(noticeDetail)
             }
         } catch (ex: Exception) {

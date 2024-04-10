@@ -1,6 +1,7 @@
 package com.fan.service
 
 import cn.hutool.core.date.DateUtil
+import cn.hutool.core.thread.ThreadUtil
 import com.fan.db.entity.SearchLog
 import com.fan.db.repository.CountByRequestIdRepository
 import com.fan.db.repository.SearchLogRepository
@@ -17,21 +18,24 @@ abstract class AbstractDataCollector(
         if (lock.get() == 1) {
             return "正在采集中，请稍后"
         }
-        println("==========开始爬取==========")
-        lock.incrementAndGet()
-        val requestId = UUID.randomUUID().toString()
-        doCollect(param, type, requestId)
+        ThreadUtil.execAsync {
+            println("==========开始爬取==========")
+            lock.incrementAndGet()
+            val requestId = UUID.randomUUID().toString()
+            doCollect(param, type, requestId)
 
-        println("==========爬取结束==========")
-        searchLogRepository.save(
-            SearchLog(
-                param = param,
-                date = DateUtil.now(),
-                type = type.typeName,
-                count = countByRequestIdRepository.countByRequestId(requestId)
+            println("==========爬取结束==========")
+            searchLogRepository.save(
+                SearchLog(
+                    param = param,
+                    date = DateUtil.now(),
+                    type = type.typeName,
+                    count = countByRequestIdRepository.countByRequestId(requestId)
+                )
             )
-        )
-        lock.decrementAndGet()
+            lock.decrementAndGet()
+        }
+
         return "success"
     }
 

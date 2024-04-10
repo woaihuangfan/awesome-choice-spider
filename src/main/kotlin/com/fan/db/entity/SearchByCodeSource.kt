@@ -29,7 +29,9 @@ class SearchByCodeSource(
     @Column(name = "`year`", nullable = false)
     var year: String,
     @Column(name = "request_id", nullable = false)
-    var requestId: String
+    var requestId: String,
+    @Column(name = "company_name", nullable = false)
+    var companyName: String,
 ) {
 
 }
