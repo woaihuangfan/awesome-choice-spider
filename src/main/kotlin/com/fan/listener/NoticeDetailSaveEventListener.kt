@@ -8,7 +8,7 @@ import com.fan.db.repository.NoticeDetailFailLogRepository
 import com.fan.db.repository.NoticeRepository
 import com.fan.db.repository.ResultRepository
 import com.fan.event.NoticeDetailSaveEvent
-import com.fan.extractor.AccountCompanyExtractor
+import com.fan.extractor.DefaultAccountingFirmNameExtractor.extractAccountingFirmName
 import jakarta.transaction.Transactional
 import org.springframework.context.event.EventListener
 import org.springframework.stereotype.Component
@@ -28,8 +28,9 @@ class NoticeDetailSaveEventListener(
             val detail = event.noticeDetail
             val code = detail.code
             val notice = noticeRepository.findById(detail.noticeId).get()
-            val accountCompanyName = AccountCompanyExtractor.extractAccountCompanyName(detail.content, code)
-            if (!accountCompanyName.contains(code)) {
+            val accountCompanyName = extractAccountingFirmName(detail.content)
+
+            if (accountCompanyName.isNotBlank()) {
 
                 val exist = resultRepository.findByCode(code)
                 if (exist != null) {
