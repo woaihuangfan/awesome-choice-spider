@@ -6,8 +6,8 @@ import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 
-@Entity(name = "search_log")
-class SearchLog(
+@Entity(name = "collect_log")
+class CollectLog(
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     val id: Long? = null,

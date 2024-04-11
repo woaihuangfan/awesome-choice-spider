@@ -31,26 +31,28 @@ class NoticeSaveEventListener(
         val code = notice.code
         try {
             ThreadUtil.sleep(100)
-            println("======== 开始下载公告详情 ${code}========")
-            val detail = fetchDetailFromRemote(code)
-            if (Objects.isNull(detail)) {
-                return
-            }
-            if (detailFilterChain.doFilter(detail)) {
-                val noticeDetail =
-                    NoticeDetail(
-                        code = detail!!.code,
-                        content = detail.content,
-                        stock = detail.stock,
-                        noticeId = notice.id!!,
-                        title = detail.title
-                    )
-                val exist = noticeDetailRepository.findByStockAndCode(detail.stock, code)
-                exist?.let {
-                    noticeDetail.id = exist.id
+            val exist = noticeDetailRepository.findByStockAndCode(notice.stock, code)
+            val noticeTitle = "【${notice.securityFullName} - ${notice.title}】公告详情"
+            if (exist == null) {
+                println("======== 开始下载$noticeTitle ${code}========")
+                val detail = fetchDetailFromRemote(code)
+                if (Objects.isNull(detail)) {
+                    return
                 }
-                println("======== 保存公告详情 ========")
-                noticeDetailRepository.save(noticeDetail)
+                if (detailFilterChain.doFilter(detail)) {
+                    val noticeDetail =
+                        NoticeDetail(
+                            code = detail!!.code,
+                            content = detail.content,
+                            stock = detail.stock,
+                            noticeId = notice.id!!,
+                            title = detail.title
+                        )
+                    println("======== 保存公告详情 ========")
+                    noticeDetailRepository.save(noticeDetail)
+                }
+            } else {
+                println("========$noticeTitle 已存在 ========")
             }
         } catch (ex: Exception) {
             ex.printStackTrace()

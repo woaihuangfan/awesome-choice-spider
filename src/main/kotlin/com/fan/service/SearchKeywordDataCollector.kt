@@ -5,7 +5,6 @@ import com.fan.client.SearchClient
 import com.fan.db.entity.Notice
 import com.fan.db.entity.Source
 import com.fan.db.repository.NoticeRepository
-import com.fan.db.repository.SearchLogRepository
 import com.fan.db.repository.SourceRepository
 import com.fan.enums.SearchType
 import com.fan.filter.SearchFilterChain
@@ -21,8 +20,9 @@ class SearchKeywordDataCollector(
     private val noticeRepository: NoticeRepository,
     private val searchFilterChain: SearchFilterChain,
     private val sourceRepository: SourceRepository,
-    searchLogRepository: SearchLogRepository
-) : AbstractDataCollector(sourceRepository, searchLogRepository) {
+    analysisLogService: AnalysisLogService,
+    collectLogService: CollectLogService,
+) : AbstractDataCollector(sourceRepository, analysisLogService, collectLogService) {
 
 
     @Transactional

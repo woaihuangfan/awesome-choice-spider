@@ -19,31 +19,30 @@
     <div class="layui-form-item">
         <div class="layui-input-group">
             <div class="layui-btn-container">
-                <button type="button" class="layui-btn " onclick="start()">开始采集</button>
-                <button type="button" class="layui-btn layui-bg-blue" onclick="reAnalysis()">重新分析失败数据</button>
-                <button type="button" class="layui-btn layui-bg-orange" onclick="reAnalysisAll()">重新分析全部数据</button>
+                <button type="button" class="layui-btn layui-bg-blue" onclick="reAnalysis()">重新分析失败的正文</button>
+                <button type="button" class="layui-btn layui-bg-green" onclick="reAnalysisDetail()">重新分析全部正文
+                </button>
+                <button type="button" class="layui-btn layui-bg-orange" onclick="reAnalysisAll()">重新分析全部数据
+                </button>
             </div>
 
-            <!--            <div class="layui-input-prefix">-->
-            <!--                开始采集-->
-            <!--            </div>-->
-            <!--            <input id="searchInput" type="text" placeholder="关键字或者留空根据内置证券代码搜索全部数据"-->
-            <!--                   class="layui-input">-->
-            <!--            <div class="layui-input-split layui-input-suffix" style="cursor: pointer;" onclick="start()">-->
-            <!--                <i class="layui-icon layui-icon-search"></i>-->
-            <!--            </div>-->
         </div>
     </div>
 
     <div class="layui-card layui-panel">
-        <table class="layui-table" lay-data="{height:'auto', url:'/query/searchLog', page:true,limit:20}"
+        <table class="layui-table" lay-data="{height:'auto', url:'/query/analysis', page:true,limit:20}"
                id="ID-table-demo-init">
             <thead>
             <tr>
                 <th lay-data="{field:'id'}">ID</th>
-                <th lay-data="{field:'keyword'}">关键字</th>
-                <th lay-data="{field:'count'}">命中数量</th>
-                <th lay-data="{field:'date'}">采集时间</th>
+                <th lay-data="{field:'date'}">分析时间</th>
+                <th lay-data="{field:'type'}">类型</th>
+                <th lay-data="{field:'new'}">新采集数据条数</th>
+<!--                <th lay-data="{field:'titles'}">标题收录条数</th>-->
+                <th lay-data="{field:'validTitles'}">标题命中总数</th>
+                <th lay-data="{field:'validDetails'}">公告正文收录条数</th>
+                <th lay-data="{field:'successAccounts'}">事务所名称命中条数</th>
+                <th lay-data="{field:'failedAccounts'}">事务所名称分析失败条数</th>
             </tr>
             </thead>
         </table>
@@ -52,15 +51,16 @@
 </div>
 <script src="//cdn.staticfile.org/layui/2.9.7/layui.js"></script>
 <script>
-    function start() {
-        layui.$.get('/admin/start?type=code&param=', function (data) {
+
+    function reAnalysis() {
+        layui.$.get('/admin/reAnalysis', function (data) {
             // 处理接口返回的数据
             alert(data);
         });
     }
 
-    function reAnalysis() {
-        layui.$.get('/admin/reAnalysis', function (data) {
+    function reAnalysisDetail() {
+        layui.$.get('/admin/reAnalysisDetail', function (data) {
             // 处理接口返回的数据
             alert(data);
         });

@@ -28,13 +28,13 @@ class AdminController(
         @RequestParam type: String,
     ): String {
         val collector = collectorMap[type]
-        return collector?.start(param, SearchType.from(type)) ?: "invalid type"
+        return collector?.startCollect(param, SearchType.from(type)) ?: "invalid type"
     }
 
     @GetMapping(value = ["/reAnalysis"])
     fun reAnalysis(
     ): String {
-        contentAnalysisService.reAnalysis()
+        contentAnalysisService.reAnalysisErrors()
         return "success"
     }
 
@@ -47,7 +47,7 @@ class AdminController(
 
     @GetMapping(value = ["/reAnalysisDetail"])
     fun reAnalysisDetail(): String {
-        contentAnalysisService.reAnalysisAll()
+        contentAnalysisService.reAnalysisDetail()
         return "任务启动成功，请稍后查询"
     }
 }

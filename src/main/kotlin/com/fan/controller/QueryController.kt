@@ -3,13 +3,14 @@ package com.fan.controller
 import cn.hutool.core.date.DateUtil
 import com.fan.db.entity.Notice
 import com.fan.db.entity.NoticeDetailFetchFailedLog
+import com.fan.db.repository.AnalysisLogRepository
+import com.fan.db.repository.CollectLogRepository
 import com.fan.db.repository.CompanyRepository
 import com.fan.db.repository.NoticeDetailFailLogRepository
 import com.fan.db.repository.NoticeDetailFetchFailedLogRepository
 import com.fan.db.repository.NoticeDetailRepository
 import com.fan.db.repository.NoticeRepository
 import com.fan.db.repository.ResultRepository
-import com.fan.db.repository.SearchLogRepository
 import com.fan.db.repository.SourceRepository
 import com.fan.dto.PageResult
 import org.springframework.data.domain.PageRequest
@@ -27,9 +28,10 @@ class QueryController(
     private val noticeDetailFailLogRepository: NoticeDetailFailLogRepository,
     private val sourceRepository: SourceRepository,
     private val noticeDetailFetchFailedLogRepository: NoticeDetailFetchFailedLogRepository,
-    private val searchLogRepository: SearchLogRepository,
+    private val collectLogRepository: CollectLogRepository,
     private val companyRepository: CompanyRepository,
     private val noticeDetailRepository: NoticeDetailRepository,
+    private val analysisLogRepository: AnalysisLogRepository
 ) {
 
     @GetMapping(value = ["/sources"])
@@ -83,7 +85,7 @@ class QueryController(
         @RequestParam limit: Int,
     ): PageResult {
         val pageable: PageRequest = PageRequest.of(page - 1, limit)
-        return PageResult.success(searchLogRepository.findAll(pageable))
+        return PageResult.success(collectLogRepository.findAll(pageable))
     }
 
 
@@ -103,5 +105,14 @@ class QueryController(
     ): PageResult {
         val pageable: PageRequest = PageRequest.of(page - 1, limit)
         return PageResult.success(noticeDetailRepository.findAll(pageable))
+    }
+
+    @GetMapping(value = ["/analysis"])
+    fun analysisLog(
+        @RequestParam page: Int,
+        @RequestParam limit: Int,
+    ): PageResult {
+        val pageable: PageRequest = PageRequest.of(page - 1, limit)
+        return PageResult.success(analysisLogRepository.findAll(pageable))
     }
 }

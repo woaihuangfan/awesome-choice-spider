@@ -9,7 +9,6 @@ import com.fan.db.entity.SearchByCodeSource
 import com.fan.db.repository.CompanyRepository
 import com.fan.db.repository.NoticeSearchHistoryRepository
 import com.fan.db.repository.SearchByCodeSourceRepository
-import com.fan.db.repository.SearchLogRepository
 import com.fan.enums.SearchType
 import com.fan.filter.SearchFilterChain
 import com.fan.response.Item
@@ -27,28 +26,20 @@ class SearchByCodeCollector(
     private val searchByCodeSourceRepository: SearchByCodeSourceRepository,
     private val companyRepository: CompanyRepository,
     private val noticeSearchHistoryRepository: NoticeSearchHistoryRepository,
-    searchLogRepository: SearchLogRepository
+    analysisLogService: AnalysisLogService,
+    collectLogService: CollectLogService,
 
-) : AbstractDataCollector(searchByCodeSourceRepository, searchLogRepository) {
+    ) : AbstractDataCollector(searchByCodeSourceRepository, analysisLogService, collectLogService) {
 
 
     @Transactional
     override fun doCollect(param: String, type: SearchType, requestId: String) {
         val codeEntities = companyRepository.findAll()
         for (entity in codeEntities) {
-            sleep(100)
             val stock = entity.stock
             val year = DateUtil.thisYear().toString()
             val noticeSearchHistory = noticeSearchHistoryRepository.findByStockAndYear(stock, year)
-            val isLatest = noticeSearchHistory?.let {
-                val today = DateUtil.parseDate(DateUtil.today()).dayOfYear()
-                val lastUpdatedDate = DateUtil.parseDate(noticeSearchHistory.lastUpdatedDate).dayOfYear()
-                if (lastUpdatedDate - 1 >= today) {
-                    println("==========证券代码为【${stock}】的公司的当年度( $year )的公告数据已存在，共${it.count}条记录，将跳过==========")
-                    return@let true
-                }
-                return@let false
-            } ?: false
+            val isLatest = detectIsLastedData(noticeSearchHistory, stock, year)
 
             if (isLatest) {
                 continue
@@ -58,32 +49,49 @@ class SearchByCodeCollector(
             for (i in 1..totalPages) {
                 sleep(100)
                 println("==========开始爬取第 $i 页, 共【$totalPages】页==========")
-                try {
-                    val searchByCodeResponse = SearchClient.searchByCode(stock, i, ROWS)
-                    filterAndSave(searchByCodeResponse, requestId, stock)
-                } catch (e: Exception) {
-
-                    if (e.message == "0") {
-
-                        val count = searchByCodeSourceRepository.countByStockAndYear(stock, year)
-                        noticeSearchHistoryRepository.save(
-                            NoticeSearchHistory(
-                                stock = stock,
-                                year = year,
-                                count = count,
-                                lastUpdatedDate = DateUtil.now()
-                            )
-                        )
-                        println("==========证券代码为【${stock}】的公司 ${year}年度公告爬取完成(共${count}条记录)，将停止爬取==========")
-                        break
-                    } else {
-                        e.printStackTrace()
-                    }
-                }
+                if (successfullyCollectDataByPages(stock, i, requestId, year)) break
             }
         }
 
     }
+
+    private fun successfullyCollectDataByPages(stock: String, i: Int, requestId: String, year: String): Boolean {
+        try {
+            val searchByCodeResponse = SearchClient.searchByCode(stock, i, ROWS)
+            filterAndSave(searchByCodeResponse, requestId, stock)
+        } catch (e: Exception) {
+            if (e.message == "0") {
+                val count = searchByCodeSourceRepository.countByStockAndYear(stock, year)
+                noticeSearchHistoryRepository.save(
+                    NoticeSearchHistory(
+                        stock = stock,
+                        year = year,
+                        count = count,
+                        lastUpdatedDate = DateUtil.now()
+                    )
+                )
+                println("==========证券代码为【${stock}】的公司 ${year}年度公告爬取完成(共${count}条记录)，将停止爬取==========")
+                return true
+            } else {
+                e.printStackTrace()
+            }
+        }
+        return false
+    }
+
+    private fun detectIsLastedData(
+        noticeSearchHistory: NoticeSearchHistory?,
+        stock: String,
+        year: String
+    ) = noticeSearchHistory?.let {
+        val today = DateUtil.parseDate(DateUtil.today()).dayOfYear()
+        val lastUpdatedDate = DateUtil.parseDate(noticeSearchHistory.lastUpdatedDate).dayOfYear()
+        if (lastUpdatedDate - 1 >= today) {
+            println("==========证券代码为【${stock}】的公司的当年度( $year )的公告数据已存在，共${it.count}条记录，将跳过==========")
+            return@let true
+        }
+        return@let false
+    } ?: false
 
     private fun getTotalPages(code: String): Int {
         val searchByCodeResponse = SearchClient.searchByCode(code, 1, 1)

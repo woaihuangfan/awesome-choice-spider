@@ -16,6 +16,7 @@ import com.fan.extractor.DefaultAccountingAmountExtractor.extractAccountingAmoun
 import com.fan.extractor.DefaultAccountingFirmNameExtractor.extractAccountingFirmName
 import com.fan.filter.TitleFilter
 import org.springframework.stereotype.Component
+import java.util.UUID
 
 @Component
 class ContentAnalysisService(
@@ -26,10 +27,11 @@ class ContentAnalysisService(
     private val searchByCodeSourceRepository: SearchByCodeSourceRepository,
     private val titleFilter: TitleFilter,
     private val noticeService: NoticeService,
+    private val analysisLogService: AnalysisLogService
 ) {
 
 
-    fun reAnalysis() {
+    fun reAnalysisErrors() {
         val year = DateUtil.thisYear().toString()
         val failedRecords = noticeDetailFailLogRepository.findAllByYear(year)
         failedRecords.forEach { record ->
@@ -41,6 +43,7 @@ class ContentAnalysisService(
                 }
             }
         }
+        analysisLogService.saveAnalysisLog("分析错误数据", UUID.randomUUID().toString())
     }
 
     fun reAnalysisDetail() {
@@ -49,6 +52,7 @@ class ContentAnalysisService(
             analysisDetail()
             println("==========重新分析详情完成")
         }
+        analysisLogService.saveAnalysisLog("分析已有公告详情", UUID.randomUUID().toString())
 
     }
 
@@ -57,6 +61,7 @@ class ContentAnalysisService(
             fetchDetail()
             analysisDetail()
             println("==========重新分析完成")
+            analysisLogService.saveAnalysisLog("重新分析公告标题并分析详情数据", UUID.randomUUID().toString())
         }
 
     }
@@ -93,8 +98,8 @@ class ContentAnalysisService(
             } catch (e: Exception) {
                 e.printStackTrace()
             }
-
         }
+        analysisLogService.saveAnalysisLog("重新分析已有公告详情数据", UUID.randomUUID().toString())
     }
 
     private fun filterResult(results: List<Result>): List<Result> {
