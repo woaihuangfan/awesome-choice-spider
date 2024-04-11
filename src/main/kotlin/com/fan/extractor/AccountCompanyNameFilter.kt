@@ -13,6 +13,6 @@ object AccountCompanyNameFilter {
     }
 
     fun isValidAccountName(name: String): Boolean {
-        return name.length in 8..50 && (name.endsWith("合伙）") || name.endsWith("事务所"))
+        return name.length in 8..50 && (name.endsWith("合伙）") || name.endsWith("事务所")) && !name.contains("，")
     }
 }

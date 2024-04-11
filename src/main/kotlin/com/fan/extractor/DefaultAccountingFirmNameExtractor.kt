@@ -20,6 +20,8 @@ object DefaultAccountingFirmNameExtractor {
                 "（一）基本信息(.*?)（特殊普通合伙）",
                 "1、基本信息(.*?)（特殊普通合伙）",
                 "（1）机构名称：(.*?)（特殊普通合伙）",
+                "拟聘任的境内会计师事务所：(.*?)合伙）",
+                "拟聘任的境内会计师事务所：(.*?)事务所）",
                 "基本信息(.*?)（特殊普通合伙）",
                 "拟续聘的会计师事务所：(.*?)合伙）",
                 "(?<=聘)[\\u4e00-\\u9fa5]+会计师事务所",
@@ -59,6 +61,6 @@ object DefaultAccountingFirmNameExtractor {
         name.replace("事务所名称", "").replace("拟续聘的会计师事务所", "").replace("审核委员会对", "")
             .replace("基本信息", "").replace("1、", "").replace("（一）", "").replace("1.", "")
             .replace("机构信息", "").replace("（1）", "").replace("：", "").replace("机构名称", "").replace("1．", "")
-            .replace("1. ", "")
+            .replace("1. ", "").replace("拟聘任的境内会计师事务所", "").replace("：", "")
 
 }
