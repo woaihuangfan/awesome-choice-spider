@@ -10,8 +10,9 @@ import com.fan.db.repository.NoticeDetailRepository
 import com.fan.db.repository.NoticeRepository
 import com.fan.db.repository.ResultRepository
 import com.fan.db.repository.SearchByCodeSourceRepository
-import com.fan.extractor.AccountCompanyNameFilter
-import com.fan.extractor.AccountCompanyNameFilter.isValid
+import com.fan.extractor.AccountCompanyAmountFilter.isValidAmount
+import com.fan.extractor.AccountCompanyNameFilter.isValidAccountName
+import com.fan.extractor.DefaultAccountingAmountExtractor.extractAccountingAmount
 import com.fan.extractor.DefaultAccountingFirmNameExtractor.extractAccountingFirmName
 import com.fan.filter.TitleFilter
 import org.springframework.stereotype.Component
@@ -34,7 +35,8 @@ class ContentAnalysisService(
         failedRecords.forEach { record ->
             val detail = noticeDetailRepository.findByStockAndCode(record.stock, record.code)
             detail?.let {
-                if (doAnalysis(detail)) {
+                val analysisResult = doAnalysis(detail)
+                if (analysisResult.first) {
                     noticeDetailFailLogRepository.delete(record)
                 }
             }
@@ -49,6 +51,7 @@ class ContentAnalysisService(
         }
 
     }
+
     fun reAnalysisAll() {
         ThreadUtil.execAsync {
             fetchDetail()
@@ -81,10 +84,11 @@ class ContentAnalysisService(
         todo.forEach {
             try {
                 println("==========开始分析公告内容(${it.stock}) - ${it.title}")
-                if (doAnalysis(it)) {
+                val analysisResult = doAnalysis(it)
+                if (analysisResult.first) {
                     noticeDetailFailLogRepository.deleteByCodeAndStock(it.code, it.stock)
                 } else {
-                    logErrorRecord(it)
+                    logErrorRecord(it, analysisResult.second)
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -95,48 +99,54 @@ class ContentAnalysisService(
 
     private fun filterResult(results: List<Result>): List<Result> {
         return results.filter {
-            AccountCompanyNameFilter.isValid(it.accountCompanyName)
+            isValidAccountName(it.accountCompanyName)
         }
     }
 
 
-    fun doAnalysis(detail: NoticeDetail): Boolean {
+    fun doAnalysis(detail: NoticeDetail): Pair<Boolean, Pair<String, String>> {
         try {
-
             val code = detail.code
             val notice = noticeRepository.findById(detail.noticeId).get()
+            println("======== 开始分析公告内容 ${code} 标题：${detail.title}========")
             val accountCompanyName = extractAccountingFirmName(detail.content)
             val noticeYear = DateUtil.parseDate(notice.date).year().toString()
-            if (accountCompanyName.isNotBlank()) {
-                if (!isValid(accountCompanyName)) {
-                    return false
-                }
-                val exist = resultRepository.findByStockAndYearAndCode(notice.stock, noticeYear, code)
-                val result = Result(
-                    noticeId = detail.noticeId,
-                    name = notice.securityFullName,
-                    stock = detail.stock,
-                    date = notice.date.substring(
-                        0, 10
-                    ),
-                    accountCompanyName = accountCompanyName,
-                    code = code,
-                    year = noticeYear
-                )
-                exist?.let {
-                    result.id = exist.id
-                }
-                resultRepository.save(result)
-                return true
+            val amount = extractAccountingAmount()
+            println("======== 【${notice.securityFullName}】${noticeYear} 年度合作的事务所名称：${accountCompanyName}========,合同金额：${amount}(待补充）")
+            if (!isValidAccountName(accountCompanyName)) {
+                println("======== 该名称【${accountCompanyName}】看上去不符合条件，错误已记录========")
+                return Pair(false, Pair(accountCompanyName, "为开始提取"))
             }
+
+            if (!isValidAmount(amount)) {
+                println("======== 该合同金额信息【${amount}】看上去不符合条件，错误已记录========")
+                return Pair(false, Pair(accountCompanyName, amount))
+            }
+            val exist = resultRepository.findByStockAndYearAndCode(notice.stock, noticeYear, code)
+            val result = Result(
+                noticeId = detail.noticeId,
+                name = notice.securityFullName,
+                stock = detail.stock,
+                date = notice.date.substring(
+                    0, 10
+                ),
+                accountCompanyName = accountCompanyName,
+                amount = amount,
+                code = code,
+                year = noticeYear
+            )
+            exist?.let {
+                result.id = exist.id
+            }
+            resultRepository.save(result)
+            return Pair(true, Pair(accountCompanyName, ""))
         } catch (e: Exception) {
             e.printStackTrace()
-            return false
+            return Pair(false, Pair("内部异常：${e.message}", ""))
         }
-        return false
     }
 
-    fun logErrorRecord(detail: NoticeDetail) {
+    fun logErrorRecord(detail: NoticeDetail, errResult: Pair<String, String>) {
         val exist = noticeDetailFailLogRepository.findByCodeAndStock(detail.code, detail.stock)
         if (exist == null) {
             val notice = noticeRepository.findById(detail.noticeId)
@@ -148,7 +158,9 @@ class ContentAnalysisService(
                     stock = detail.stock,
                     title = detail.title,
                     noticeId = detail.noticeId,
-                    year = year
+                    year = year,
+                    accountCompanyName = errResult.first,
+                    amount = errResult.second
                 )
             )
         }

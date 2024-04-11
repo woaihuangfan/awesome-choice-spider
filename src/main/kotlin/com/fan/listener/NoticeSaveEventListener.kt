@@ -1,7 +1,7 @@
 package com.fan.listener
 
 import cn.hutool.core.thread.ThreadUtil
-import com.fan.client.NoticeDetailClient.fetchWebDetailSearchedByKeyWord
+import com.fan.client.NoticeDetailClient.fetchDetailFromRemote
 import com.fan.db.entity.NoticeDetail
 import com.fan.db.entity.NoticeDetailFetchFailedLog
 import com.fan.db.repository.NoticeDetailFetchFailedLogRepository
@@ -31,8 +31,8 @@ class NoticeSaveEventListener(
         val code = notice.code
         try {
             ThreadUtil.sleep(100)
-
-            val detail = fetchWebDetailSearchedByKeyWord(code)
+            println("======== 开始下载公告详情 ${code}========")
+            val detail = fetchDetailFromRemote(code)
             if (Objects.isNull(detail)) {
                 return
             }
@@ -49,10 +49,12 @@ class NoticeSaveEventListener(
                 exist?.let {
                     noticeDetail.id = exist.id
                 }
+                println("======== 保存公告详情 ========")
                 noticeDetailRepository.save(noticeDetail)
             }
         } catch (ex: Exception) {
             ex.printStackTrace()
+            println("======== 公告详情下载失败，记录已保存 ${code}========")
             noticeDetailFetchFailedLogRepository.save(NoticeDetailFetchFailedLog(code = code))
         }
 

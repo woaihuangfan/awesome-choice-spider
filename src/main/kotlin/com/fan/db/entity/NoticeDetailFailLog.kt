@@ -30,7 +30,13 @@ class NoticeDetailFailLog(
     val stock: String,
 
     @Column(name = "`year`", nullable = false)
-    val year: String
+    val year: String,
+
+    @Column(name = "`account_company_name`", nullable = false)
+    val accountCompanyName: String,
+
+    @Column(name = "`amount`", nullable = false)
+    val amount: String
 ) {
 
 }

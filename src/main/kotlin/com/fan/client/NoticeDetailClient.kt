@@ -48,7 +48,7 @@ object NoticeDetailClient {
 
     }
 
-    fun fetchWebDetailSearchedByKeyWord(infoCode: String): NoticeDetailPO? {
+    fun fetchDetailFromRemote(infoCode: String): NoticeDetailPO? {
         ThreadUtil.sleep(300)
         val index = 1
         val url = WEB_DETAIL_URL.format(infoCode, index, DateUtil.current())
