@@ -15,7 +15,7 @@ class Result(
     var id: Long? = null,
 
     @Column(name = "notice_id", nullable = false)
-    val noticeId: Long,
+    var noticeId: String,
 
     @Column(name = "name", nullable = false)
     val name: String,
@@ -26,7 +26,7 @@ class Result(
     @Column(name = "accountCompanyName", nullable = false)
     val accountCompanyName: String,
     @Column(name = "code", nullable = false)
-    val code: String,
+    var code: String,
     @Column(name = "amount", nullable = true)
     val amount: String? = "",
     @Column(name = "`year`", nullable = false)

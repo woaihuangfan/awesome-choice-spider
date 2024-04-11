@@ -127,9 +127,9 @@ class ContentAnalysisService(
                 println("======== 该合同金额信息【${amount}】看上去不符合条件，错误已记录========")
                 return Pair(false, Pair(accountCompanyName, amount))
             }
-            val exist = resultRepository.findByStockAndYearAndCode(notice.stock, noticeYear, code)
+            val exist = resultRepository.findByStockAndYear(notice.stock, noticeYear)
             val result = Result(
-                noticeId = detail.noticeId,
+                noticeId = detail.noticeId.toString(),
                 name = notice.securityFullName,
                 stock = detail.stock,
                 date = notice.date.substring(
@@ -142,6 +142,8 @@ class ContentAnalysisService(
             )
             exist?.let {
                 result.id = exist.id
+                result.noticeId = result.noticeId + "," + exist.noticeId
+                result.code = result.noticeId + "," + exist.code
             }
             resultRepository.save(result)
             return Pair(true, Pair(accountCompanyName, ""))
