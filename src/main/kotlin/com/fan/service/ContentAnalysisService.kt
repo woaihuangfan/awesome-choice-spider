@@ -11,6 +11,7 @@ import com.fan.db.repository.NoticeRepository
 import com.fan.db.repository.ResultRepository
 import com.fan.db.repository.SearchByCodeSourceRepository
 import com.fan.extractor.AccountCompanyNameFilter
+import com.fan.extractor.AccountCompanyNameFilter.isValid
 import com.fan.extractor.DefaultAccountingFirmNameExtractor.extractAccountingFirmName
 import com.fan.filter.TitleFilter
 import org.springframework.stereotype.Component
@@ -40,6 +41,14 @@ class ContentAnalysisService(
         }
     }
 
+    fun reAnalysisDetail() {
+        ThreadUtil.execAsync {
+            println("==========开始分析数据库中存储的公告内容，不会重新从网上加载")
+            analysisDetail()
+            println("==========重新分析详情完成")
+        }
+
+    }
     fun reAnalysisAll() {
         ThreadUtil.execAsync {
             fetchDetail()
@@ -85,7 +94,9 @@ class ContentAnalysisService(
     }
 
     private fun filterResult(results: List<Result>): List<Result> {
-        return results.filter { AccountCompanyNameFilter.isValid(it.accountCompanyName) }
+        return results.filter {
+            AccountCompanyNameFilter.isValid(it.accountCompanyName)
+        }
     }
 
 
@@ -97,7 +108,7 @@ class ContentAnalysisService(
             val accountCompanyName = extractAccountingFirmName(detail.content)
             val noticeYear = DateUtil.parseDate(notice.date).year().toString()
             if (accountCompanyName.isNotBlank()) {
-                if (accountCompanyName.length > 20) {
+                if (!isValid(accountCompanyName)) {
                     return false
                 }
                 val exist = resultRepository.findByStockAndYearAndCode(notice.stock, noticeYear, code)

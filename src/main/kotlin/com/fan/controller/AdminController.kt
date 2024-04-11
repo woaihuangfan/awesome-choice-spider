@@ -32,15 +32,21 @@ class AdminController(
     }
 
     @GetMapping(value = ["/reAnalysis"])
-    fun reAllocate(
+    fun reAnalysis(
     ): String {
         contentAnalysisService.reAnalysis()
         return "success"
     }
 
     @GetMapping(value = ["/reAnalysisAll"])
-    fun reAllocateAll(
+    fun reAnalysisAll(
     ): String {
+        contentAnalysisService.reAnalysisAll()
+        return "任务启动成功，请稍后查询"
+    }
+
+    @GetMapping(value = ["/reAnalysisDetail"])
+    fun reAnalysisDetail(): String {
         contentAnalysisService.reAnalysisAll()
         return "任务启动成功，请稍后查询"
     }
