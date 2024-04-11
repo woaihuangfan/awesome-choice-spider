@@ -79,6 +79,9 @@ class ContentAnalysisService(
             val accountCompanyName = extractAccountingFirmName(detail.content)
             val noticeYear = DateUtil.parseDate(notice.date).year().toString()
             if (accountCompanyName.isNotBlank()) {
+                if (accountCompanyName.length > 20) {
+                    return false
+                }
                 val exist = resultRepository.findByStockAndYearAndCode(notice.stock, noticeYear, code)
                 val result = Result(
                     noticeId = detail.noticeId,
