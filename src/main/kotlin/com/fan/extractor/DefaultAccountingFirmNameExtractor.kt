@@ -45,9 +45,7 @@ object DefaultAccountingFirmNameExtractor {
                 }
             }
 
-
-            return accountingFirmNames.distinct().filter { it.length >= 8 }
-                .first { it.endsWith("合伙）") || it.endsWith("事务所") }
+            return AccountCompanyNameFilter.filter(accountingFirmNames)
         } catch (e: Exception) {
             e.printStackTrace()
         }

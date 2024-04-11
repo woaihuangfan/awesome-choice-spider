@@ -10,6 +10,7 @@ import com.fan.db.repository.NoticeDetailRepository
 import com.fan.db.repository.NoticeRepository
 import com.fan.db.repository.ResultRepository
 import com.fan.db.repository.SearchByCodeSourceRepository
+import com.fan.extractor.AccountCompanyNameFilter
 import com.fan.extractor.DefaultAccountingFirmNameExtractor.extractAccountingFirmName
 import com.fan.filter.TitleFilter
 import org.springframework.stereotype.Component
@@ -64,8 +65,10 @@ class ContentAnalysisService(
     private fun analysisDetail() {
         val allDetails = noticeDetailRepository.findAll()
         val results = resultRepository.findAll()
-        val codes = results.map { it.code }
-        val todo = allDetails.filter { !codes.contains(it.code) }
+        val filteredResult = filterResult(results)
+        val codes = filteredResult.map { it.code }
+        val stocks = filteredResult.map { it.stock }
+        val todo = allDetails.filter { !(codes.contains(it.code) && stocks.contains(it.stock)) }
         todo.forEach {
             try {
                 println("==========开始分析公告内容(${it.stock}) - ${it.title}")
@@ -79,6 +82,10 @@ class ContentAnalysisService(
             }
 
         }
+    }
+
+    private fun filterResult(results: List<Result>): List<Result> {
+        return results.filter { AccountCompanyNameFilter.isValid(it.accountCompanyName) }
     }
 
 
