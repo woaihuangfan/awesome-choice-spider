@@ -60,6 +60,7 @@ class ContentAnalysisService(
         ThreadUtil.execAsync {
             fetchDetail()
             analysisDetail()
+            reAnalysisErrors()
             println("==========重新分析完成")
             analysisLogService.saveAnalysisLog("重新分析公告标题并分析详情数据", UUID.randomUUID().toString())
         }
@@ -99,7 +100,6 @@ class ContentAnalysisService(
                 e.printStackTrace()
             }
         }
-        analysisLogService.saveAnalysisLog("重新分析已有公告详情数据", UUID.randomUUID().toString())
     }
 
     private fun filterResult(results: List<Result>): List<Result> {
