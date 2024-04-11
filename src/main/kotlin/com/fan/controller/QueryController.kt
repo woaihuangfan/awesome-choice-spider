@@ -14,6 +14,7 @@ import com.fan.db.repository.ResultRepository
 import com.fan.db.repository.SourceRepository
 import com.fan.dto.PageResult
 import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Sort
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
@@ -55,7 +56,7 @@ class QueryController(
         @RequestParam page: Int,
         @RequestParam limit: Int,
     ): PageResult {
-        val pageable: PageRequest = PageRequest.of(page - 1, limit)
+        val pageable: PageRequest = PageRequest.of(page - 1, limit, Sort.by(Sort.Direction.ASC, "stock"))
         return PageResult.success(resultRepository.findAll(pageable))
     }
 
