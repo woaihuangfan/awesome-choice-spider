@@ -4,8 +4,7 @@ object AccountCompanyNameFilter {
 
     fun filter(names: List<String>): String {
 
-        return names.distinct().filter { it.length >= 8 }
-            .first { it.endsWith("合伙）") || it.endsWith("事务所") }
+        return names.distinct().first { isValid(it) }
     }
 
     fun isValid(name: String): Boolean {
