@@ -37,10 +37,35 @@
 <script src="//cdn.staticfile.org/layui/2.9.7/layui.js"></script>
 <script>
     function exportExcel() {
-        layui.$.get('/excel/result', function (data) {
-            // 处理接口返回的数据
-            alert(data);
-        });
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', '/excel/result', true);
+        xhr.responseType = 'blob'; // 设置响应类型为 Blob
+        xhr.onload = function() {
+            if (this.status === 200) {
+                var blob = this.response;
+                var disposition = xhr.getResponseHeader('Content-Disposition'); // 获取 Content-Disposition 头字段
+                var filename = '';
+                if (disposition && disposition.indexOf('attachment') !== -1) {
+                    var filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
+                    var matches = filenameRegex.exec(disposition);
+                    if (matches != null && matches[1]) {
+                        filename = matches[1].replace(/['"]/g, '');
+                    }
+                }
+                var url = window.URL.createObjectURL(blob); // 创建临时 URL
+                var a = document.createElement('a');
+                a.href = url;
+                a.download = filename !== '' ? filename : 'filename.xlsx'; // 设置文件名，如果无法从响应头中获取则使用默认文件名
+                document.body.appendChild(a);
+                a.click(); // 触发下载
+                document.body.removeChild(a); // 移除临时链接
+            } else {
+                alert('下载失败');
+            }
+        };
+        xhr.send();
+
+
     }
 </script>
 </body>
