@@ -43,14 +43,15 @@ class ContentAnalysisService(
         ThreadUtil.execAsync {
             fetchDetail()
             analysisDetail()
+            println("==========重新分析完成")
         }
 
     }
 
     private fun fetchDetail() {
         searchByCodeSourceRepository.findAll().forEach { notice ->
-
             try {
+                println("==========开始分析过滤公司【${notice.companyName}-${notice.stock}】的公告标题：${notice.title}")
                 if (titleFilter.doFilter(notice.title)) {
                     noticeService.saveOrUpdateNotice(notice)
                 }
@@ -67,6 +68,7 @@ class ContentAnalysisService(
         val todo = allDetails.filter { !codes.contains(it.code) }
         todo.forEach {
             try {
+                println("==========开始分析公告内容(${it.stock}) - ${it.title}")
                 if (doAnalysis(it)) {
                     noticeDetailFailLogRepository.deleteByCodeAndStock(it.code, it.stock)
                 } else {
