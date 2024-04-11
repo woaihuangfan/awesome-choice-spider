@@ -34,7 +34,7 @@ object DefaultAccountingFirmNameExtractor {
                 "(?<=经审查，)[\\u4e00-\\u9fa5]+合伙）",
                 "(?<=机构名称：)[\\u4e00-\\u9fa5]+",
 
-            )
+                )
 
 
             for (pattern in patterns) {
@@ -63,6 +63,6 @@ object DefaultAccountingFirmNameExtractor {
             .replace("基本信息", "").replace("1、", "").replace("（一）", "").replace("1.", "")
             .replace("机构信息", "").replace("（1）", "").replace("：", "").replace("机构名称", "").replace("1．", "")
             .replace("1. ", "").replace("拟聘任的境内会计师事务所", "").replace("：", "")
-            .replace("会计师事务所的情况说明", "")
+            .replace("会计师事务所的情况说明", "").replace("公司拟续聘", "")
 
 }
