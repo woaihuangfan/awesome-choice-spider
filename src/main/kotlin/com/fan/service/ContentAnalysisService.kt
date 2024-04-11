@@ -79,7 +79,7 @@ class ContentAnalysisService(
             val accountCompanyName = extractAccountingFirmName(detail.content)
             val noticeYear = DateUtil.parseDate(notice.date).year().toString()
             if (accountCompanyName.isNotBlank()) {
-                val exist = resultRepository.findByStockAndYear(code, noticeYear)
+                val exist = resultRepository.findByStockAndYear(notice.stock, noticeYear)
                 val result = Result(
                     noticeId = detail.noticeId,
                     name = notice.securityFullName,
@@ -98,6 +98,7 @@ class ContentAnalysisService(
                 return true
             }
         } catch (e: Exception) {
+            e.printStackTrace()
             return false
         }
         return false
