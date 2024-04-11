@@ -63,5 +63,6 @@ object DefaultAccountingFirmNameExtractor {
             .replace("基本信息", "").replace("1、", "").replace("（一）", "").replace("1.", "")
             .replace("机构信息", "").replace("（1）", "").replace("：", "").replace("机构名称", "").replace("1．", "")
             .replace("1. ", "").replace("拟聘任的境内会计师事务所", "").replace("：", "")
+            .replace("会计师事务所的情况说明", "")
 
 }
