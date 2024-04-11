@@ -49,10 +49,14 @@ class ContentAnalysisService(
 
     private fun fetchDetail() {
         searchByCodeSourceRepository.findAll().forEach { notice ->
-            if (titleFilter.doFilter(notice.title)) {
-                noticeService.saveOrUpdateNotice(notice)
-            }
 
+            try {
+                if (titleFilter.doFilter(notice.title)) {
+                    noticeService.saveOrUpdateNotice(notice)
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
         }
     }
 
@@ -62,11 +66,16 @@ class ContentAnalysisService(
         val codes = results.map { it.code }
         val todo = allDetails.filter { !codes.contains(it.code) }
         todo.forEach {
-            if (doAnalysis(it)) {
-                noticeDetailFailLogRepository.deleteByCodeAndStock(it.code, it.stock)
-            } else {
-                logErrorRecord(it)
+            try {
+                if (doAnalysis(it)) {
+                    noticeDetailFailLogRepository.deleteByCodeAndStock(it.code, it.stock)
+                } else {
+                    logErrorRecord(it)
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
             }
+
         }
     }
 
