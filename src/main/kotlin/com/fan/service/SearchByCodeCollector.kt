@@ -43,7 +43,7 @@ class SearchByCodeCollector(
             val isLatest = noticeSearchHistory?.let {
                 val today = DateUtil.parseDate(DateUtil.today()).dayOfYear()
                 val lastUpdatedDate = DateUtil.parseDate(noticeSearchHistory.lastUpdatedDate).dayOfYear()
-                if (lastUpdatedDate >= today) {
+                if (lastUpdatedDate - 1 >= today) {
                     println("==========证券代码为【${stock}】的公司的当年度( $year )的公告数据已存在，共${it.count}条记录，将跳过==========")
                     return@let true
                 }
