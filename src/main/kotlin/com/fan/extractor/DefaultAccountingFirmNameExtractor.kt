@@ -58,11 +58,13 @@ object DefaultAccountingFirmNameExtractor {
 
     }
 
-    private fun replace(name: String) =
-        name.replace("事务所名称", "").replace("拟续聘的会计师事务所", "").replace("审核委员会对", "")
-            .replace("基本信息", "").replace("1、", "").replace("（一）", "").replace("1.", "")
-            .replace("机构信息", "").replace("（1）", "").replace("：", "").replace("机构名称", "").replace("1．", "")
-            .replace("1. ", "").replace("拟聘任的境内会计师事务所", "").replace("：", "")
-            .replace("会计师事务所的情况说明", "").replace("公司拟续聘", "")
+    private fun replace(name: String): String {
+        var result = name
+        AccountCompanyNameFilter.getReplaceableWords().forEach {
+            result = result.replace(it, "")
+        }
+        return result
+    }
+
 
 }
