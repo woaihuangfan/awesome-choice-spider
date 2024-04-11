@@ -9,7 +9,6 @@ import org.springframework.stereotype.Repository
 interface NoticeRepository : JpaRepository<Notice, Long> {
 
     fun findByStatus(status: String): List<Notice>
-    fun findByCode(code: String): Notice?
 
     fun findByStockAndCode(stock: String, code: String): Notice?
 }

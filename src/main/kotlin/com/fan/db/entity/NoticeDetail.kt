@@ -18,7 +18,7 @@ class NoticeDetail(
     @Column(name = "notice_id", nullable = false)
     val noticeId: Long,
 
-    @Column(name = "code", nullable = false, unique = true)
+    @Column(name = "code", nullable = false)
     val code: String,
 
     @Column(name = "title", nullable = false, length = 8196)

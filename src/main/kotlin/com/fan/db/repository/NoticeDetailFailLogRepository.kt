@@ -10,7 +10,7 @@ interface NoticeDetailFailLogRepository : JpaRepository<NoticeDetailFailLog, Lon
 
     fun findAllByYear(year: String): List<NoticeDetailFailLog>
 
-    fun findByCode(code: String): NoticeDetailFailLog?
+    fun findByCodeAndStock(code: String, stock: String): NoticeDetailFailLog?
 
-    fun deleteByCode(code: String)
+    fun deleteByCodeAndStock(code: String, stock: String)
 }

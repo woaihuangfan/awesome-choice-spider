@@ -15,7 +15,7 @@ class Notice(
     @GeneratedValue(strategy = GenerationType.AUTO)
     var id: Long? = null,
 
-    @Column(name = "code", nullable = false, unique = true)
+    @Column(name = "code", nullable = false)
     val code: String,
 
     @Column(name = "stock", nullable = false)

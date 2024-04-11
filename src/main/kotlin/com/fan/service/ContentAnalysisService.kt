@@ -30,7 +30,7 @@ class ContentAnalysisService(
         val year = DateUtil.thisYear().toString()
         val failedRecords = noticeDetailFailLogRepository.findAllByYear(year)
         failedRecords.forEach { record ->
-            val detail = noticeDetailRepository.findByCode(record.code)
+            val detail = noticeDetailRepository.findByStockAndCode(record.stock, record.code)
             detail?.let {
                 if (doAnalysis(detail)) {
                     noticeDetailFailLogRepository.delete(record)
@@ -63,7 +63,7 @@ class ContentAnalysisService(
         val todo = allDetails.filter { !codes.contains(it.code) }
         todo.forEach {
             if (doAnalysis(it)) {
-                noticeDetailFailLogRepository.deleteByCode(it.code)
+                noticeDetailFailLogRepository.deleteByCodeAndStock(it.code, it.stock)
             } else {
                 logErrorRecord(it)
             }
@@ -79,7 +79,7 @@ class ContentAnalysisService(
             val accountCompanyName = extractAccountingFirmName(detail.content)
             val noticeYear = DateUtil.parseDate(notice.date).year().toString()
             if (accountCompanyName.isNotBlank()) {
-                val exist = resultRepository.findByStockAndYear(notice.stock, noticeYear)
+                val exist = resultRepository.findByStockAndYearAndCode(notice.stock, noticeYear, code)
                 val result = Result(
                     noticeId = detail.noticeId,
                     name = notice.securityFullName,
@@ -105,7 +105,7 @@ class ContentAnalysisService(
     }
 
     fun logErrorRecord(detail: NoticeDetail) {
-        val exist = noticeDetailFailLogRepository.findByCode(detail.code)
+        val exist = noticeDetailFailLogRepository.findByCodeAndStock(detail.code, detail.stock)
         if (exist == null) {
             val notice = noticeRepository.findById(detail.noticeId)
             val year = DateUtil.parseDate(notice.get().date).year().toString()

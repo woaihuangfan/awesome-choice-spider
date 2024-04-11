@@ -42,7 +42,7 @@ class NoticeService(private val noticeRepository: NoticeRepository) {
             securityFullName = searchByCodeSource.companyName,
             source = SearchType.CODE.typeName
         )
-        val exist = noticeRepository.findByCode(searchByCodeSource.code)
+        val exist = noticeRepository.findByStockAndCode(searchByCodeSource.stock, searchByCodeSource.code)
         exist?.let {
             notice.id = it.id
         }

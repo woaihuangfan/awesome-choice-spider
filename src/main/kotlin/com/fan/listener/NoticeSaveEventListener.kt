@@ -45,7 +45,7 @@ class NoticeSaveEventListener(
                         noticeId = notice.id!!,
                         title = detail.title
                     )
-                val exist = noticeDetailRepository.findByCode(code)
+                val exist = noticeDetailRepository.findByStockAndCode(detail.stock, code)
                 exist?.let {
                     noticeDetail.id = exist.id
                 }
