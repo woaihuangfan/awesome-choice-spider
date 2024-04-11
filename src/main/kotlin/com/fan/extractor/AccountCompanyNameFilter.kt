@@ -2,9 +2,14 @@ package com.fan.extractor
 
 object AccountCompanyNameFilter {
 
-    fun filter(names: List<String>): String {
+    fun filter(names: List<String>): String? {
 
-        return names.distinct().first { isValidAccountName(it) }
+        try {
+            return names.distinct().first { isValidAccountName(it) }
+        } catch (e: NoSuchElementException) {
+//           ignore
+        }
+        return null
     }
 
     fun isValidAccountName(name: String): Boolean {

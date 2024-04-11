@@ -11,6 +11,7 @@ import com.fan.filter.DetailFilterChain
 import jakarta.transaction.Transactional
 import org.springframework.context.event.EventListener
 import org.springframework.stereotype.Component
+import org.thymeleaf.util.StringUtils
 import java.util.Objects
 
 @Component
@@ -33,16 +34,19 @@ class NoticeSaveEventListener(
             ThreadUtil.sleep(100)
             val exist = noticeDetailRepository.findByStockAndCode(notice.stock, code)
             val noticeTitle = "【${notice.securityFullName} - ${notice.title}】公告详情"
-            if (exist == null) {
+            if (exist == null || StringUtils.isEmpty(exist.content)) {
                 println("======== 开始下载$noticeTitle ${code}========")
                 val detail = fetchDetailFromRemote(code)
                 if (Objects.isNull(detail)) {
                     return
                 }
+                if (notice.stock != detail?.stock) {
+                    return
+                }
                 if (detailFilterChain.doFilter(detail)) {
                     val noticeDetail =
                         NoticeDetail(
-                            code = detail!!.code,
+                            code = detail.code,
                             content = detail.content,
                             stock = detail.stock,
                             noticeId = notice.id!!,
@@ -52,6 +56,7 @@ class NoticeSaveEventListener(
                     noticeDetailRepository.save(noticeDetail)
                 }
             } else {
+                noticeDetailRepository.save(exist)
                 println("========$noticeTitle 已存在 ========")
             }
         } catch (ex: Exception) {

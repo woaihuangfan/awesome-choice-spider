@@ -7,7 +7,6 @@ import cn.hutool.http.HttpRequest
 import com.fan.po.NoticeDetailPO
 import com.fan.response.WebNoticeDetailResponse
 import com.google.gson.Gson
-import java.util.stream.Collectors
 
 object NoticeDetailClient {
 
@@ -16,37 +15,6 @@ object NoticeDetailClient {
     private const val WEB_DETAIL_URL =
         "https://np-cnotice-stock.eastmoney.com/api/content/ann?cb=$DUMMY_CALLBACK&art_code=%s&client_source=web&page_index=%s&_=%s"
 
-
-    fun fetchDetail(infoCode: String): String {
-        val url = DETAIL_URL.format(infoCode)
-        val response = HttpRequest.get(url).execute()
-        if (response.isOk) {
-            val body = response.body()
-            try {
-                val map = Gson().fromJson(body, Map::class.java)
-                val list = map.values.map { it.toString() }
-
-                val content = list.reversed().stream().collect(Collectors.joining())
-                val formattedContent = formatHtml2Text(content)
-                val unescapedContent = HtmlUtil.unescape(formattedContent)
-                val cleanContent = HtmlUtil.cleanHtmlTag(unescapedContent)
-                return cleanContent
-            } catch (e: Exception) {
-                println("====无法解析响应====")
-                println(url)
-                println("====infoCode====")
-                println(infoCode)
-                return ""
-            }
-        }
-        println("====请求失败====")
-        println("====infoCode====")
-        println(infoCode)
-        println(response.status)
-        return ""
-
-
-    }
 
     fun fetchDetailFromRemote(infoCode: String): NoticeDetailPO? {
         ThreadUtil.sleep(300)
@@ -66,7 +34,7 @@ object NoticeDetailClient {
                     code = infoCode,
                     title = detail.data?.notice_title ?: "<标题未找到>",
                     content = cleanContent,
-                    stock = detail.data?.security?.first()?.stock.orEmpty()
+                    stock = detail.data?.security?.first { it.stock.length == 6 }?.stock.orEmpty(),
                 )
             } catch (e: Exception) {
                 println("====无法解析响应====")
@@ -87,13 +55,7 @@ object NoticeDetailClient {
 
 
     private fun formatHtml2Text(html: String): String {
-        var text = html
-//        if (text.isNotEmpty()) {
-//            text = text.replace("<br>", "\r\n")
-//            text = text.replace("<p>", "\r\n")
-//            text = text.replace("&nbsp;", " ")
-//        }
-        return text
+        return html
     }
 
 }

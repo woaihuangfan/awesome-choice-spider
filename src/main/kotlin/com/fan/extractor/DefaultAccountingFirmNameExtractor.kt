@@ -47,7 +47,7 @@ object DefaultAccountingFirmNameExtractor {
                 }
             }
 
-            return AccountCompanyNameFilter.filter(accountingFirmNames)
+            return AccountCompanyNameFilter.filter(accountingFirmNames).orEmpty()
         } catch (e: Exception) {
             e.printStackTrace()
         }
