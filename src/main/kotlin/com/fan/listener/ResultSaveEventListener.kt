@@ -6,6 +6,7 @@ import com.fan.event.ResultSaveEvent
 import jakarta.transaction.Transactional
 import org.springframework.context.event.EventListener
 import org.springframework.stereotype.Component
+import java.lang.Long.parseLong
 
 @Component
 class ResultSaveEventListener(
@@ -17,9 +18,12 @@ class ResultSaveEventListener(
     fun handleEvent(event: ResultSaveEvent) {
         try {
             ThreadUtil.sleep(100)
-            val notice = noticeRepository.findById(event.result.noticeId).get()
-            notice.status = "Done"
-            noticeRepository.save(notice)
+            event.result.noticeId.split(",").forEach {
+                val notice = noticeRepository.findById(parseLong(it)).get()
+                notice.status = "Done"
+                noticeRepository.save(notice)
+            }
+
         } catch (ex: Exception) {
             ex.printStackTrace()
         }
