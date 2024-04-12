@@ -31,7 +31,7 @@ interface CompanyRepository : JpaRepository<Company, Long> {
                 "FROM " +
                 "    company C " +
                 "        LEFT JOIN " +
-                "    notice N ON C.stock = N.stock " +
+                "    search_by_code_source N ON C.stock = N.stock " +
                 "WHERE " +
                 "    N.year = :year " +
                 "GROUP BY " +
