@@ -68,7 +68,7 @@
                 a.click(); // 触发下载
                 document.body.removeChild(a); // 移除临时链接
             } else {
-                alert('下载失败');
+                layer.msg('下载失败');
             }
         };
         xhr.send();

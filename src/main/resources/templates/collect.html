@@ -75,11 +75,11 @@
             data: JSON.stringify({tillDate: tillDate}),
             success: function (data) {
                 // 处理接口返回的数据
-                alert(data);
+                layer.msg(data);
             },
             error: function (xhr, status, error) {
                 // 处理请求失败的逻辑
-                alert(xhr.responseText);
+                layer.msg(xhr.responseText);
             }
         });
     }
