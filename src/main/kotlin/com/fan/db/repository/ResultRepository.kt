@@ -7,6 +7,6 @@ import org.springframework.stereotype.Repository
 
 @Repository
 interface ResultRepository : JpaRepository<Result, Long> {
-    fun findByStockAndYear(stock: String, year: String): Result?
+    fun findByStockAndYearAndCode(stock: String, year: String, code: String): Result?
     fun countByYear(year: String): Int
 }
