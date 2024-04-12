@@ -37,7 +37,7 @@ class InitializerTaskRunner(
     }
 
     private fun getTitleKeywords(): List<String> {
-        return listOf("${DateUtil.thisYear().toString()}年度", "会计师事务所")
+        return listOf("续聘", "会计")
     }
 
     private fun addCompany() {
