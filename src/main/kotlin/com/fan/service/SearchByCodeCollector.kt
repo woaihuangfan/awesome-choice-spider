@@ -1,5 +1,6 @@
 package com.fan.service
 
+import cn.hutool.core.date.DateTime
 import cn.hutool.core.date.DateUtil
 import cn.hutool.core.thread.ThreadUtil.sleep
 import cn.hutool.core.util.PageUtil
@@ -11,9 +12,11 @@ import com.fan.db.repository.NoticeSearchHistoryRepository
 import com.fan.db.repository.SearchByCodeSourceRepository
 import com.fan.enums.SearchType
 import com.fan.filter.SearchFilterChain
+import com.fan.po.DataCollectParam
 import com.fan.response.Item
 import com.fan.response.SearchByCodeResponse
 import jakarta.transaction.Transactional
+import org.apache.commons.collections4.CollectionUtils
 import org.springframework.stereotype.Component
 import org.springframework.util.StringUtils
 
@@ -33,44 +36,66 @@ class SearchByCodeCollector(
 
 
     @Transactional
-    override fun doCollect(param: String, type: SearchType, requestId: String) {
+    override fun doCollect(param: DataCollectParam, type: SearchType, requestId: String) {
         val codeEntities = companyRepository.findAll()
         for (entity in codeEntities) {
             val stock = entity.stock
-            val year = DateUtil.thisYear().toString()
-            val noticeSearchHistory = noticeSearchHistoryRepository.findByStockAndYear(stock, year)
-            val isLatest = detectIsLastedData(noticeSearchHistory, stock, year)
-
-            if (isLatest) {
-                continue
-            }
-            println("==========开始爬取证券代码为【${stock}】的公司的当年度的公告==========")
+            val tillDate = negotiateTillDate(stock, param)
+            println(
+                "==========将采集【${entity.stock}】${tillDate} -${DateUtil.date()} 期间的公告数据=========="
+            )
             val totalPages = getTotalPages(stock)
             for (i in 1..totalPages) {
                 sleep(100)
                 println("==========开始爬取第 $i 页, 共【$totalPages】页==========")
-                if (successfullyCollectDataByPages(stock, i, requestId, year)) break
+                if (successfullyCollectDataByPages(stock, i, requestId, tillDate)) break
             }
         }
 
     }
 
-    private fun successfullyCollectDataByPages(stock: String, i: Int, requestId: String, year: String): Boolean {
+
+    private fun negotiateTillDate(stock: String, param: DataCollectParam): DateTime {
+        val userPreferDate = DateUtil.parseDate(param.tillDate)
+        val histories = noticeSearchHistoryRepository.findByStockOrderByDateDesc(stock)
+        if (histories.isEmpty()) {
+            return userPreferDate
+        }
+        val lastTillDate = DateUtil.parseDate(histories.first().tillDate)
+        val lastUpdatedDate = DateUtil.parseDate(histories.first().date)
+
+        if (userPreferDate > lastTillDate && userPreferDate < lastUpdatedDate) {
+            println(
+                "======== $lastTillDate -${lastUpdatedDate}之间的数据已采集，将自动修正起始日期为${
+                    DateUtil.format(
+                        lastUpdatedDate,
+                        "yyyy年MM月dd日 "
+                    )
+                }===== "
+            )
+            return lastUpdatedDate
+        }
+        return userPreferDate
+
+    }
+
+    private fun successfullyCollectDataByPages(stock: String, i: Int, requestId: String, tillDate: DateTime): Boolean {
         try {
             val searchByCodeResponse = SearchClient.searchByCode(stock, i, ROWS)
-            filterAndSave(searchByCodeResponse, requestId, stock)
+            filterAndSave(searchByCodeResponse, requestId, stock, tillDate)
         } catch (e: Exception) {
             if (e.message == "0") {
-                val count = searchByCodeSourceRepository.countByStockAndYear(stock, year)
+                val count = searchByCodeSourceRepository.countByStockAndRequestId(stock, requestId)
                 noticeSearchHistoryRepository.save(
                     NoticeSearchHistory(
                         stock = stock,
-                        year = year,
+                        tillDate = tillDate.toString(),
                         count = count,
-                        lastUpdatedDate = DateUtil.now()
+                        requestId = requestId,
+                        date = DateUtil.now()
                     )
                 )
-                println("==========证券代码为【${stock}】的公司 ${year}年度公告爬取完成(共${count}条记录)，将停止爬取==========")
+                println("==========证券代码为【${stock}】的公司 $tillDate - ${DateUtil.date()}公告爬取完成(新采集${count}条记录)，将停止爬取==========")
                 return true
             } else {
                 e.printStackTrace()
@@ -78,20 +103,6 @@ class SearchByCodeCollector(
         }
         return false
     }
-
-    private fun detectIsLastedData(
-        noticeSearchHistory: NoticeSearchHistory?,
-        stock: String,
-        year: String
-    ) = noticeSearchHistory?.let {
-        val today = DateUtil.parseDate(DateUtil.today()).dayOfYear()
-        val lastUpdatedDate = DateUtil.parseDate(noticeSearchHistory.lastUpdatedDate).dayOfYear()
-        if (lastUpdatedDate - 1 >= today) {
-            println("==========证券代码为【${stock}】的公司的当年度( $year )的公告数据已存在，共${it.count}条记录，将跳过==========")
-            return@let true
-        }
-        return@let false
-    } ?: false
 
     private fun getTotalPages(code: String): Int {
         val searchByCodeResponse = SearchClient.searchByCode(code, 1, 1)
@@ -102,22 +113,26 @@ class SearchByCodeCollector(
 
 
     private fun filterAndSave(
-        searchByCodeResponse: SearchByCodeResponse, requestId: String, stock: String
+        searchByCodeResponse: SearchByCodeResponse, requestId: String, stock: String, tillDate: DateTime
     ) {
         if (searchByCodeResponse.success == 1) {
             searchByCodeResponse.data.list.forEach { item ->
-                val year = DateUtil.parseDate(item.notice_date).year()
-                val currentYear = DateUtil.thisYear()
-                if (year < currentYear) {
+                val noticeDate = DateUtil.parseDate(item.notice_date)
+                if (noticeDate < tillDate) {
                     throw RuntimeException("0")
                 }
-
                 updateCompanyName(item, stock)
                 saveOriginalData(item, requestId)
-                if (searchFilterChain.doFilter(item)) {
-                    noticeService.saveOrUpdateNotice(item)
-                }
+                saveValidNoticeFilteredByTitleRule(item, requestId)
             }
+        }
+    }
+
+    private fun saveValidNoticeFilteredByTitleRule(item: Item, requestId: String) {
+        if (searchFilterChain.doFilter(item)) {
+            val logMessage = "【${item.codes.first().short_name}】${item.title}"
+            println("======== $logMessage 符合标题筛选条件，将进入待分析列表========")
+            noticeService.saveOrUpdateNotice(item, requestId)
         }
     }
 
@@ -135,11 +150,19 @@ class SearchByCodeCollector(
 
 
     private fun saveOriginalData(item: Item, requestId: String) {
-
         val code = item.art_code
         val title = item.title
         val date = item.notice_date.substring(0, 10)
-        searchByCodeSourceRepository.findByStockAndTitleAndDate(code, title, date)?.let {
+        val logMessage = "【${item.codes.first().short_name}】${title}"
+        if (CollectionUtils.isNotEmpty(
+                searchByCodeSourceRepository.findByStockAndTitleAndCode(
+                    item.codes.first().stock_code,
+                    title,
+                    code
+                )
+            )
+        ) {
+            println("======== $logMessage 已存在 ========")
             return
         }
         val column = if (item.columns.isNotEmpty()) item.columns.first() else null
@@ -152,9 +175,11 @@ class SearchByCodeCollector(
             date = date,
             requestId = requestId,
             year = DateUtil.thisYear().toString(),
-            companyName = item.codes.first().short_name
+            companyName = item.codes.first().short_name,
+            createDate = DateUtil.now()
         )
         searchByCodeSourceRepository.save(source)
+        println("======== 新收录 $logMessage ========")
     }
 
 }

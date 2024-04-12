@@ -3,6 +3,7 @@ package com.fan.client
 import cn.hutool.core.date.DateUtil
 import cn.hutool.http.HttpRequest
 import cn.hutool.json.JSONUtil
+import com.fan.po.DataCollectParam
 import com.fan.response.Data
 import com.fan.response.NoticeResponseSearchResult
 import com.fan.response.SearchByCodeResponse
@@ -55,12 +56,12 @@ object SearchClient {
         }
     }
 
-    fun searchWeb(keyword: String, index: Int, rows: Int): WebNoticeResponseSearchResult {
+    fun searchWeb(param: DataCollectParam, index: Int, rows: Int): WebNoticeResponseSearchResult {
         val body =
             HttpRequest.get(
                 WEB_URL.format(
                     "dummy",
-                    buildParams(keyword, rows, index),
+                    buildParams(param.keyword, rows, index),
                     DateUtil.current()
                 )
             ).execute()

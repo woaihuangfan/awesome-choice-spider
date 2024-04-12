@@ -33,6 +33,9 @@ class SearchByCodeSource(
 
     @Column(name = "company_name", nullable = false)
     var companyName: String,
+
+    @Column(name = "create_date", nullable = false)
+    var createDate: String,
 ) {
 
 }

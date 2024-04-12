@@ -6,7 +6,6 @@ import com.fan.service.SearchByCodeCollector
 import com.fan.service.SearchKeywordDataCollector
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 
 
@@ -22,14 +21,6 @@ class AdminController(
         SearchType.CODE.typeName to searchByCodeCollector
     )
 
-    @GetMapping(value = ["/start"])
-    fun start(
-        @RequestParam(required = false) param: String = "",
-        @RequestParam type: String,
-    ): String {
-        val collector = collectorMap[type]
-        return collector?.startCollect(param, SearchType.from(type)) ?: "invalid type"
-    }
 
     @GetMapping(value = ["/reAnalysis"])
     fun reAnalysis(

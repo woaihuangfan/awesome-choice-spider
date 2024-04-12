@@ -1,6 +1,5 @@
 package com.fan.listener
 
-import cn.hutool.core.thread.ThreadUtil
 import com.fan.client.NoticeDetailClient.fetchDetailFromRemote
 import com.fan.db.entity.NoticeDetail
 import com.fan.db.entity.NoticeDetailFetchFailedLog
@@ -31,7 +30,6 @@ class NoticeSaveEventListener(
         }
         val code = notice.code
         try {
-            ThreadUtil.sleep(100)
             val exist = noticeDetailRepository.findByStockAndCode(notice.stock, code)
             val noticeTitle = "【${notice.securityFullName} - ${notice.title}】公告详情"
             if (exist == null || StringUtils.isEmpty(exist.content)) {
@@ -50,7 +48,8 @@ class NoticeSaveEventListener(
                             content = detail.content,
                             stock = detail.stock,
                             noticeId = notice.id!!,
-                            title = detail.title
+                            title = detail.title,
+                            requestId = notice.requestId
                         )
                     println("======== 保存公告详情 ========")
                     noticeDetailRepository.save(noticeDetail)

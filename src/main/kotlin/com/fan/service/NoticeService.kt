@@ -1,5 +1,6 @@
 package com.fan.service
 
+import cn.hutool.core.date.DateUtil
 import com.fan.db.entity.Notice
 import com.fan.db.entity.SearchByCodeSource
 import com.fan.db.repository.NoticeRepository
@@ -10,29 +11,34 @@ import org.springframework.stereotype.Component
 @Component
 class NoticeService(private val noticeRepository: NoticeRepository) {
 
-    fun saveOrUpdateNotice(noticeItem: Item) {
-        val codes = noticeItem.codes.first()
+    fun saveOrUpdateNotice(item: Item, requestId: String) {
+        val codes = item.codes.first()
         val stock = codes.stock_code
-        val code = noticeItem.art_code
+        val code = item.art_code
+        val logMessage = "【${item.codes.first().short_name}】${item.title}"
         noticeRepository.findByStockAndCode(stock, code)?.let {
+            println("======== $logMessage 在待分析列表中已存在 ========")
             return
         }
-        val columnCode = if (noticeItem.columns.isNotEmpty()) noticeItem.columns.first().column_code else ""
+        val columnCode = if (item.columns.isNotEmpty()) item.columns.first().column_code else ""
         val notice = Notice(
             stock = stock,
             code = code,
             columnCode = columnCode,
-            title = noticeItem.title,
-            date = noticeItem.notice_date.substring(0, 10),
+            title = item.title,
+            date = item.notice_date.substring(0, 10),
             securityFullName = codes.short_name,
-            source = SearchType.CODE.typeName
+            source = SearchType.CODE.typeName,
+            requestId = requestId,
+            year = DateUtil.parseDate(item.notice_date).year().toString()
         )
         noticeRepository.save(
             notice
         )
+        println("======== 待分析列表新收录 $logMessage======")
     }
 
-    fun saveOrUpdateNotice(searchByCodeSource: SearchByCodeSource) {
+    fun saveOrUpdateNotice(searchByCodeSource: SearchByCodeSource, requestId: String) {
         val notice = Notice(
             stock = searchByCodeSource.stock,
             code = searchByCodeSource.code,
@@ -40,7 +46,9 @@ class NoticeService(private val noticeRepository: NoticeRepository) {
             title = searchByCodeSource.title,
             date = searchByCodeSource.date,
             securityFullName = searchByCodeSource.companyName,
-            source = SearchType.CODE.typeName
+            source = SearchType.CODE.typeName,
+            requestId = requestId,
+            year = DateUtil.parseDate(searchByCodeSource.date).year().toString()
         )
         val exist = noticeRepository.findByStockAndCode(searchByCodeSource.stock, searchByCodeSource.code)
         exist?.let {

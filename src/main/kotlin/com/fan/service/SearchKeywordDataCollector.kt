@@ -1,5 +1,6 @@
 package com.fan.service
 
+import cn.hutool.core.date.DateUtil
 import cn.hutool.core.thread.ThreadUtil.sleep
 import com.fan.client.SearchClient
 import com.fan.db.entity.Notice
@@ -8,6 +9,7 @@ import com.fan.db.repository.NoticeRepository
 import com.fan.db.repository.SourceRepository
 import com.fan.enums.SearchType
 import com.fan.filter.SearchFilterChain
+import com.fan.po.DataCollectParam
 import com.fan.response.NoticeItem
 import com.fan.response.WebNoticeResponseSearchResult
 import jakarta.transaction.Transactional
@@ -26,7 +28,7 @@ class SearchKeywordDataCollector(
 
 
     @Transactional
-    override fun doCollect(param: String, type: SearchType, requestId: String) {
+    override fun doCollect(param: DataCollectParam, type: SearchType, requestId: String) {
         for (i in 1..100) {
             sleep(100)
             println("==========开始爬取第 $i 页==========")
@@ -47,14 +49,14 @@ class SearchKeywordDataCollector(
         webNoticeResponseSearchResult.result.noticeWeb.forEach { notice ->
             saveOriginalData(notice, requestId)
             if (searchFilterChain.doFilter(notice)) {
-                saveOrUpdateNotice(notice)
+                saveNotice(notice, requestId)
             }
         }
 
 
     }
 
-    private fun saveOrUpdateNotice(noticeItem: NoticeItem) {
+    private fun saveNotice(noticeItem: NoticeItem, requestId: String) {
         val notice = Notice(
             stock = "",
             code = noticeItem.code,
@@ -62,7 +64,9 @@ class SearchKeywordDataCollector(
             title = noticeItem.title,
             date = noticeItem.date.substring(0, 10),
             securityFullName = noticeItem.securityFullName,
-            source = SearchType.KEYWORD.typeName
+            source = SearchType.KEYWORD.typeName,
+            requestId = requestId,
+            year = DateUtil.parseDate(noticeItem.date).year().toString()
         )
         noticeRepository.save(
             notice

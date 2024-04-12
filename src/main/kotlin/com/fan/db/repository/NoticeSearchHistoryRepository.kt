@@ -8,5 +8,5 @@ import org.springframework.stereotype.Repository
 @Repository
 interface NoticeSearchHistoryRepository : JpaRepository<NoticeSearchHistory, Long> {
 
-    fun findByStockAndYear(stock: String, year: String): NoticeSearchHistory?
+    fun findByStockOrderByDateDesc(stock: String): List<NoticeSearchHistory>
 }

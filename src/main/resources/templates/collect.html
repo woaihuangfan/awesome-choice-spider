@@ -17,21 +17,30 @@
     <!--        </div>-->
     <!--    </blockquote>-->
     <div class="layui-form-item">
-        <div class="layui-input-group">
+        <div class="layui-inline">
+            <div class="layui-form-item">
+                <div class="layui-inline">
+                    <label class="layui-form-label">开始日期</label>
+                    <div class="layui-input-inline">
+                        <input type="text" class="layui-input" id="ID-laydate-demo" placeholder="yyyy-MM-dd">
+                    </div>
+                </div>
+            </div>
             <div class="layui-btn-container">
-                <button type="button" class="layui-btn " onclick="start()">开始采集</button>
+                <button type="button" class="layui-btn " onclick="startCollect()">开始采集</button>
                 </button>
             </div>
-
-            <!--            <div class="layui-input-prefix">-->
-            <!--                开始采集-->
-            <!--            </div>-->
-            <!--            <input id="searchInput" type="text" placeholder="关键字或者留空根据内置证券代码搜索全部数据"-->
-            <!--                   class="layui-input">-->
-            <!--            <div class="layui-input-split layui-input-suffix" style="cursor: pointer;" onclick="start()">-->
-            <!--                <i class="layui-icon layui-icon-search"></i>-->
-            <!--            </div>-->
         </div>
+
+
+        <!--            <div class="layui-input-prefix">-->
+        <!--                开始采集-->
+        <!--            </div>-->
+        <!--            <input id="searchInput" type="text" placeholder="关键字或者留空根据内置证券代码搜索全部数据"-->
+        <!--                   class="layui-input">-->
+        <!--            <div class="layui-input-split layui-input-suffix" style="cursor: pointer;" onclick="start()">-->
+        <!--                <i class="layui-icon layui-icon-search"></i>-->
+        <!--            </div>-->
     </div>
 
     <div class="layui-card layui-panel">
@@ -50,10 +59,28 @@
 </div>
 <script src="//cdn.staticfile.org/layui/2.9.7/layui.js"></script>
 <script>
-    function start() {
-        layui.$.get('/admin/start?type=code&param=', function (data) {
-            // 处理接口返回的数据
-            alert(data);
+    layui.use(function () {
+        var laydate = layui.laydate;
+        laydate.render({
+            elem: '#ID-laydate-demo'
+        });
+    });
+
+    function startCollect() {
+        var tillDate = layui.$("#ID-laydate-demo").val()
+        layui.$.ajax({
+            url: '/data',
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({tillDate: tillDate}),
+            success: function (data) {
+                // 处理接口返回的数据
+                alert(data);
+            },
+            error: function (xhr, status, error) {
+                // 处理请求失败的逻辑
+                alert(xhr.responseText);
+            }
         });
     }
 </script>

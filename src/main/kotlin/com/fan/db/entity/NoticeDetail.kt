@@ -31,6 +31,9 @@ class NoticeDetail(
     @Column(name = "stock", nullable = false)
     val stock: String,
 
+    @Column(name = "requestId", nullable = false)
+    var requestId: String
+
     ) {
 
 

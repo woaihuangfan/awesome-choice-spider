@@ -16,11 +16,16 @@ class NoticeSearchHistory(
     val stock: String,
 
     @Column(name = "count", nullable = false)
-    var count: Int,
-    @Column(name = "`year`", nullable = false)
-    var year: String,
+    val count: Int,
 
-    @Column(name = "last_update_date", nullable = false)
-    var lastUpdatedDate: String,
+    @Column(name = "date", nullable = false)
+    val date: String,
+
+    @Column(name = "till_date", nullable = false)
+    val tillDate: String,
+
+    @Column(name = "requestId", nullable = false)
+    val requestId: String,
+
 
     )

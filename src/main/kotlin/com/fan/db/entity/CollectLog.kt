@@ -15,8 +15,10 @@ class CollectLog(
     val count: Int,
     @Column(name = "date", nullable = false)
     var date: String,
-    @Column(name = "param", nullable = false)
-    var param: String,
+    @Column(name = "till_date", nullable = false)
+    var tillDate: String,
+    @Column(name = "keyword", nullable = false)
+    var keyword: String,
     @Column(name = "type", nullable = false)
     var type: String,
 

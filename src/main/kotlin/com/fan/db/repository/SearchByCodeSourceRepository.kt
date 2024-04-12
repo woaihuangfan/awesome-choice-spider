@@ -9,6 +9,6 @@ import org.springframework.stereotype.Repository
 interface SearchByCodeSourceRepository : JpaRepository<SearchByCodeSource, Long>, CountByRequestIdRepository {
     override fun countByRequestId(requestId: String): Int
 
-    fun findByStockAndTitleAndDate(code: String, title: String, date: String): SearchByCodeSource?
-    fun countByStockAndYear(stock: String, year: String): Int
+    fun findByStockAndTitleAndCode(stock: String, title: String, code: String): List<SearchByCodeSource>
+    fun countByStockAndRequestId(stock: String, requestId: String): Int
 }

@@ -22,7 +22,23 @@ interface CompanyRepository : JpaRepository<Company, Long> {
     )
     fun findCompanyNoticeDetails(year: String, pageable: Pageable): Page<Any>
 
-    fun findAllByStockIn(stocks: List<String>): List<Company>
+
+    @Query(
+        "SELECT " +
+                "    C.stock as stock, " +
+                "    C.companyName as companyName, " +
+                "    COUNT(N.stock) AS count " +
+                "FROM " +
+                "    company C " +
+                "        LEFT JOIN " +
+                "    notice N ON C.stock = N.stock " +
+                "WHERE " +
+                "    N.year = :year " +
+                "GROUP BY " +
+                "    C.stock ,C.companyName"
+    )
+    fun findCompanyNoticeCountByYear(year: String, pageable: Pageable): Page<Map<String, String>>
+
 }
 
 

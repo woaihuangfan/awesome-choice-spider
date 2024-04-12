@@ -6,7 +6,6 @@ import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
-import jakarta.persistence.Lob
 import org.springframework.data.domain.DomainEvents
 
 @Entity(name = "notice")
@@ -31,7 +30,11 @@ class Notice(
     @Column(name = "status", nullable = false)
     var status: String? = "",
     @Column(name = "source", nullable = false)
-    var source: String
+    var source: String,
+    @Column(name = "requestId", nullable = false)
+    var requestId: String,
+    @Column(name = "`year`", nullable = false)
+    val year: String,
 
 ) {
 
