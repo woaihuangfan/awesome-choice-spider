@@ -53,11 +53,12 @@
             page: true,
             limit: 20,
             cols: [[
-                { field: 'id', title: 'ID', width: 80 },
+                { field: 'LAY_NUM',title:'序号', type:"number" },
                 { field: 'keyword', title: '关键字' },
-                { title: '操作', toolbar: '#toolbarDemo', width: 100 }
+                { title: '操作', toolbar: '#toolbarDemo' }
             ]]
         });
+
 
         // 监听工具栏事件
         table.on('tool(ID-table-demo-init)', function (obj) {

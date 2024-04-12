@@ -31,6 +31,8 @@ class Result(
     val amount: String? = "",
     @Column(name = "`year`", nullable = false)
     val year: String,
+    @Column(name = "title", nullable = false, length = 8196)
+    var title: String,
 ) {
 
     @DomainEvents

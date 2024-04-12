@@ -2,6 +2,8 @@ package com.fan.service
 
 import cn.hutool.core.date.DateUtil
 import cn.hutool.core.thread.ThreadUtil
+import com.fan.client.NoticeDetailClient.getDetailPageUrl
+import com.fan.db.entity.Notice
 import com.fan.db.entity.NoticeDetail
 import com.fan.db.entity.NoticeDetailFailLog
 import com.fan.db.entity.Result
@@ -138,7 +140,8 @@ class ContentAnalysisService(
                 accountCompanyName = accountCompanyName,
                 amount = amount,
                 code = code,
-                year = noticeYear
+                year = noticeYear,
+                title = encodeTitle(notice, code),
             )
             exist?.let {
                 result.id = exist.id
@@ -150,6 +153,12 @@ class ContentAnalysisService(
             return Pair(false, Pair("内部异常：${e.message}", ""))
         }
     }
+
+    private fun encodeTitle(notice: Notice, code: String) =
+        "<a target='_blank' style='color: blue; text-decoration: none; font-weight: bold;' href='%s'>《%s》</a>".format(
+            getDetailPageUrl(notice.stock, code),
+            notice.title
+        )
 
     fun logErrorRecord(detail: NoticeDetail, errResult: Pair<String, String>) {
         val exist = noticeDetailFailLogRepository.findByCodeAndStock(detail.code, detail.stock)

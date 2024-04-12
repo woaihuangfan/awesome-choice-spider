@@ -18,10 +18,10 @@
     <!--    </blockquote>-->
     <div class="layui-form-item">
         <div class="layui-input-group">
-            <div class="layui-btn-container">
-                <button type="button" class="layui-btn " onclick="start()">开始采集</button>
-                </button>
-            </div>
+            <!--            <div class="layui-btn-container">-->
+            <!--                <button type="button" class="layui-btn " onclick="start()">开始采集</button>-->
+            <!--                </button>-->
+            <!--            </div>-->
 
             <!--            <div class="layui-input-prefix">-->
             <!--                开始采集-->
@@ -35,13 +35,15 @@
     </div>
 
     <div class="layui-card layui-panel">
-        <table class="layui-table" lay-data="{height:'auto', url:'/query/searchLog', page:true,limit:20}"
+        <table class="layui-table" lay-data="{height:'auto', url:'/query/notice', page:true,limit:20}"
                id="ID-table-demo-init">
             <thead>
             <tr>
                 <th lay-data="{type:'numbers'}">序号</th>
-                <th lay-data="{field:'count'}">命中数量</th>
-                <th lay-data="{field:'date'}">采集时间</th>
+                <th lay-data="{field:'stock'}">证券代码</th>
+                <th lay-data="{field:'companyName'}">公司名称</th>
+                <th lay-data="{field:'count'}">公告数量</th>
+                <th lay-data="{field:'year'}">年度</th>
             </tr>
             </thead>
         </table>
@@ -49,13 +51,8 @@
     <br><br>
 </div>
 <script src="//cdn.staticfile.org/layui/2.9.7/layui.js"></script>
+
 <script>
-    function start() {
-        layui.$.get('/admin/start?type=code&param=', function (data) {
-            // 处理接口返回的数据
-            alert(data);
-        });
-    }
 </script>
 </body>
 </html>

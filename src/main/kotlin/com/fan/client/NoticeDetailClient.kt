@@ -11,15 +11,23 @@ import com.google.gson.Gson
 object NoticeDetailClient {
 
     private const val DUMMY_CALLBACK = "dummy"
-    private const val DETAIL_URL = "http://pdf.dfcfw.com/pdf/DH2_%sv2_1.txt"
+    private const val DETAIL_PAGE_URL = "https://data.eastmoney.com/notices/detail/%s/%s.html"
     private const val WEB_DETAIL_URL =
         "https://np-cnotice-stock.eastmoney.com/api/content/ann?cb=$DUMMY_CALLBACK&art_code=%s&client_source=web&page_index=%s&_=%s"
+
+    private fun getDetailUrl(code: String, timestamp: Long, index: Int? = 1): String {
+        return WEB_DETAIL_URL.format(code, index, timestamp)
+    }
+
+    fun getDetailPageUrl(stock: String, code: String): String {
+        return DETAIL_PAGE_URL.format(stock, code)
+    }
 
 
     fun fetchDetailFromRemote(infoCode: String): NoticeDetailPO? {
         ThreadUtil.sleep(300)
         val index = 1
-        val url = WEB_DETAIL_URL.format(infoCode, index, DateUtil.current())
+        val url = getDetailUrl(infoCode, DateUtil.current(), index)
         val response = HttpRequest.get(url).execute()
         if (response.isOk) {
             var body = response.body()

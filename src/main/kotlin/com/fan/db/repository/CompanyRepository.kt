@@ -21,6 +21,8 @@ interface CompanyRepository : JpaRepository<Company, Long> {
                 "AND c.stock NOT IN (SELECT r.stock FROM result r WHERE r.\"year\" = ?1)", nativeQuery = true
     )
     fun findCompanyNoticeDetails(year: String, pageable: Pageable): Page<Any>
+
+    fun findAllByStockIn(stocks: List<String>): List<Company>
 }
 
 

@@ -20,15 +20,15 @@
         <table class="layui-table" lay-data="{height:'auto', url:'/query/result', page:true,limit:20}"
                id="ID-table-demo-init">
             <thead>
-            <tr>
-                <th lay-data="{field:'id', width:80}">ID</th>
-                <th lay-data="{field:'name', width:150}">公司名称</th>
-                <th lay-data="{field:'stock', width:120}">证券代码</th>
-                <th lay-data="{field:'date',width:120}">公告日期</th>
-                <th lay-data="{field:'accountCompanyName'}">会计师事务所</th>
-                <th lay-data="{field:'code'}">公告代码</th>
-                <th lay-data="{field:'amount'}">合同金额</th>
-            </tr>
+            <!--            <tr>-->
+            <!--                <th lay-data="{type:'numbers'}">序号</th>-->
+            <!--                <th lay-data="{field:'name', width:150}">公司名称</th>-->
+            <!--                <th lay-data="{field:'stock', width:120}">证券代码</th>-->
+            <!--                <th lay-data="{field:'date',width:120}">公告日期</th>-->
+            <!--                <th lay-data="{field:'accountCompanyName'}">会计师事务所</th>-->
+            <!--                <th lay-data="{field:'amount'}">合同金额</th>-->
+            <!--                <th lay-data="{field:'title',templet: addlink}">信息来源</th>-->
+            <!--            </tr>-->
             </thead>
         </table>
     </div>
@@ -36,11 +36,19 @@
 </div>
 <script src="//cdn.staticfile.org/layui/2.9.7/layui.js"></script>
 <script>
+    var addlink = function (d) {
+        //这里是拼接三个字符串拼接成一个完整的a标签，中间的字符串是url
+        var html = d.title
+        return html
+    };
+
+    // 方法参数中的d是接口返回的所有字段和数据
+
     function exportExcel() {
         var xhr = new XMLHttpRequest();
         xhr.open('GET', '/excel/result', true);
         xhr.responseType = 'blob'; // 设置响应类型为 Blob
-        xhr.onload = function() {
+        xhr.onload = function () {
             if (this.status === 200) {
                 var blob = this.response;
                 var disposition = xhr.getResponseHeader('Content-Disposition'); // 获取 Content-Disposition 头字段
@@ -64,9 +72,31 @@
             }
         };
         xhr.send();
-
-
     }
+
+    layui.use(['table', 'jquery'], function () {
+        var table = layui.table;
+        $ = layui.jquery;
+
+        // 渲染表格
+        tableIns = table.render({
+            elem: '#ID-table-demo-init',
+            url: '/query/result', // 模拟接口地址
+            page: true,
+            limit: 20,
+            cols: [[
+                {field: 'LAY_NUM', title: '序号', width: 80, type: "number"},
+                {field: 'name', title: '公司名称', width: 120},
+                {field: 'stock', title: '证券代码', width: 100},
+                {field: 'date', title: '公告日期', width: 120},
+                {field: 'accountCompanyName', title: '会计师事务所'},
+                {field: 'amount', title: '合同金额', width: 120},
+                {field: 'title', title: '信息来源',  templet: addlink},
+            ]]
+        });
+
+
+    });
 </script>
 </body>
 </html>

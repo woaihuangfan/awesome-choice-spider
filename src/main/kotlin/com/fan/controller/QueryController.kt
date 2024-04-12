@@ -1,6 +1,8 @@
 package com.fan.controller
 
 import cn.hutool.core.date.DateUtil
+import com.fan.client.NoticeDetailClient.getDetailPageUrl
+import com.fan.db.entity.Company
 import com.fan.db.entity.Notice
 import com.fan.db.entity.NoticeDetailFetchFailedLog
 import com.fan.db.repository.AnalysisLogRepository
@@ -10,9 +12,12 @@ import com.fan.db.repository.NoticeDetailFailLogRepository
 import com.fan.db.repository.NoticeDetailFetchFailedLogRepository
 import com.fan.db.repository.NoticeDetailRepository
 import com.fan.db.repository.NoticeRepository
+import com.fan.db.repository.NoticeSearchHistoryRepository
 import com.fan.db.repository.ResultRepository
 import com.fan.db.repository.SourceRepository
 import com.fan.dto.PageResult
+import com.fan.po.NoticeSearchHistoryPO
+import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
 import org.springframework.web.bind.annotation.GetMapping
@@ -32,7 +37,8 @@ class QueryController(
     private val collectLogRepository: CollectLogRepository,
     private val companyRepository: CompanyRepository,
     private val noticeDetailRepository: NoticeDetailRepository,
-    private val analysisLogRepository: AnalysisLogRepository
+    private val analysisLogRepository: AnalysisLogRepository,
+    private val noticeSearchHistoryRepository: NoticeSearchHistoryRepository,
 ) {
 
     @GetMapping(value = ["/sources"])
@@ -42,8 +48,33 @@ class QueryController(
     }
 
     @GetMapping(value = ["/notice"])
-    fun query(): List<Notice> {
-        return noticeRepository.findByStatus("Done")
+    fun query(
+        @RequestParam page: Int,
+        @RequestParam limit: Int,
+    ): PageResult {
+        val pageable: PageRequest = PageRequest.of(page - 1, limit, Sort.by(Sort.Direction.ASC, "stock"))
+
+        val noticeSearchHistoriesPage = noticeSearchHistoryRepository.findAll(pageable)
+        val noticeSearchHistories = noticeSearchHistoriesPage.get().toList()
+        val stocks = noticeSearchHistories.map { it.stock }.toList()
+        val companies = companyRepository.findAllByStockIn(stocks).associateBy(Company::stock, Company::companyName)
+
+
+        val data = noticeSearchHistories.map {
+            NoticeSearchHistoryPO(
+                stock = it.stock,
+                companyName = companies[it.stock].orEmpty(),
+                count = it.count,
+                year = it.year
+            )
+        }.toList()
+        return PageResult.success(
+            PageImpl(
+                data,
+                noticeSearchHistoriesPage.pageable,
+                noticeSearchHistoriesPage.totalElements
+            )
+        )
     }
 
     @GetMapping(value = ["/notices"])

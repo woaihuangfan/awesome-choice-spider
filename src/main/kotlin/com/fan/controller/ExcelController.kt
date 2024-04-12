@@ -24,24 +24,26 @@ class ExcelController(
 
         val headers: List<String> =
             CollUtil.newArrayList(
-                "序号",
                 "公司名称",
                 "证券代码",
                 "公告日期",
                 "会计师事务所名称",
-                "公告代码",
                 "合同金额",
+                "信息来源",
                 "年度"
             )
 
         val contents: List<List<String>> = results.map {
-            listOfNotNull(it.name, it.stock, it.date, it.accountCompanyName, it.code, it.amount, it.year)
+            listOfNotNull(it.name, it.stock, it.date, it.accountCompanyName, it.amount, decodeTitle(it.title), it.year)
         }
 
         val rows: List<List<String>> = listOf(headers, *contents.toTypedArray())
 
         val writer = ExcelUtil.getWriter(true)
         writer.write(rows, true)
+        headers.forEachIndexed { index, _ ->
+            writer.sheet.autoSizeColumn(index)
+        }
         httpServletResponse.characterEncoding = "UTF-8";
         httpServletResponse.contentType =
             "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=utf-8"
@@ -54,6 +56,11 @@ class ExcelController(
             writer.flush(it)
             writer.close()
         }
+
+    }
+
+    private fun decodeTitle(title: String): String {
+        return title.substringAfter(">").substringBeforeLast("<")
 
     }
 }
