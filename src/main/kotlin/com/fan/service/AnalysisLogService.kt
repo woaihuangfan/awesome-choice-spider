@@ -23,13 +23,10 @@ class AnalysisLogService(
     @Transactional
     fun saveAnalysisLog(type: String, requestId: String) {
         val thisYear = DateUtil.thisYear()
-        val notices =
-            noticeRepository.findAll().filter { DateUtil.parseDate(it.date).year() == thisYear }
-        val validTitles = notices.size
-        val noticeIds = notices.map { it.id }
-        val detailsCounts = noticeDetailRepository.findAll().count { noticeIds.contains(it.noticeId) }
-        val validAccountNameCounts = resultRepository.countByYear(thisYear.toString())
-        val failedAccounts = noticeDetailFailLogRepository.findAllByYear(thisYear.toString()).size
+        val validTitles = noticeRepository.count()
+        val detailsCounts = noticeDetailRepository.count()
+        val validAccountNameCounts = resultRepository.count()
+        val failedAccounts = noticeDetailFailLogRepository.countByYear(thisYear.toString())
         analysisLogRepository.save(
             AnalysisLog(
                 date = DateUtil.now(),

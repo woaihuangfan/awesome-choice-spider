@@ -24,7 +24,7 @@ class Result(
     @Column(name = "date", nullable = false)
     val date: String,
     @Column(name = "accountCompanyName", nullable = false)
-    val accountCompanyName: String,
+    var accountCompanyName: String,
     @Column(name = "code", nullable = false)
     val code: String,
     @Column(name = "amount", nullable = true)

@@ -8,14 +8,6 @@
 </head>
 <body>
 <div style="padding: 15px;">
-    <!--    <blockquote class="layui-elem-quote">-->
-    <!--        <div class="layui-btn-container">-->
-    <!--            <button class="layui-btn" lay-submit lay-filter="demo-table-export" onclick="start()">-->
-    <!--                开始采集（TODO)-->
-    <!--            </button>-->
-
-    <!--        </div>-->
-    <!--    </blockquote>-->
     <blockquote class="layui-elem-quote layui-text">
         重新分析失败的正文：分析错误记录页面中的数据<br>
         重新分析全部正文：分析全部已收录正文的数据<br>
@@ -38,19 +30,6 @@
     <div class="layui-card layui-panel">
         <table class="layui-table" lay-data="{height:'auto', url:'/query/analysis', page:true,limit:20}"
                id="ID-table-demo-init">
-            <thead>
-            <tr>
-                <th lay-data="{type:'numbers'}">序号</th>
-                <th lay-data="{field:'date', width:180}">分析时间</th>
-                <th lay-data="{field:'type', width:200}">类型</th>
-                <th lay-data="{field:'new'}">新采集数据条数</th>
-                <!--                <th lay-data="{field:'titles'}">标题收录条数</th>-->
-                <th lay-data="{field:'validTitles', width:120}">标题命中总数</th>
-                <th lay-data="{field:'validDetails'}">公告正文收录条数</th>
-                <th lay-data="{field:'successAccounts'}">事务所名称命中条数</th>
-                <th lay-data="{field:'failedAccounts', width:200}">事务所名称分析失败条数</th>
-            </tr>
-            </thead>
         </table>
     </div>
     <br><br>
@@ -58,10 +37,39 @@
 <script src="//cdn.staticfile.org/layui/2.9.7/layui.js"></script>
 <script>
 
+    var tableIns
+    layui.use(['table', 'jquery'], function () {
+        var table = layui.table;
+        $ = layui.jquery;
+
+        // 渲染表格
+        tableIns = table.render({
+            elem: '#ID-table-demo-init',
+            url: '/query/analysis', // 模拟接口地址
+            page: true,
+            limit: 20,
+            cols: [[
+                {field: 'LAY_NUM', title: '序号', width: 80, type: "number"},
+                {field: 'date', title: '分析时间', width: 180},
+                {field: 'type', title: '类型', width: 200},
+                {field: 'new', title: '新采集数据条数'},
+                {field: 'validTitles', title: '标题命中总数', width: 120},
+                {field: 'validDetails', title: '公告正文收录条数'},
+                {field: 'successAccounts', title: '事务所名称命中条数'},
+                {field: 'failedAccounts', title: '事务所名称分析失败条数', width: 200},
+            ]]
+        });
+
+    });
+    // 刷新表格
+    function reloadTable() {
+        tableIns.reload();
+    }
     function reAnalysisErrors() {
         layui.$.get('/admin/reAnalysisErrors', function (data) {
             // 处理接口返回的数据
             layer.msg(data, {icon: 1});
+            reloadTable()
         });
     }
 
@@ -69,6 +77,7 @@
         layui.$.get('/admin/reAnalysisDetail', function (data) {
             // 处理接口返回的数据
             layer.msg(data, {icon: 1});
+            reloadTable()
         });
     }
 
@@ -76,6 +85,7 @@
         layui.$.get('/admin/reAnalysisAll', function (data) {
             // 处理接口返回的数据
             layer.msg(data, {icon: 1});
+            reloadTable()
         });
     }
 </script>

@@ -59,15 +59,14 @@
                     content: '<div style="padding: 20px;">' + data.content + '</div>',
                     area: ['600px', '400px']
                 });
-                document.onkeydown = function (event) {
-                    if (event.keyCode === 27) { // ESC 键的 keyCode 是 27
-                        layer.closeAll();
-                    }
-                };
             }
         });
     });
-
+    document.onkeydown = function (event) {
+        if (event.keyCode === 27) { // ESC 键的 keyCode 是 27
+            layer.closeAll();
+        }
+    };
     function edit(id) {
 
         // 刷新表格
@@ -80,10 +79,10 @@
         layui.use(['layer'], function () {
             var layer = layui.layer;
             var util = layui.util
-            layer.prompt({title: '请输入手动修正结果', formType: 2}, function (value, index, elem) {
+            layer.prompt({title: '请输入手动修正结果', formType: 0}, function (value, index, elem) {
                 if (value === '') return elem.focus();
                 layui.$.ajax({
-                    url: '/result/' + id,
+                    url: '/error/' + id,
                     type: 'PATCH',
                     contentType: 'application/json',
                     data: JSON.stringify({accountCompanyName: util.escape(value)}),

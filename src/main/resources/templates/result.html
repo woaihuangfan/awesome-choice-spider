@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href="//cdn.staticfile.org/layui/2.9.7/css/layui.css" rel="stylesheet">
 </head>
+<script src="//cdn.staticfile.org/layui/2.9.7/layui.js"></script>
 <body>
 <div style="padding: 15px;">
     <blockquote class="layui-elem-quote">
@@ -24,22 +25,10 @@
     <div class="layui-card layui-panel">
         <table class="layui-table" lay-data="{height:'auto', url:'/query/result', page:true,limit:20}"
                id="ID-table-demo-init">
-            <thead>
-            <!--            <tr>-->
-            <!--                <th lay-data="{type:'numbers'}">序号</th>-->
-            <!--                <th lay-data="{field:'name', width:150}">公司名称</th>-->
-            <!--                <th lay-data="{field:'stock', width:120}">证券代码</th>-->
-            <!--                <th lay-data="{field:'date',width:120}">公告日期</th>-->
-            <!--                <th lay-data="{field:'accountCompanyName'}">会计师事务所</th>-->
-            <!--                <th lay-data="{field:'amount'}">合同金额</th>-->
-            <!--                <th lay-data="{field:'title',templet: addlink}">信息来源</th>-->
-            <!--            </tr>-->
-            </thead>
         </table>
     </div>
     <br><br>
 </div>
-<script src="//cdn.staticfile.org/layui/2.9.7/layui.js"></script>
 <script>
     var addlink = function (d) {
         //这里是拼接三个字符串拼接成一个完整的a标签，中间的字符串是url
@@ -95,13 +84,56 @@
                 {field: 'stock', title: '证券代码', width: 100},
                 {field: 'date', title: '公告日期', width: 120},
                 {field: 'accountCompanyName', title: '会计师事务所'},
-                {field: 'amount', title: '合同金额', width: 120},
+                // {field: 'amount', title: '合同金额', width: 120},
                 {field: 'title', title: '信息来源', templet: addlink},
+                {
+                    title: '操作', width: 100, templet: function (d) {
+                        return '<button class="layui-btn layui-btn-warm layui-btn-xs edit-btn" onclick="edit(\'' + d.id + '\')">手动修正</button>';
+                    }
+                }
             ]]
         });
 
-
     });
+
+    function edit(id) {
+        // 刷新表格
+        function reloadTable() {
+            tableIns.reload();
+        }
+        document.onkeydown = function (event) {
+            if (event.keyCode === 27) { // ESC 键的 keyCode 是 27
+                layer.closeAll();
+            }
+        };
+        // 手动修正结果
+        layui.use(['layer'], function () {
+            var layer = layui.layer;
+            var util = layui.util
+            layer.prompt({title: '请输入手动调整结果', formType: 0,offset:['36%','36%']}, function (value, index, elem) {
+                if (value === '') return elem.focus();
+                layui.$.ajax({
+                    url: '/result/' + id,
+                    type: 'PATCH',
+                    contentType: 'application/json',
+                    data: JSON.stringify({accountCompanyName: util.escape(value)}),
+                    success: function (data) {
+                        // 处理成功的逻辑
+                        layer.msg(data, {icon: 1});
+                        reloadTable();
+                        // 关闭 prompt
+                        layer.close(index);
+                    },
+                    error: function (xhr, status, error) {
+                        // 处理失败的逻辑
+                        layer.msg(xhr.responseText, {icon: 5, anim: 6});
+                    }
+                });
+
+
+            });
+        });
+    }
 </script>
 </body>
 </html>

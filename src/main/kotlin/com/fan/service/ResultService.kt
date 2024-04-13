@@ -8,6 +8,7 @@ import com.fan.db.entity.Result
 import com.fan.db.repository.ResultRepository
 import jakarta.transaction.Transactional
 import org.springframework.stereotype.Service
+import java.util.Optional
 
 @Service
 class ResultService(
@@ -61,4 +62,12 @@ class ResultService(
         "<a target='_blank' style='color: blue; text-decoration: none; font-weight: bold;' href='%s'>《%s》</a>".format(
             getDetailPageUrl(notice.stock, notice.code), notice.title
         )
+
+    fun findById(id: Long): Optional<Result> {
+        return resultRepository.findById(id)
+    }
+
+    fun save(result: Result) {
+        resultRepository.save(result)
+    }
 }
