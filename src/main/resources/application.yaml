@@ -33,7 +33,7 @@ spring:
     static-path-pattern: /**  #静态资源父级路径
   web:
     resources:
-      static-locations: classpath:/resources/,classpath:/static/  #静态资源映射目录
+      static-locations: classpath:/static/  #静态资源映射目录
 
 #management:
 #  endpoint:
@@ -54,4 +54,4 @@ spring:
 #  level:
 #    root: debug
 server:
-  port: 8080
+  port: 8081

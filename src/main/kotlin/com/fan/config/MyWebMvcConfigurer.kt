@@ -14,6 +14,7 @@ class MyWebMvcConfigurer : WebMvcConfigurer {
         registry.addResourceHandler("/**")
             .addResourceLocations("classpath:/templates/")
             .addResourceLocations("classpath:/static/")
+            .addResourceLocations("classpath:/static/layui")
             .addResourceLocations("classpath:/resources/")
         super.addResourceHandlers(registry)
     }
