@@ -129,7 +129,6 @@
                     websocket.onmessage = function (event) {
                         layui.$('#logArea').append(event.data + '\n');
                         scrollToBottom()
-                        send("confirm")
                     };
 
                     //连接关闭的回调方法
@@ -141,12 +140,6 @@
                     window.onbeforeunload = function () {
                         websocket.close();
                     };
-
-                    //发送消息
-                    function send() {
-                        var message = document.getElementById('text').value;
-                        websocket.send(message);
-                    }
 
                     layui.use('code', function () {
                         var code = layui.code;
