@@ -8,14 +8,9 @@
 </head>
 <body>
 <div style="padding: 15px;">
-    <!--    <blockquote class="layui-elem-quote">-->
-    <!--        <div class="layui-btn-container">-->
-    <!--            <button class="layui-btn" lay-submit lay-filter="demo-table-export" onclick="start()">-->
-    <!--                开始采集（TODO)-->
-    <!--            </button>-->
-
-    <!--        </div>-->
-    <!--    </blockquote>-->
+    <blockquote class="layui-elem-quote">
+        数据采集时会从当前发布的最新公告开始，然后采集以前的公告，回溯日期是指采集到哪一天截止。命中数量是指这次采集操作去重后新收录了多少条数据。
+    </blockquote>
     <div class="layui-form-item">
         <div class="layui-inline">
             <div class="layui-form-item">
@@ -49,6 +44,7 @@
             <thead>
             <tr>
                 <th lay-data="{type:'numbers'}">序号</th>
+                <th lay-data="{field:'tillDate'}">回溯日期</th>
                 <th lay-data="{field:'count'}">命中数量</th>
                 <th lay-data="{field:'date'}">采集时间</th>
             </tr>
@@ -75,7 +71,7 @@
             data: JSON.stringify({tillDate: tillDate}),
             success: function (data) {
                 // 处理接口返回的数据
-                layer.msg(data, { icon: 1 });
+                layer.msg(data, {icon: 1});
             },
             error: function (xhr, status, error) {
                 // 处理请求失败的逻辑
