@@ -1,7 +1,6 @@
 package com.fan.controller
 
 import cn.hutool.core.date.DateUtil
-import cn.hutool.core.thread.ThreadUtil.sleep
 import cn.hutool.log.Log
 import cn.hutool.log.level.Level
 import jakarta.websocket.OnClose
@@ -39,7 +38,6 @@ class WebSocketController {
     private fun startSendingText(session: Session) {
         while (isRunning.get()) {
             try {
-                sleep(500)
                 val message = queue.take()
                 session.basicRemote.sendText(message)
             } catch (e: InterruptedException) {
@@ -57,7 +55,7 @@ class WebSocketController {
         private val logger = Log.get()
         fun letPeopleKnow(message: String) {
             logger.log(Level.INFO, message)
-            if (queue.size > 100000) {
+            if (queue.size > 1000000) {
                 queue.pollFirst()
             }
             queue.put(withTimePrefix(message))
