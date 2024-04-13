@@ -1,6 +1,7 @@
 package com.fan.service
 
 import cn.hutool.core.date.DateUtil
+import com.fan.controller.WebSocketController.Companion.letPeopleKnow
 import com.fan.db.entity.Notice
 import com.fan.db.entity.NoticeDetail
 import com.fan.db.entity.SearchByCodeSource
@@ -19,7 +20,7 @@ class NoticeService(private val noticeRepository: NoticeRepository) {
         val code = item.art_code
         val logMessage = "【${item.codes.first().short_name}】${item.title}"
         noticeRepository.findByStockAndCode(stock, code)?.let {
-            println("======== $logMessage 在待分析列表中已存在 ========")
+            letPeopleKnow("======== $logMessage 在待分析列表中已存在 ========")
             return
         }
         val columnCode = if (item.columns.isNotEmpty()) item.columns.first().column_code else ""
@@ -37,7 +38,7 @@ class NoticeService(private val noticeRepository: NoticeRepository) {
         noticeRepository.save(
             notice
         )
-        println("======== 待分析列表新收录 $logMessage======")
+        letPeopleKnow("======== 待分析列表新收录 $logMessage======")
     }
 
     @Transactional

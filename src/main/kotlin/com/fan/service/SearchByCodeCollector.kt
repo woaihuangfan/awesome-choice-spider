@@ -4,6 +4,7 @@ import cn.hutool.core.date.DateTime
 import cn.hutool.core.date.DateUtil
 import cn.hutool.core.util.PageUtil
 import com.fan.client.SearchClient
+import com.fan.controller.WebSocketController.Companion.letPeopleKnow
 import com.fan.db.entity.NoticeSearchHistory
 import com.fan.db.entity.SearchByCodeSource
 import com.fan.db.repository.CompanyRepository
@@ -49,14 +50,14 @@ class SearchByCodeCollector(
                 launch {
                     val stock = entity.stock
                     val tillDate = negotiateTillDate(stock, param)
-                    println(
+                    letPeopleKnow(
                         "==========将采集【${entity.stock}】${tillDate} -${DateUtil.date()} 期间的公告数据=========="
                     )
                     val totalPages = getTotalPages(stock)
 
                     // 单个股票的爬取
                     for (i in 1..totalPages) {
-                        println("==========开始爬取第 $i 页, 共【$totalPages】页==========")
+                        letPeopleKnow("==========开始爬取第 $i 页, 共【$totalPages】页==========")
                         if (successfullyCollectDataByPages(stock, i, requestId, tillDate)) break
                     }
 
@@ -67,8 +68,8 @@ class SearchByCodeCollector(
             jobs.forEach { it.join() }
             val endTime = Instant.now()
             val duration = Duration.between(startTime, endTime)
-            println("所有任务已完成，成功爬取 ${counter.get()} 个公告的数据。")
-            println("总计用时：${duration.toMinutes()} 分钟 ${duration.seconds % 60} 秒")
+            letPeopleKnow("所有任务已完成，成功爬取 ${counter.get()} 个公告的数据。")
+            letPeopleKnow("总计用时：${duration.toMinutes()} 分钟 ${duration.seconds % 60} 秒")
         }
 
     }
@@ -84,7 +85,7 @@ class SearchByCodeCollector(
         val lastUpdatedDate = DateUtil.parseDate(histories.first().date)
 
         if (userPreferDate > lastTillDate && userPreferDate < lastUpdatedDate) {
-            println(
+            letPeopleKnow(
                 "======== $lastTillDate -${lastUpdatedDate}之间的数据已采集，将自动修正起始日期为${
                     DateUtil.format(
                         lastUpdatedDate,
@@ -114,7 +115,7 @@ class SearchByCodeCollector(
                         date = DateUtil.now()
                     )
                 )
-                println("==========证券代码为【${stock}】的公司 $tillDate - ${DateUtil.date()}公告爬取完成(新采集${count}条记录)，将停止爬取==========")
+                letPeopleKnow("==========证券代码为【${stock}】的公司 $tillDate - ${DateUtil.date()}公告爬取完成(新采集${count}条记录)，将停止爬取==========")
                 return true
             } else {
                 e.printStackTrace()
@@ -126,7 +127,7 @@ class SearchByCodeCollector(
     private fun getTotalPages(code: String): Int {
         val searchByCodeResponse = SearchClient.searchByCode(code, 1, 1)
         val totalHits = searchByCodeResponse.data.total_hits
-        println("==========证券代码为【${code}】的公司查询到的公告总数为:$totalHits==========")
+        letPeopleKnow("==========证券代码为【${code}】的公司查询到的公告总数为:$totalHits==========")
         return PageUtil.totalPage(totalHits, 50)
     }
 
@@ -150,7 +151,7 @@ class SearchByCodeCollector(
     private fun saveValidNoticeFilteredByTitleRule(item: Item, requestId: String) {
         if (searchFilterChain.doFilter(item)) {
             val logMessage = "【${item.codes.first().short_name}】${item.title}"
-            println("======== $logMessage 符合标题筛选条件，将进入待分析列表========")
+            letPeopleKnow("======== $logMessage 符合标题筛选条件，将进入待分析列表========")
             noticeService.saveOrUpdateNotice(item, requestId)
         }
     }
@@ -160,7 +161,7 @@ class SearchByCodeCollector(
         val company = companyRepository.findByStock(stock)
         company?.let {
             if (StringUtils.hasText(company.companyName) && company.companyName != companyName) {
-                println("==========证券代码为【${stock}】的公司名称发生变化，原公司名称为【${company.companyName}】，新公司名称为【${companyName}】==========")
+                letPeopleKnow("==========证券代码为【${stock}】的公司名称发生变化，原公司名称为【${company.companyName}】，新公司名称为【${companyName}】==========")
             }
             it.companyName = companyName
             companyRepository.save(it)
@@ -181,7 +182,7 @@ class SearchByCodeCollector(
                 )
             )
         ) {
-            println("======== $logMessage 已存在 ========")
+            letPeopleKnow("======== $logMessage 已存在 ========")
             return
         }
         val column = if (item.columns.isNotEmpty()) item.columns.first() else null
@@ -198,7 +199,7 @@ class SearchByCodeCollector(
             createDate = DateUtil.now()
         )
         searchByCodeSourceRepository.save(source)
-        println("======== 新收录 $logMessage ========")
+        letPeopleKnow("======== 新收录 $logMessage ========")
     }
 
 }

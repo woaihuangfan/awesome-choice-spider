@@ -1,6 +1,7 @@
 package com.fan.service
 
 import cn.hutool.core.thread.ThreadUtil
+import com.fan.controller.WebSocketController.Companion.letPeopleKnow
 import com.fan.db.repository.CountByRequestIdRepository
 import com.fan.enums.SearchType
 import com.fan.po.DataCollectParam
@@ -18,12 +19,12 @@ abstract class AbstractDataCollector(
             return "正在采集中，请稍后"
         }
         ThreadUtil.execAsync {
-            println("==========开始爬取==========")
+            letPeopleKnow("==========开始爬取==========")
             lock.incrementAndGet()
             val requestId = UUID.randomUUID().toString()
             doCollect(param, type, requestId)
 
-            println("==========爬取结束==========")
+            letPeopleKnow("==========爬取结束==========")
             log(requestId, param, type)
             lock.decrementAndGet()
         }

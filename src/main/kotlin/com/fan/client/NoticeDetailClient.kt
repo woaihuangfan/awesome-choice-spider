@@ -45,17 +45,10 @@ object NoticeDetailClient {
                     stock = detail.data?.security?.first { it.stock.length == 6 }?.stock.orEmpty(),
                 )
             } catch (e: Exception) {
-                println("====无法解析响应====")
-                println(url)
-                println("====infoCode====")
-                println(infoCode)
+                e.printStackTrace()
                 return null
             }
         }
-        println("====请求失败====")
-        println("====infoCode====")
-        println(infoCode)
-        println(response.status)
         return null
 
 

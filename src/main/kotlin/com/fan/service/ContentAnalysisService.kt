@@ -1,6 +1,7 @@
 package com.fan.service
 
 import cn.hutool.core.thread.ThreadUtil
+import com.fan.controller.WebSocketController.Companion.letPeopleKnow
 import com.fan.db.entity.NoticeDetail
 import com.fan.db.entity.Result
 import com.fan.db.repository.SearchByCodeSourceRepository
@@ -27,13 +28,13 @@ class ContentAnalysisService(
     @Transactional
     fun reAnalysisErrors() {
         val failedRecords = detailAnalysisErrorLogService.getFailedRecords()
-        println("==========开始分析！待分析错误公告数目:${failedRecords.size}=======")
+        letPeopleKnow("==========开始分析！待分析错误公告数目:${failedRecords.size}=======")
         failedRecords.forEach { record ->
 
             val detail = noticeDetailService.getNoticeDetailByFailLog(record)
             detail?.let {
                 if (!isTitleCompliant(detail.title)) {
-                    println("========公告${detail.title}【${detail.stock}】 标题不符合要求 ===========")
+                    letPeopleKnow("========公告${detail.title}【${detail.stock}】 标题不符合要求 ===========")
                     return@let
                 }
                 val validResult = doAnalysisDetailAndSaveResult(detail)
@@ -47,10 +48,10 @@ class ContentAnalysisService(
 
     @Transactional
     fun reAnalysisDetail() {
-        println("==========开始分析数据库中存储的全部公告内容，不会重新从网上加载")
+        letPeopleKnow("==========开始分析数据库中存储的全部公告内容，不会重新从网上加载")
         analysisDetail()
         reviewResults()
-        println("==========重新分析详情完成")
+        letPeopleKnow("==========重新分析详情完成")
         analysisLogService.saveAnalysisLog("分析已有公告详情", UUID.randomUUID().toString())
 
     }
@@ -63,7 +64,7 @@ class ContentAnalysisService(
             analysisDetail()
             reAnalysisErrors()
             reviewResults()
-            println("==========重新分析完成")
+            letPeopleKnow("==========重新分析完成")
             analysisLogService.saveAnalysisLog("重新分析公告标题并分析详情数据", UUID.randomUUID().toString())
         }
 
@@ -88,7 +89,7 @@ class ContentAnalysisService(
     private fun fetchDetail(requestId: String) {
         searchByCodeSourceRepository.findAll().forEach { notice ->
             try {
-                println("==========开始分析过滤公司【${notice.companyName}-${notice.stock}】的公告标题：${notice.title}")
+                letPeopleKnow("==========开始分析过滤公司【${notice.companyName}-${notice.stock}】的公告标题：${notice.title}")
                 if (isTitleCompliant(notice.title)) {
                     // 会触发加载详情
                     noticeService.saveOrUpdateNotice(notice, requestId)
@@ -109,7 +110,7 @@ class ContentAnalysisService(
         val codes = filteredResult.map { it.code }
         val stocks = filteredResult.map { it.stock }
         val todo = allDetails.filter { !(codes.contains(it.code) && stocks.contains(it.stock)) }
-        println("==========待分析公告数目:${todo.size}=======")
+        letPeopleKnow("==========待分析公告数目:${todo.size}=======")
         todo.forEach {
             try {
                 val analysisResult = doAnalysisDetailAndSaveResult(it)
@@ -135,18 +136,18 @@ class ContentAnalysisService(
         try {
             val code = detail.code
             val notice = noticeService.getNoticeFromDetail(detail)
-            println("======== 开始分析公告 $code 标题：${detail.title}========")
+            letPeopleKnow("======== 开始分析公告 $code 标题：${detail.title}========")
             val accountCompanyName = extractAccountingFirmName(detail.content)
             val amount = extractAccountingAmount()
-            println("======== 【${notice.securityFullName}】合作的事务所名称：${accountCompanyName}========,合同金额：${amount}(待补充）")
+            letPeopleKnow("======== 【${notice.securityFullName}】合作的事务所名称：${accountCompanyName}========,合同金额：${amount}(待补充）")
             if (!isValidAccountName(accountCompanyName)) {
-                println("======== 该名称【${accountCompanyName}】看上去不符合条件，错误已记录========")
+                letPeopleKnow("======== 该名称【${accountCompanyName}】看上去不符合条件，错误已记录========")
                 resultService.removeFromResultIfAny(detail)
                 return Pair(false, Pair(accountCompanyName, "未开始提取"))
             }
 
             if (!isValidAmount(amount)) {
-                println("======== 该合同金额信息【${amount}】看上去不符合条件，错误已记录========")
+                letPeopleKnow("======== 该合同金额信息【${amount}】看上去不符合条件，错误已记录========")
                 resultService.removeFromResultIfAny(detail)
                 return Pair(false, Pair(accountCompanyName, amount))
             }

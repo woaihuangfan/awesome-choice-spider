@@ -2,7 +2,7 @@
 //
 //
 //fun main() {
-//    println(
+//    letClientKnow(
 //        DefaultAccountingFirmNameExtractor.extractAccountingFirmName(
 //            """
 //   证券代码：002460    证券简称：赣锋锂业    编号：临2024-021

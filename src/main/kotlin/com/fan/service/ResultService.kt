@@ -2,6 +2,7 @@ package com.fan.service
 
 import cn.hutool.core.date.DateUtil
 import com.fan.client.NoticeDetailClient.getDetailPageUrl
+import com.fan.controller.WebSocketController.Companion.letPeopleKnow
 import com.fan.db.entity.Notice
 import com.fan.db.entity.NoticeDetail
 import com.fan.db.entity.Result
@@ -38,7 +39,7 @@ class ResultService(
             title = encodeTitle(notice),
         )
         exist?.let {
-            println("========更新分析结果======")
+            letPeopleKnow("========更新分析结果======")
             result.id = exist.id
         }
         resultRepository.save(result)
@@ -46,7 +47,7 @@ class ResultService(
 
     fun removeFromResultIfAny(detail: NoticeDetail) {
         resultRepository.findByStockAndCode(detail.stock, detail.code)?.let {
-            println("======== 从汇总结果中删除【${detail.stock} - ${detail.title} - ${detail.code}】========")
+            letPeopleKnow("======== 从汇总结果中删除【${detail.stock} - ${detail.title} - ${detail.code}】========")
             resultRepository.delete(it)
         }
 

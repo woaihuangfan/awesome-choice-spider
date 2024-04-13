@@ -1,6 +1,7 @@
 package com.fan.service
 
 import com.fan.client.NoticeDetailClient.fetchDetailFromRemote
+import com.fan.controller.WebSocketController.Companion.letPeopleKnow
 import com.fan.db.entity.Notice
 import com.fan.db.entity.NoticeDetail
 import com.fan.db.entity.NoticeDetailFailLog
@@ -31,7 +32,7 @@ class NoticeDetailService(
             val exist = noticeDetailRepository.findByStockAndCode(notice.stock, code)
             val noticeTitle = "【${notice.securityFullName} - ${notice.title}】公告详情"
             if (exist == null || StringUtils.isEmpty(exist.content)) {
-                println("======== 开始下载$noticeTitle ${code}========")
+                letPeopleKnow("======== 开始下载$noticeTitle ${code}========")
                 val detail = fetchDetailFromRemote(code)
                 if (Objects.isNull(detail)) {
                     return
@@ -49,16 +50,16 @@ class NoticeDetailService(
                             title = detail.title,
                             requestId = notice.requestId
                         )
-                    println("======== 保存公告详情 ========")
+                    letPeopleKnow("======== 保存公告详情 ========")
                     noticeDetailRepository.save(noticeDetail)
                 }
             } else {
                 noticeDetailRepository.save(exist)
-                println("========$noticeTitle 已存在 ========")
+                letPeopleKnow("========$noticeTitle 已存在 ========")
             }
         } catch (ex: Exception) {
             ex.printStackTrace()
-            println("======== 公告详情下载失败，记录已保存 ${code}========")
+            letPeopleKnow("======== 公告详情下载失败，记录已保存 ${code}========")
             noticeDetailFetchFailedLogRepository.save(NoticeDetailFetchFailedLog(code = code))
         }
     }

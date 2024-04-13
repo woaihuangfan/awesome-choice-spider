@@ -48,12 +48,23 @@
     layui.use(function () {
         var laydate = layui.laydate;
         laydate.render({
-            elem: '#ID-laydate-demo'
+            elem: '#ID-laydate-demo',
+            trigger: 'click',  // 点击触发
+            max: 0,  // 设置 max 为 0，表示最大可选日期是今天
+            done: function (value, date) {
+                if (!value) {
+                    layer.msg('日期不能为空', {icon: 5});
+                }
+            }
         });
     });
 
     function startCollect() {
         var tillDate = layui.$("#ID-laydate-demo").val()
+        if (tillDate === undefined || tillDate === "") {
+            layer.msg("请输入有效日期", {icon: 5});
+            return
+        }
         layui.$.ajax({
             url: '/data',
             type: 'POST',
@@ -61,13 +72,104 @@
             data: JSON.stringify({tillDate: tillDate}),
             success: function (data) {
                 // 处理接口返回的数据
-                layer.msg(data, {icon: 1});
+                layer.msg(data, {
+                    icon: 1,
+                    time: 1000,
+                    end: function () {
+                        showLog();
+                    }
+                });
+
             },
             error: function (xhr, status, error) {
                 // 处理请求失败的逻辑
                 layer.msg(xhr.responseText);
             }
         });
+
+        function showLog() {
+            layer.open({
+                type: 1,
+                area: ['1200px', '600px'],
+                resize: true,
+                shadeClose: false,
+                title: false,
+                content: `
+            <pre id="logArea" class="layui-code code-demo" lay-options="{theme: 'dark'}"
+         style="height: 600px; overflow-y: auto;">
+            `,
+                success: function () {
+
+                    document.onkeydown = function (event) {
+                        if (event.keyCode === 27) { // ESC 键的 keyCode 是 27
+                            layer.closeAll();
+                        }
+                    };
+                    // 对弹层中的表单进行初始化渲染
+                    var websocket = null;
+
+                    //判断当前浏览器是否支持WebSocket
+                    if ('WebSocket' in window) {
+                        websocket = new WebSocket("ws://" + window.location.host + "/log");
+                    } else {
+                        alert('Dont support websocket')
+                    }
+
+                    //连接发生错误的回调方法
+                    websocket.onerror = function () {
+                        console.log("error");
+                    };
+
+                    //连接成功建立的回调方法
+                    websocket.onopen = function () {
+                        console.log("open");
+                    };
+
+                    //接收到消息的回调方法
+                    websocket.onmessage = function (event) {
+                        layui.$('#logArea').append(event.data + '\n');
+                        scrollToBottom()
+                        send("confirm")
+                    };
+
+                    //连接关闭的回调方法
+                    websocket.onclose = function () {
+                        layer.closeAll();
+                    };
+
+                    //监听窗口关闭事件，当窗口关闭时，主动去关闭websocket连接，防止连接还没断开就关闭窗口，server端会抛异常。
+                    window.onbeforeunload = function () {
+                        websocket.close();
+                    };
+
+                    //发送消息
+                    function send() {
+                        var message = document.getElementById('text').value;
+                        websocket.send(message);
+                    }
+
+                    layui.use('code', function () {
+                        var code = layui.code;
+                        // 初始化代码块
+                        code({
+                            elem: '#logArea',  // 指定元素
+                            title: '日志输出', // 标题
+                            encode: true,  // 对内容进行转义
+                            about: false,  // 不显示关于
+                            skin: 'dark'  // 使用暗色主题
+                        });
+                    });
+
+                    // 自动滚动到底部
+                    function scrollToBottom() {
+                        var logArea = document.getElementById('logArea');
+                        logArea.scrollTop = logArea.scrollHeight;
+                    }
+                }
+            });
+        }
+
+
     }
 </script>
 </body>
