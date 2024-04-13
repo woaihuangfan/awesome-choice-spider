@@ -12,8 +12,8 @@ class AdminController(
     private val contentAnalysisService: ContentAnalysisService
 ) {
 
-    @GetMapping(value = ["/reAnalysis"])
-    fun reAnalysis(
+    @GetMapping(value = ["/reAnalysisErrors"])
+    fun reAnalysisErrors(
     ): String {
         contentAnalysisService.reAnalysisErrors()
         return "success"

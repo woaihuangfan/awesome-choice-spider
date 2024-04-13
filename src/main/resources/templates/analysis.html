@@ -19,7 +19,8 @@
     <div class="layui-form-item">
         <div class="layui-input-group">
             <div class="layui-btn-container">
-                <button type="button" class="layui-btn layui-bg-blue" onclick="reAnalysis()">重新分析失败的正文</button>
+                <button type="button" class="layui-btn layui-bg-blue" onclick="reAnalysisErrors()">重新分析失败的正文
+                </button>
                 <button type="button" class="layui-btn layui-bg-green" onclick="reAnalysisDetail()">重新分析全部正文
                 </button>
                 <button type="button" class="layui-btn layui-bg-orange" onclick="reAnalysisAll()">重新分析全部数据
@@ -38,7 +39,7 @@
                 <th lay-data="{field:'date', width:180}">分析时间</th>
                 <th lay-data="{field:'type', width:200}">类型</th>
                 <th lay-data="{field:'new'}">新采集数据条数</th>
-<!--                <th lay-data="{field:'titles'}">标题收录条数</th>-->
+                <!--                <th lay-data="{field:'titles'}">标题收录条数</th>-->
                 <th lay-data="{field:'validTitles', width:120}">标题命中总数</th>
                 <th lay-data="{field:'validDetails'}">公告正文收录条数</th>
                 <th lay-data="{field:'successAccounts'}">事务所名称命中条数</th>
@@ -52,24 +53,24 @@
 <script src="//cdn.staticfile.org/layui/2.9.7/layui.js"></script>
 <script>
 
-    function reAnalysis() {
-        layui.$.get('/admin/reAnalysis', function (data) {
+    function reAnalysisErrors() {
+        layui.$.get('/admin/reAnalysisErrors', function (data) {
             // 处理接口返回的数据
-            layer.msg(data, { icon: 1 });
+            layer.msg(data, {icon: 1});
         });
     }
 
     function reAnalysisDetail() {
         layui.$.get('/admin/reAnalysisDetail', function (data) {
             // 处理接口返回的数据
-            layer.msg(data, { icon: 1 });
+            layer.msg(data, {icon: 1});
         });
     }
 
     function reAnalysisAll() {
         layui.$.get('/admin/reAnalysisAll', function (data) {
             // 处理接口返回的数据
-            layer.msg(data, { icon: 1 });
+            layer.msg(data, {icon: 1});
         });
     }
 </script>
