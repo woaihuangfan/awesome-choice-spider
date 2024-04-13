@@ -101,6 +101,7 @@ class ContentAnalysisService(
 
     private fun isTitleCompliant(title: String) = titleFilter.doFilter(title)
 
+
     private fun analysisDetail() {
         val allDetails = noticeDetailService.getAllNoticeDetails()
         val results = resultService.getAllResults()
@@ -130,7 +131,6 @@ class ContentAnalysisService(
         }
     }
 
-    @Transactional
     fun doAnalysisDetailAndSaveResult(detail: NoticeDetail): Pair<Boolean, Pair<String, String>> {
         try {
             val code = detail.code
