@@ -9,12 +9,17 @@
 <body>
 <div style="padding: 15px;">
     <blockquote class="layui-elem-quote">
-        <div class="layui-btn-container">
-            <button class="layui-btn" lay-submit lay-filter="demo-table-export" onclick="exportExcel()">导出Excel
-            </button>
-
-        </div>
+        分析结果汇总查询。
     </blockquote>
+    <div class="layui-form-item">
+        <div class="layui-inline">
+            <div class="layui-btn-container">
+                <button type="button" class="layui-btn" lay-submit lay-filter="demo-table-export"
+                        onclick="exportExcel()">导出Excel
+                </button>
+            </div>
+        </div>
+    </div>
 
     <div class="layui-card layui-panel">
         <table class="layui-table" lay-data="{height:'auto', url:'/query/result', page:true,limit:20}"
@@ -91,7 +96,7 @@
                 {field: 'date', title: '公告日期', width: 120},
                 {field: 'accountCompanyName', title: '会计师事务所'},
                 {field: 'amount', title: '合同金额', width: 120},
-                {field: 'title', title: '信息来源',  templet: addlink},
+                {field: 'title', title: '信息来源', templet: addlink},
             ]]
         });
 

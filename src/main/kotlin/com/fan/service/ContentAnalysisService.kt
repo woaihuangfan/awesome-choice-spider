@@ -27,11 +27,16 @@ class ContentAnalysisService(
     @Transactional
     fun reAnalysisErrors() {
         val failedRecords = detailAnalysisErrorLogService.getFailedRecords()
-        println("==========待分析错误公告数目:${failedRecords.size}=======")
+        println("==========开始分析！待分析错误公告数目:${failedRecords.size}=======")
         failedRecords.forEach { record ->
+
             val detail = noticeDetailService.getNoticeDetailByFailLog(record)
             detail?.let {
-                val validResult = doAnalysisAndSaveResult(detail)
+                if (!isTitleCompliant(detail.title)) {
+                    println("========公告${detail.title}【${detail.stock}】 标题不符合要求 ===========")
+                    return@let
+                }
+                val validResult = doAnalysisDetailAndSaveResult(detail)
                 if (validResult.first) {
                     detailAnalysisErrorLogService.removeErrorLog(record)
                 }
@@ -77,14 +82,15 @@ class ContentAnalysisService(
 
 
     private fun validateTitleAndAccountCompanyName(title: String, accountCompanyName: String): Boolean {
-        return titleFilter.doFilter(title) && isValidAccountName(accountCompanyName)
+        return isTitleCompliant(title) && isValidAccountName(accountCompanyName)
     }
 
     private fun fetchDetail(requestId: String) {
         searchByCodeSourceRepository.findAll().forEach { notice ->
             try {
                 println("==========开始分析过滤公司【${notice.companyName}-${notice.stock}】的公告标题：${notice.title}")
-                if (titleFilter.doFilter(notice.title)) {
+                if (isTitleCompliant(notice.title)) {
+                    // 会触发加载详情
                     noticeService.saveOrUpdateNotice(notice, requestId)
                 }
             } catch (e: Exception) {
@@ -92,6 +98,8 @@ class ContentAnalysisService(
             }
         }
     }
+
+    private fun isTitleCompliant(title: String) = titleFilter.doFilter(title)
 
     private fun analysisDetail() {
         val allDetails = noticeDetailService.getAllNoticeDetails()
@@ -103,7 +111,7 @@ class ContentAnalysisService(
         println("==========待分析公告数目:${todo.size}=======")
         todo.forEach {
             try {
-                val analysisResult = doAnalysisAndSaveResult(it)
+                val analysisResult = doAnalysisDetailAndSaveResult(it)
                 if (analysisResult.first) {
                     detailAnalysisErrorLogService.removeErrorLogByDetail(it)
                 } else {
@@ -118,12 +126,12 @@ class ContentAnalysisService(
 
     private fun filterResult(results: List<Result>): List<Result> {
         return results.filter {
-            isValidAccountName(it.accountCompanyName)
+            isValidAccountName(it.accountCompanyName) && isTitleCompliant(it.title)
         }
     }
 
     @Transactional
-    fun doAnalysisAndSaveResult(detail: NoticeDetail): Pair<Boolean, Pair<String, String>> {
+    fun doAnalysisDetailAndSaveResult(detail: NoticeDetail): Pair<Boolean, Pair<String, String>> {
         try {
             val code = detail.code
             val notice = noticeService.getNoticeFromDetail(detail)

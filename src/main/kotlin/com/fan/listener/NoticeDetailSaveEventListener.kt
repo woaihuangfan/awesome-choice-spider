@@ -21,7 +21,7 @@ class NoticeDetailSaveEventListener(
         val detail = event.noticeDetail
         try {
             val notice = noticeRepository.findById(detail.noticeId)
-            val analysisResult = contentAnalysisService.doAnalysisAndSaveResult(detail)
+            val analysisResult = contentAnalysisService.doAnalysisDetailAndSaveResult(detail)
             if (!(notice.isPresent && analysisResult.first)) {
                 detailAnalysisErrorLogService.logErrorRecord(detail, analysisResult.second)
             }
