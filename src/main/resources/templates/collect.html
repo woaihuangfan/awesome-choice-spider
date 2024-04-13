@@ -87,6 +87,8 @@
             }
         });
 
+        // 对弹层中的表单进行初始化渲染
+        var websocket = null;
         function showLog() {
             layer.open({
                 type: 1,
@@ -105,8 +107,7 @@
                             layer.closeAll();
                         }
                     };
-                    // 对弹层中的表单进行初始化渲染
-                    var websocket = null;
+
 
                     //判断当前浏览器是否支持WebSocket
                     if ('WebSocket' in window) {
@@ -156,9 +157,16 @@
                     // 自动滚动到底部
                     function scrollToBottom() {
                         var logArea = document.getElementById('logArea');
-                        logArea.scrollTop = logArea.scrollHeight;
+                        if (logArea){
+                            logArea.scrollTop = logArea.scrollHeight;
+                        }
                     }
-                }
+                },
+                end:function () {
+                    if (websocket){
+                        websocket.close()
+                    }
+                },
             });
         }
 
