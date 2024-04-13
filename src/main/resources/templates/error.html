@@ -7,6 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href="//cdn.staticfile.org/layui/2.9.7/css/layui.css" rel="stylesheet">
 </head>
+<script src="//cdn.staticfile.org/layui/2.9.7/layui.js"></script>
 <body>
 <div style="padding: 15px;">
     <blockquote class="layui-elem-quote">
@@ -16,15 +17,6 @@
     <div class="layui-card layui-panel">
         <table class="layui-table" lay-data="{height:'auto', url:'/query/errors', page:true,limit:20}"
                id="ID-table-demo-init">
-            <thead>
-            <tr>
-                <th lay-data="{type:'numbers'}">序号</th>
-                <th lay-data="{field:'code',width:180}">公告代码</th>
-                <th lay-data="{field:'stock', width:120}">证券代码</th>
-                <th lay-data="{field:'title', width:200}">公告标题</th>
-                <th lay-data="{field:'content', templet: '#contentTpl'}">公告内容</th> <!-- 使用自定义模板 -->
-            </tr>
-            </thead>
         </table>
     </div>
     <br><br>
@@ -32,23 +24,86 @@
 <script type="text/html" id="contentTpl">
     <div>{{ d.content.substring(0, 200) }}</div> <!-- 只显示部分内容 -->
 </script>
-<script src="//cdn.staticfile.org/layui/2.9.7/layui.js"></script>
-<script>
-    layui.use(['table', 'layer'], function () {
-        var table = layui.table;
-        var layer = layui.layer;
 
-        // 监听单元格点击事件
-        table.on('row(ID-table-demo-init)', function(obj){
-            var data = obj.data;
-            layer.open({
-                type: 1,
-                title: '公告内容',
-                content: '<div style="padding: 20px;">' + data.content + '</div>',
-                area: ['600px', '400px']
-            });
+<script>
+    var tableIns
+    layui.use(['table', 'layer'], function () {
+        const table = layui.table;
+        const layer = layui.layer;
+        tableIns = table.render({
+            elem: '#ID-table-demo-init',
+            url: '/query/errors', // 模拟接口地址
+            page: true,
+            limit: 20,
+            cols: [[
+                {field: 'LAY_NUM', title: '序号', type: "number", width: 80},
+                {field: 'code', title: '公告代码', width: 180},
+                {field: 'stock', title: '证券代码', width: 120},
+                {field: 'title', title: '公告标题', width: 200},
+                {field: 'content', title: '公告内容', event: 'viewContent', templet: '#contentTpl'},
+                // {title: '操作', toolbar: '#toolbarDemo'}
+                {
+                    title: '操作', width: 100, templet: function (d) {
+                        return '<button class="layui-btn layui-btn-warm layui-btn-xs edit-btn" onclick="edit(\'' + d.id + '\')">手动修正</button>';
+                    }
+                }
+            ]]
+        });
+        // 预览公告全文
+        table.on('tool(ID-table-demo-init)', function (obj) {
+            if (obj.event === 'viewContent') {
+                const data = obj.data;
+                layer.open({
+                    type: 1,
+                    title: '公告内容',
+                    content: '<div style="padding: 20px;">' + data.content + '</div>',
+                    area: ['600px', '400px']
+                });
+                document.onkeydown = function (event) {
+                    if (event.keyCode === 27) { // ESC 键的 keyCode 是 27
+                        layer.closeAll();
+                    }
+                };
+            }
         });
     });
+
+    function edit(id) {
+
+        // 刷新表格
+        function reloadTable() {
+            tableIns.reload();
+        }
+
+
+        // 手动修正结果
+        layui.use(['layer'], function () {
+            var layer = layui.layer;
+            var util = layui.util
+            layer.prompt({title: '请输入手动修正结果', formType: 2}, function (value, index, elem) {
+                if (value === '') return elem.focus();
+                layui.$.ajax({
+                    url: '/result/' + id,
+                    type: 'PATCH',
+                    contentType: 'application/json',
+                    data: JSON.stringify({accountCompanyName: util.escape(value)}),
+                    success: function (data) {
+                        // 处理成功的逻辑
+                        layer.msg(data, {icon: 1});
+                        reloadTable();
+                        // 关闭 prompt
+                        layer.close(index);
+                    },
+                    error: function (xhr, status, error) {
+                        // 处理失败的逻辑
+                        layer.msg(xhr.responseText, {icon: 5, anim: 6});
+                    }
+                });
+
+
+            });
+        });
+    }
 </script>
 </body>
 </html>

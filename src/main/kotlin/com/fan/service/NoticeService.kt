@@ -2,15 +2,17 @@ package com.fan.service
 
 import cn.hutool.core.date.DateUtil
 import com.fan.db.entity.Notice
+import com.fan.db.entity.NoticeDetail
 import com.fan.db.entity.SearchByCodeSource
 import com.fan.db.repository.NoticeRepository
 import com.fan.enums.SearchType
 import com.fan.response.Item
-import org.springframework.stereotype.Component
+import jakarta.transaction.Transactional
+import org.springframework.stereotype.Service
 
-@Component
+@Service
 class NoticeService(private val noticeRepository: NoticeRepository) {
-
+    @Transactional
     fun saveOrUpdateNotice(item: Item, requestId: String) {
         val codes = item.codes.first()
         val stock = codes.stock_code
@@ -38,6 +40,7 @@ class NoticeService(private val noticeRepository: NoticeRepository) {
         println("======== 待分析列表新收录 $logMessage======")
     }
 
+    @Transactional
     fun saveOrUpdateNotice(searchByCodeSource: SearchByCodeSource, requestId: String) {
         val notice = Notice(
             stock = searchByCodeSource.stock,
@@ -56,4 +59,8 @@ class NoticeService(private val noticeRepository: NoticeRepository) {
         }
         noticeRepository.save(notice)
     }
+
+    fun getNoticeFromDetail(detail: NoticeDetail) = noticeRepository.findById(detail.noticeId).get()
+
+    fun getNoticeById(noticeId: Long) = noticeRepository.findById(noticeId)
 }

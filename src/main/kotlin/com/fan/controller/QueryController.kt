@@ -10,7 +10,6 @@ import com.fan.db.repository.NoticeDetailFailLogRepository
 import com.fan.db.repository.NoticeDetailFetchFailedLogRepository
 import com.fan.db.repository.NoticeDetailRepository
 import com.fan.db.repository.NoticeRepository
-import com.fan.db.repository.NoticeSearchHistoryRepository
 import com.fan.db.repository.ResultRepository
 import com.fan.db.repository.SourceRepository
 import com.fan.dto.PageResult
@@ -35,7 +34,6 @@ class QueryController(
     private val companyRepository: CompanyRepository,
     private val noticeDetailRepository: NoticeDetailRepository,
     private val analysisLogRepository: AnalysisLogRepository,
-    private val noticeSearchHistoryRepository: NoticeSearchHistoryRepository,
 ) {
 
     @GetMapping(value = ["/sources"])

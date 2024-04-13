@@ -8,6 +8,7 @@ import com.fan.db.repository.NoticeDetailRepository
 import com.fan.db.repository.NoticeRepository
 import com.fan.db.repository.ResultRepository
 import com.fan.db.repository.SearchByCodeSourceRepository
+import jakarta.transaction.Transactional
 import org.springframework.stereotype.Service
 
 @Service
@@ -19,7 +20,7 @@ class AnalysisLogService(
     private val analysisLogRepository: AnalysisLogRepository,
     private val searchByCodeSourceRepository: SearchByCodeSourceRepository,
 ) {
-
+    @Transactional
     fun saveAnalysisLog(type: String, requestId: String) {
         val thisYear = DateUtil.thisYear()
         val notices =

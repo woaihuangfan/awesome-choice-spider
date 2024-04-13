@@ -20,7 +20,7 @@
         <div class="layui-inline">
             <div class="layui-form-item">
                 <div class="layui-inline">
-                    <label class="layui-form-label">开始日期</label>
+                    <label class="layui-form-label">回溯日期</label>
                     <div class="layui-input-inline">
                         <input type="text" class="layui-input" id="ID-laydate-demo" placeholder="yyyy-MM-dd">
                     </div>
@@ -75,7 +75,7 @@
             data: JSON.stringify({tillDate: tillDate}),
             success: function (data) {
                 // 处理接口返回的数据
-                layer.msg(data);
+                layer.msg(data, { icon: 1 });
             },
             error: function (xhr, status, error) {
                 // 处理请求失败的逻辑

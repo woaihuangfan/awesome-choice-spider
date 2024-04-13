@@ -79,7 +79,7 @@
                 type: 'DELETE',
                 success: function (data) {
                     // 处理删除成功的逻辑
-                    layer.msg(data);
+                    layer.msg(data, { icon: 1 });
                     reloadTable();
                 },
                 error: function (xhr, status, error) {
@@ -106,7 +106,7 @@
             data: JSON.stringify({ keyword: keyword }),
             success: function(data) {
                 // 处理接口返回的数据
-                layer.msg(data);
+                layer.msg(data, { icon: 1 });
                 reloadTable(); // 调用全局的 reloadTable 函数
             },
             error: function(xhr, status, error) {

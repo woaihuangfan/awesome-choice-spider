@@ -3,6 +3,7 @@ package com.fan.listener
 import com.fan.db.repository.NoticeRepository
 import com.fan.event.NoticeDetailSaveEvent
 import com.fan.service.ContentAnalysisService
+import com.fan.service.DetailAnalysisErrorLogService
 import jakarta.transaction.Transactional
 import org.springframework.context.event.EventListener
 import org.springframework.stereotype.Component
@@ -10,7 +11,8 @@ import org.springframework.stereotype.Component
 @Component
 class NoticeDetailSaveEventListener(
     private val noticeRepository: NoticeRepository,
-    private val contentAnalysisService: ContentAnalysisService
+    private val contentAnalysisService: ContentAnalysisService,
+    private val detailAnalysisErrorLogService: DetailAnalysisErrorLogService
 ) {
 
     @Transactional
@@ -19,9 +21,9 @@ class NoticeDetailSaveEventListener(
         val detail = event.noticeDetail
         try {
             val notice = noticeRepository.findById(detail.noticeId)
-            val analysisResult = contentAnalysisService.doAnalysis(detail)
+            val analysisResult = contentAnalysisService.doAnalysisAndSaveResult(detail)
             if (!(notice.isPresent && analysisResult.first)) {
-                contentAnalysisService.logErrorRecord(detail, analysisResult.second)
+                detailAnalysisErrorLogService.logErrorRecord(detail, analysisResult.second)
             }
         } catch (ex: Exception) {
             ex.printStackTrace()
