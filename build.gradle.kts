@@ -15,6 +15,7 @@ version = "0.0.1-SNAPSHOT"
 val hutoolVersion = "5.8.26"
 val gsonVersion = "2.8.8"
 val poiVersion = "5.2.5"
+val coroutinesVersion = "1.7.2"
 java {
     sourceCompatibility = JavaVersion.VERSION_21
 }
@@ -35,6 +36,8 @@ dependencies {
     implementation("org.apache.poi:poi:$poiVersion")
     implementation("org.apache.poi:poi-ooxml:$poiVersion")
     implementation("com.google.code.gson:gson")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion")
+
 
     implementation("org.apache.derby:derby")
     implementation("org.apache.derby:derbytools")

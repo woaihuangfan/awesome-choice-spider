@@ -2,7 +2,6 @@ package com.fan.service
 
 import cn.hutool.core.date.DateTime
 import cn.hutool.core.date.DateUtil
-import cn.hutool.core.thread.ThreadUtil.sleep
 import cn.hutool.core.util.PageUtil
 import com.fan.client.SearchClient
 import com.fan.db.entity.NoticeSearchHistory
@@ -16,9 +15,14 @@ import com.fan.po.DataCollectParam
 import com.fan.response.Item
 import com.fan.response.SearchByCodeResponse
 import jakarta.transaction.Transactional
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import org.apache.commons.collections4.CollectionUtils
 import org.springframework.stereotype.Component
 import org.springframework.util.StringUtils
+import java.time.Duration
+import java.time.Instant
+import java.util.concurrent.atomic.AtomicInteger
 
 private const val ROWS = 50
 
@@ -38,18 +42,33 @@ class SearchByCodeCollector(
     @Transactional
     override fun doCollect(param: DataCollectParam, type: SearchType, requestId: String) {
         val codeEntities = companyRepository.findAll()
-        for (entity in codeEntities) {
-            val stock = entity.stock
-            val tillDate = negotiateTillDate(stock, param)
-            println(
-                "==========将采集【${entity.stock}】${tillDate} -${DateUtil.date()} 期间的公告数据=========="
-            )
-            val totalPages = getTotalPages(stock)
-            for (i in 1..totalPages) {
-                sleep(100)
-                println("==========开始爬取第 $i 页, 共【$totalPages】页==========")
-                if (successfullyCollectDataByPages(stock, i, requestId, tillDate)) break
+        val counter = AtomicInteger(0)
+        val startTime = Instant.now()
+        runBlocking {
+            val jobs = codeEntities.map { entity ->
+                launch {
+                    val stock = entity.stock
+                    val tillDate = negotiateTillDate(stock, param)
+                    println(
+                        "==========将采集【${entity.stock}】${tillDate} -${DateUtil.date()} 期间的公告数据=========="
+                    )
+                    val totalPages = getTotalPages(stock)
+
+                    // 单个股票的爬取
+                    for (i in 1..totalPages) {
+                        println("==========开始爬取第 $i 页, 共【$totalPages】页==========")
+                        if (successfullyCollectDataByPages(stock, i, requestId, tillDate)) break
+                    }
+
+                    // 增加计数器
+                    counter.incrementAndGet()
+                }
             }
+            jobs.forEach { it.join() }
+            val endTime = Instant.now()
+            val duration = Duration.between(startTime, endTime)
+            println("所有任务已完成，成功爬取 ${counter.get()} 个公告的数据。")
+            println("总计用时：${duration.toMinutes()} 分钟 ${duration.seconds % 60} 秒")
         }
 
     }
