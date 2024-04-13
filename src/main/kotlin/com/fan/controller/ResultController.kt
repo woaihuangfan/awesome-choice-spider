@@ -1,6 +1,7 @@
 package com.fan.controller
 
 import com.fan.po.EditResultParam
+import com.fan.service.AnalysisLogService
 import com.fan.service.DetailAnalysisErrorLogService
 import com.fan.service.NoticeDetailService
 import com.fan.service.NoticeService
@@ -10,6 +11,7 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
+import java.util.UUID
 
 
 @RestController
@@ -18,7 +20,8 @@ class ResultController(
     private val resultService: ResultService,
     private val detailAnalysisErrorLogService: DetailAnalysisErrorLogService,
     private val noticeService: NoticeService,
-    private val noticeDetailService: NoticeDetailService
+    private val noticeDetailService: NoticeDetailService,
+    private val analysisLogService: AnalysisLogService
 ) {
 
     @PatchMapping("/{id}")
@@ -38,6 +41,7 @@ class ResultController(
                         notice, noticeDetail, editResultParam.accountCompanyName, editResultParam.amount.orEmpty()
                     )
                     detailAnalysisErrorLogService.removeErrorLog(errorLog)
+                    analysisLogService.saveAnalysisLog("手动修正", UUID.randomUUID().toString())
                 }
 
             }

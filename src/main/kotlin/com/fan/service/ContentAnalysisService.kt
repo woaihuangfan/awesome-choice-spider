@@ -42,12 +42,10 @@ class ContentAnalysisService(
 
     @Transactional
     fun reAnalysisDetail() {
-        ThreadUtil.execAsync {
-            println("==========开始分析数据库中存储的全部公告内容，不会重新从网上加载")
-            analysisDetail()
-            reviewResults()
-            println("==========重新分析详情完成")
-        }
+        println("==========开始分析数据库中存储的全部公告内容，不会重新从网上加载")
+        analysisDetail()
+        reviewResults()
+        println("==========重新分析详情完成")
         analysisLogService.saveAnalysisLog("分析已有公告详情", UUID.randomUUID().toString())
 
     }
