@@ -9,21 +9,20 @@
 <body>
 <div style="padding: 15px;">
     <blockquote class="layui-elem-quote">
-        该页面展示公告标题的过滤规则，必须包含所有关键字，才会去分析公告里面的内容
-        <div class="layui-form-item">
-            <div class="layui-input-group">
-                <div class="layui-input-split layui-input-prefix">
-                    关键字
-                </div>
-                <input id="keyword" type="text" placeholder="请输入关键字" class="layui-input">
-                <div class="layui-input-suffix">
-                    <button class="layui-btn" lay-submit lay-filter="demo-table-export" onclick="add()">添加关键字
-                    </button>
-                </div>
+        该页面展示公告标题的过滤规则，必须包含表格中所有行的关键字，才会去分析公告里面的内容。
+    </blockquote>
+    <div class="layui-form-item">
+        <div class="layui-input-group">
+            <div class="layui-input-split layui-input-prefix">
+                关键字
+            </div>
+            <input id="keyword" type="text" placeholder="请输入关键字" class="layui-input">
+            <div class="layui-input-suffix">
+                <button class="layui-btn" lay-submit lay-filter="demo-table-export" onclick="add()">添加关键字
+                </button>
             </div>
         </div>
-    </blockquote>
-
+    </div>
     <div class="layui-card layui-panel">
         <table class="layui-table" lay-data="{height:'auto', url:'/rule', page:true,limit:20}"
                id="ID-table-demo-init">
