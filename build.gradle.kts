@@ -1,3 +1,4 @@
+import org.jetbrains.kotlin.gradle.plugin.mpp.pm20.util.archivesName
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
@@ -23,6 +24,9 @@ java {
 repositories {
     mavenCentral()
 }
+
+archivesName.set("choice-data-collector")
+version = 1.0
 
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")

@@ -115,7 +115,7 @@ class SearchByCodeCollector(
                         date = DateUtil.now()
                     )
                 )
-                letPeopleKnow("==========证券代码为【${stock}】的公司 $tillDate - ${DateUtil.date()}公告爬取完成(新采集${count}条记录)，将停止爬取==========")
+                letPeopleKnow("==========证券代码为【${stock}】的公司 $tillDate - ${DateUtil.date()}期间的公告爬取完成(新采集${count}条记录)，将停止爬取==========")
                 return true
             } else {
                 e.printStackTrace()
