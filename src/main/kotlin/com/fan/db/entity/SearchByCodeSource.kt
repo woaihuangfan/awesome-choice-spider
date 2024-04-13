@@ -5,8 +5,17 @@ import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
+import jakarta.persistence.Index
+import jakarta.persistence.Table
 
 @Entity(name = "search_by_code_source")
+@Table(
+    name = "search_by_code_source",
+    indexes = [
+        Index(name = "idx_year", columnList = "year"),
+        Index(name = "idx_stock", columnList = "stock")
+    ]
+)
 class SearchByCodeSource(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

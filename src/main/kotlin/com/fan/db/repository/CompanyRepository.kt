@@ -24,20 +24,25 @@ interface CompanyRepository : JpaRepository<Company, Long> {
 
 
     @Query(
-        "SELECT " +
-                "    C.stock as stock, " +
-                "    C.companyName as companyName, " +
-                "    COUNT(N.stock) AS count " +
-                "FROM " +
-                "    company C " +
-                "        LEFT JOIN " +
-                "    search_by_code_source N ON C.stock = N.stock " +
-                "WHERE " +
-                "    N.year = :year " +
-                "GROUP BY " +
-                "    C.stock ,C.companyName"
+        value ="""
+    SELECT 
+        C.stock ,
+        C.company_name,
+        COUNT(N.stock) AS count,
+        N."year" as "YEAR"
+    FROM 
+        company C
+    LEFT JOIN 
+        search_by_code_source N ON C.stock = N.stock
+    WHERE 
+        N."year" is not null
+    GROUP BY 
+        C.stock, C.company_name, N."year"
+    ORDER BY N."year" DESC, C.stock ASC
+    """, nativeQuery = true
     )
-    fun findCompanyNoticeCountByYear(year: String, pageable: Pageable): Page<Map<String, String>>
+    fun findCompanyNotice(pageable: Pageable): Page<Map<String, String>>
+
 
 }
 

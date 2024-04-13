@@ -13,12 +13,16 @@ import com.fan.db.repository.NoticeRepository
 import com.fan.db.repository.ResultRepository
 import com.fan.db.repository.SourceRepository
 import com.fan.dto.PageResult
+import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
+import org.springframework.data.domain.Sort.Direction
+import org.springframework.data.domain.Sort.by
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
+import org.springframework.web.bind.annotation.ResponseBody
 import org.springframework.web.bind.annotation.RestController
 
 
@@ -43,22 +47,29 @@ class QueryController(
     }
 
     @GetMapping(value = ["/notice"])
+    @ResponseBody
     fun query(
         @RequestParam page: Int,
         @RequestParam limit: Int,
         @RequestParam year: String = DateUtil.thisYear().toString()
     ): PageResult {
-        val pageable: PageRequest = PageRequest.of(page - 1, limit, Sort.by(Sort.Direction.ASC, "stock"))
+        val pageable: PageRequest = PageRequest.of(page - 1, limit)
+        val (sourcePage, data) = convertData(pageable)
         return PageResult.success(
-            companyRepository.findCompanyNoticeCountByYear(year, pageable).let {
-                val data = it.get().map { item ->
-                    val mutableMap = item.toMutableMap()
-                    mutableMap["year"] = year
-                    return@map mutableMap
-                }.toList()
-                return@let PageImpl(data, it.pageable, it.totalElements)
-            }
+            PageImpl(data, sourcePage.pageable, sourcePage.totalElements)
         )
+    }
+
+    private fun convertData(pageable: PageRequest): Pair<Page<Map<String, String>>, List<MutableMap<String, String>>> {
+        val sourcePage = companyRepository.findCompanyNotice(pageable)
+        val data = sourcePage.content.map {
+            val map = mutableMapOf<String, String>()
+            it.entries.forEach { entry ->
+                map.put(entry.key.lowercase(), entry.value)
+            }
+            map
+        }
+        return Pair(sourcePage, data)
     }
 
     @GetMapping(value = ["/notices"])
