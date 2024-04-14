@@ -68,7 +68,7 @@ class SearchByCodeCollector(
             jobs.forEach { it.join() }
             val endTime = Instant.now()
             val duration = Duration.between(startTime, endTime)
-            letPeopleKnow("所有任务已完成，成功爬取 ${counter.get()} 个公告的数据。")
+            letPeopleKnow("所有任务已完成，成功爬取 ${counter.get()} 个公司的公告数据。")
             letPeopleKnow("总计用时：${duration.toMinutes()} 分钟 ${duration.seconds % 60} 秒")
         }
 
