@@ -12,7 +12,7 @@ import jakarta.persistence.Table
 @Table(
     name = "company",
     indexes = [
-        Index(name = "idx_stock", columnList = "stock")
+        Index(name = "idx_stock", columnList = "stock", unique = true),
     ]
 )
 class Company(
