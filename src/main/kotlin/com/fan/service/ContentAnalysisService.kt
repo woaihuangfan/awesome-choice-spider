@@ -27,22 +27,7 @@ class ContentAnalysisService(
 
     @Transactional
     fun reAnalysisErrors() {
-        val failedRecords = detailAnalysisErrorLogService.getFailedRecords()
-        letPeopleKnow("==========开始分析！待分析错误公告数目:${failedRecords.size}=======")
-        failedRecords.forEach { record ->
-
-            val detail = noticeDetailService.getNoticeDetailByFailLog(record)
-            detail?.let {
-                if (!isTitleCompliant(detail.title)) {
-                    letPeopleKnow("========公告${detail.title}【${detail.stock}】 标题不符合要求 ===========")
-                    return@let
-                }
-                val validResult = doAnalysisDetailAndSaveResult(detail)
-                if (validResult.first) {
-                    detailAnalysisErrorLogService.removeErrorLog(record)
-                }
-            }
-        }
+        analysisErrors()
         analysisLogService.saveAnalysisLog("分析错误数据", UUID.randomUUID().toString())
     }
 
@@ -62,12 +47,31 @@ class ContentAnalysisService(
         ThreadUtil.execAsync {
             fetchDetail(requestId)
             analysisDetail()
-            reAnalysisErrors()
+            analysisErrors()
             reviewResults()
             letPeopleKnow("==========重新分析完成")
             analysisLogService.saveAnalysisLog("重新分析公告标题并分析详情数据", UUID.randomUUID().toString())
         }
 
+    }
+
+    private fun analysisErrors() {
+        val failedRecords = detailAnalysisErrorLogService.getFailedRecords()
+        letPeopleKnow("==========开始分析！待分析错误公告数目:${failedRecords.size}=======")
+        failedRecords.forEach { record ->
+
+            val detail = noticeDetailService.getNoticeDetailByFailLog(record)
+            detail?.let {
+                if (!isTitleCompliant(detail.title)) {
+                    letPeopleKnow("========公告${detail.title}【${detail.stock}】 标题不符合要求 ===========")
+                    return@let
+                }
+                val validResult = doAnalysisDetailAndSaveResult(detail)
+                if (validResult.first) {
+                    detailAnalysisErrorLogService.removeErrorLog(record)
+                }
+            }
+        }
     }
 
     private fun reviewResults() {
