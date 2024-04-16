@@ -1,0 +1,189 @@
+name: Build and Archive
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      release_note:
+        description: 'Release Note'
+        required: true
+        default: 'No release note provided.'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v2
+        with:
+          java-version: '21'
+          distribution: 'adopt'
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Run Gradle clean build
+        run: ./gradlew clean build
+
+      - name: Create directory for artifacts
+        run: |
+          shopt -s extglob
+          mkdir artifacts
+          cp build/libs/!(*-plain).jar artifacts/
+          cp start.bat artifacts/
+          cp stop.bat artifacts/
+        shell: bash
+
+      - name: Get the date
+        id: get_date
+        run: echo "::set-output name=date::$(date +'%Y.%m.%d')"
+
+      - name: Archive artifacts
+        run: |
+          cd artifacts
+          zip -r ../${{ steps.get_date.outputs.date }}.zip .
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ steps.get_date.outputs.date }}
+          path: ./*.zip
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch'
+
+    steps:
+      - name: Get the date
+        id: get_date
+        run: echo "::set-output name=date::$(date +'%Y.%m.%d')"
+
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Get the version
+        id: get_version
+        run: echo "::set-output name=version::${{ steps.get_date.outputs.date }}"
+
+      - name: Create tag
+        run: git tag ${{ steps.get_version.outputs.version }}
+
+      - name: Push tag
+        run: git push origin ${{ steps.get_version.outputs.version }}
+
+      - name: Create GitHub release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ steps.get_version.outputs.version }}
+          release_name: Release ${{ steps.get_version.outputs.version }}
+          draft: false
+          prerelease: false
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v2
+        with:
+          name: ${{ steps.get_date.outputs.date }}
+          path: ./downloaded_artifacts
+
+      - name: Upload release asset
+        id: upload-release-asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./downloaded_artifacts/${{ steps.get_date.outputs.date }}.zip
+          asset_name: ${{ steps.get_date.outputs.date }}.zip
+          asset_content_type: application/zip
+
+      - name: Send email notification
+        uses: dawidd6/action-send-mail@v2
+        with:
+          server_address: ${{ secrets.MAIL_SMTP_SERVER }}
+          server_port: 465
+          username: ${{ secrets.MAIL_USERNAME }}
+          password: ${{ secrets.MAIL_PASSWORD }}
+          subject: "🚀 New Release Created: 会计师事务所续约数据采集工具 ${{ steps.get_version.outputs.version }}"
+          body: |
+            <!DOCTYPE html>
+            <html lang="en">
+            <head>
+              <meta charset="UTF-8">
+              <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+              <meta http-equiv="X-UA-Compatible" content="IE=edge">
+              <meta name="viewport" content="width=device-width, initial-scale=1.0">
+              <title>&#x1F680; New Release Created</title>
+              <style>
+                body {
+                  font-family: 'Arial', sans-serif;
+                  background-color: #f4f4f4;
+                  padding: 20px;
+                }
+                .container {
+                  max-width: 600px;
+                  margin: 0 auto;
+                  background-color: #ffffff;
+                  padding: 30px;
+                  border-radius: 10px;
+                  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+                }
+                img {
+                  width: 100%;
+                  border-radius: 10px;
+                }
+                h1, h2 {
+                  color: #333366;
+                  text-align: center;
+                  margin-top: 20px;
+                }
+                ul {
+                  list-style-type: none;
+                  padding: 0;
+                }
+                a {
+                  background-color: #333366;
+                  color: #ffffff;
+                  padding: 10px 20px;
+                  text-decoration: none;
+                  border-radius: 5px;
+                  display: inline-block;
+                  margin-top: 20px;
+                }
+              </style>
+            </head>
+            <body>
+              <div class="container">
+                <img src="https://woaihuangfan.github.io/posts/hello-hugo/images/blue_sky_hu1b20aecede543d83af89b7e5ec0a8a40_246301_1600x0_resize_box_3.png" alt="New Release">
+                <h1>&#x1F680; New Release Created</h1>
+                <p>Dear Team,</p>
+                <p>We're excited to announce that a new release has been created for 会计师事务所续约数据采集工具.</p>
+
+                <div>
+                  <h2>Release Details:</h2>
+                  <ul>
+                    <li><strong>Version:</strong> ${{ steps.get_version.outputs.version }}</li>
+                    <li><strong>Date:</strong> ${{ steps.get_date.outputs.date }}</li>
+                  </ul>
+                  <p>${{ github.event.inputs.release_note }}</p>
+                </div>
+
+                <p>Please check out the release on GitHub to see what's new:</p>
+                <p><a href="https://github.com/woaihuangfan/awesome-choice-spider/releases/tag/${{ steps.get_version.outputs.version }}">GitHub Release</a></p>
+
+                <p>Best regards,<br>Fan Huang</p>
+              </div>
+            </body>
+            </html>
+          to: ${{ secrets.MAIL_TO }}
+          from: ${{ secrets.MAIL_FROM }}
+
