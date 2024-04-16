@@ -33,12 +33,17 @@ class NoticeDetailService(
             val noticeTitle = "【${notice.securityFullName} - ${notice.title}】公告详情"
             if (exist == null || StringUtils.isEmpty(exist.content)) {
                 letPeopleKnow("======== 开始下载$noticeTitle ${code}========")
-                val detail = fetchDetailFromRemote(code)
+                val detail = fetchDetailFromRemote(code, notice.stock)
                 if (Objects.isNull(detail)) {
-                    return
+                    val message = "======== 未找到详情，$noticeTitle ${code}========"
+                    letPeopleKnow(message)
+                    throw RuntimeException(message)
                 }
                 if (notice.stock != detail?.stock) {
-                    return
+                    val message =
+                        "======== 证券代码不匹配，期望：${notice.stock},实际：${detail?.stock}，$noticeTitle ${code}========"
+                    letPeopleKnow(message)
+                    throw RuntimeException(message)
                 }
                 if (detailFilterChain.doFilter(detail)) {
                     val noticeDetail =

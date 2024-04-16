@@ -24,7 +24,7 @@ object NoticeDetailClient {
     }
 
 
-    fun fetchDetailFromRemote(infoCode: String): NoticeDetailPO? {
+    fun fetchDetailFromRemote(infoCode: String, stock: String): NoticeDetailPO? {
         ThreadUtil.sleep(300)
         val index = 1
         val url = getDetailUrl(infoCode, DateUtil.current(), index)
@@ -42,7 +42,7 @@ object NoticeDetailClient {
                     code = infoCode,
                     title = detail.data?.notice_title ?: "<标题未找到>",
                     content = cleanContent,
-                    stock = detail.data?.security?.first { it.stock.length == 6 }?.stock.orEmpty(),
+                    stock = extractStock(detail, stock),
                 )
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -52,6 +52,11 @@ object NoticeDetailClient {
         return null
 
 
+    }
+
+    private fun extractStock(detail: WebNoticeDetailResponse, stock: String): String {
+        return detail.data?.security?.first { it.stock == stock }?.stock
+            ?: detail.data?.security?.first { it.stock.length == 6 }?.stock.orEmpty()
     }
 
 
