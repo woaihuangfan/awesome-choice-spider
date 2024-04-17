@@ -173,8 +173,8 @@ jobs:
                   <ul>
                     <li><strong>Version:</strong> ${{ steps.get_version.outputs.version }}</li>
                     <li><strong>Date:</strong> ${{ steps.get_date.outputs.date }}</li>
+                    <li><strong>Note:</strong> ${{ github.event.inputs.release_note }}</li>
                   </ul>
-                  <p>${{ github.event.inputs.release_note }}</p>
                 </div>
 
                 <p>Please check out the release on GitHub to see what's new:</p>
