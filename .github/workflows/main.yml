@@ -76,7 +76,7 @@ jobs:
         run: git tag ${{ steps.get_version.outputs.version }}
 
       - name: Push tag
-        run: git push origin ${{ steps.get_version.outputs.version }}
+        run: git push --force  origin ${{ steps.get_version.outputs.version }}
 
       - name: Create GitHub release
         id: create_release
