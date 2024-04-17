@@ -159,6 +159,11 @@ jobs:
                   display: inline-block;
                   margin-top: 20px;
                 }
+              .highlight {
+                  background-color: #ffcc00;
+                  padding: 2px 5px;
+                  border-radius: 3px;
+              }
               </style>
             </head>
             <body>
@@ -166,7 +171,7 @@ jobs:
                 <img src="https://woaihuangfan.github.io/posts/hello-hugo/images/blue_sky_hu1b20aecede543d83af89b7e5ec0a8a40_246301_1600x0_resize_box_3.png" alt="New Release">
                 <h1>🚀 New Release Created</h1>
                 <p>Dear Team,</p>
-                <p>We're excited to announce that a new release has been created for 会计师事务所续约数据采集工具.</p>
+                <p>We're excited to announce that a new release has been created for<span class="highlight"><strong>会计师事务所续约数据采集工具</strong></span>..</p>
 
                 <div>
                   <h2>Release Details:</h2>
