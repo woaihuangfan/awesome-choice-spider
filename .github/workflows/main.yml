@@ -186,4 +186,5 @@ jobs:
             </html>
           to: ${{ secrets.MAIL_TO }}
           from: ${{ secrets.MAIL_FROM }}
+          content_type: text/html
 
