@@ -5,6 +5,7 @@ import cn.hutool.core.date.DateUtil
 import cn.hutool.core.util.PageUtil
 import com.fan.client.SearchClient
 import com.fan.controller.WebSocketController.Companion.letPeopleKnow
+import com.fan.controller.WebSocketController.Companion.notifyClientJobIsDone
 import com.fan.db.entity.NoticeSearchHistory
 import com.fan.db.entity.SearchByCodeSource
 import com.fan.db.repository.CompanyRepository
@@ -70,6 +71,7 @@ class SearchByCodeCollector(
             val duration = Duration.between(startTime, endTime)
             letPeopleKnow("所有任务已完成，成功爬取 ${counter.get()} 家公司在【${param.tillDate} - ${DateUtil.today()} 】期间的公告数据。")
             letPeopleKnow("总计用时：${duration.toMinutes()} 分钟 ${duration.seconds % 60} 秒")
+            notifyClientJobIsDone()
         }
 
     }

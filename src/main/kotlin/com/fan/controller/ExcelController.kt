@@ -109,19 +109,19 @@ class ExcelController(
         val (creationHelper, cellStyle) = getCellStyle(writer)
         results.forEachIndexed { index, result ->
             val linkAddress = result.title.substringAfter("href='").substringBefore("'")
-            addHyperLinkToCell(creationHelper, linkAddress, writer, index, cellStyle)
+            addHyperLinkToCell(creationHelper, linkAddress, writer, index, cellStyle, 5)
         }
     }
 
     private fun createHyperLinkForErrorLog(writer: ExcelWriter, errorLogs: MutableList<NoticeDetailFailLog>) {
         val (creationHelper, cellStyle) = getCellStyle(writer)
         errorLogs.forEachIndexed { index, log ->
-            val linkAddress = getDetailPageUrl(log.stock, log.title)
-            addHyperLinkToCell(creationHelper, linkAddress, writer, index, cellStyle)
+            val linkAddress = getDetailPageUrl(log.stock, log.code)
+            addHyperLinkToCell(creationHelper, linkAddress, writer, index, cellStyle,2)
         }
     }
 
-    private fun getCellStyle(writer: ExcelWriter): Pair<CreationHelper, CellStyle?> {
+    private fun getCellStyle(writer: ExcelWriter): Pair<CreationHelper, CellStyle> {
         val workbook = writer.workbook
         val creationHelper = workbook.creationHelper
         val font = getFont(workbook)
@@ -134,19 +134,20 @@ class ExcelController(
         linkAddress: String,
         writer: ExcelWriter,
         index: Int,
-        cellStyle: CellStyle?
+        cellStyle: CellStyle,
+        cellIndex: Int
     ) {
         val hyperlink = creationHelper.createHyperlink(HyperlinkType.URL)
         hyperlink.address = linkAddress
-        val cell = writer.sheet.getRow(index + 1).getCell(5)
+        val cell = writer.sheet.getRow(index + 1).getCell(cellIndex)
         cell.hyperlink = hyperlink
         cell.cellStyle = cellStyle
     }
 
     private fun getCellStyle(
         workbook: Workbook,
-        font: Font?
-    ): CellStyle? {
+        font: Font
+    ): CellStyle {
         val cellStyle = workbook.createCellStyle()
         cellStyle.setFont(font)
         return cellStyle
@@ -154,7 +155,7 @@ class ExcelController(
 
     private fun getFont(
         workbook: Workbook,
-    ): Font? {
+    ): Font {
         return workbook.createFont().apply {
             this.underline = XSSFFont.U_SINGLE
             this.color = HSSFColor.HSSFColorPredefined.BLUE.index

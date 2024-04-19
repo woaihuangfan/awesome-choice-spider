@@ -38,8 +38,13 @@ class WebSocketController {
     private fun startSendingText(session: Session) {
         while (isRunning.get()) {
             try {
-                val message = queue.take()
-                session.basicRemote.sendText(message)
+                if (queue.isNotEmpty()) {
+                    val message = queue.take()
+                    session.basicRemote.sendText(message)
+                }
+                if (commandQueue.isNotEmpty()) {
+                    session.basicRemote.sendText(commandQueue.take())
+                }
             } catch (e: InterruptedException) {
                 Thread.currentThread().interrupt()
                 e.printStackTrace()
@@ -52,6 +57,7 @@ class WebSocketController {
 
     companion object {
         private val queue = LinkedBlockingDeque<String>()
+        private val commandQueue = LinkedBlockingDeque<String>()
         private val logger = Log.get()
         fun letPeopleKnow(message: String) {
             logger.log(Level.INFO, message)
@@ -60,6 +66,10 @@ class WebSocketController {
             }
             queue.put(withTimePrefix(message))
 
+        }
+
+        fun notifyClientJobIsDone() {
+            commandQueue.put("job is done")
         }
 
         private fun withTimePrefix(message: String): String {
