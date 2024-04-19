@@ -13,7 +13,15 @@
     <blockquote class="layui-elem-quote">
         该页面显示符合标题筛选条件但无法从公告内容中提取到有效事务所名称的数据
     </blockquote>
-
+    <div class="layui-form-item">
+        <div class="layui-inline">
+            <div class="layui-btn-container">
+                <button type="button" class="layui-btn" lay-submit lay-filter="demo-table-export"
+                        onclick="exportExcel()">导出Excel
+                </button>
+            </div>
+        </div>
+    </div>
     <div class="layui-card layui-panel">
         <table class="layui-table" lay-data="{height:'auto', url:'/query/errors', page:true,limit:20}"
                id="ID-table-demo-init">
@@ -102,6 +110,36 @@
 
             });
         });
+    }
+
+    function exportExcel() {
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', '/excel/error', true);
+        xhr.responseType = 'blob'; // 设置响应类型为 Blob
+        xhr.onload = function () {
+            if (this.status === 200) {
+                var blob = this.response;
+                var disposition = xhr.getResponseHeader('Content-Disposition'); // 获取 Content-Disposition 头字段
+                var filename = '';
+                if (disposition && disposition.indexOf('attachment') !== -1) {
+                    var filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
+                    var matches = filenameRegex.exec(disposition);
+                    if (matches != null && matches[1]) {
+                        filename = matches[1].replace(/['"]/g, '');
+                    }
+                }
+                var url = window.URL.createObjectURL(blob); // 创建临时 URL
+                var a = document.createElement('a');
+                a.href = url;
+                a.download = filename !== '' ? filename : 'filename.xlsx'; // 设置文件名，如果无法从响应头中获取则使用默认文件名
+                document.body.appendChild(a);
+                a.click(); // 触发下载
+                document.body.removeChild(a); // 移除临时链接
+            } else {
+                layer.msg('下载失败');
+            }
+        };
+        xhr.send();
     }
 </script>
 </body>

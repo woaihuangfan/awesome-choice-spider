@@ -1,9 +1,13 @@
 package com.fan.controller
 
 import cn.hutool.core.collection.CollUtil
+import cn.hutool.core.date.DateUtil
 import cn.hutool.poi.excel.ExcelUtil
 import cn.hutool.poi.excel.ExcelWriter
+import com.fan.client.NoticeDetailClient.getDetailPageUrl
+import com.fan.db.entity.NoticeDetailFailLog
 import com.fan.db.entity.Result
+import com.fan.db.repository.NoticeDetailFailLogRepository
 import com.fan.db.repository.ResultRepository
 import jakarta.servlet.http.HttpServletResponse
 import org.apache.poi.common.usermodel.HyperlinkType
@@ -23,11 +27,12 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 @RequestMapping("/excel")
 class ExcelController(
-    private val resultRepository: ResultRepository
+    private val resultRepository: ResultRepository,
+    private val noticeDetailFailLogRepository: NoticeDetailFailLogRepository,
 ) {
 
     @GetMapping(value = ["/result"])
-    fun start(httpServletResponse: HttpServletResponse) {
+    fun downloadResult(httpServletResponse: HttpServletResponse) {
         val results = resultRepository.findAll()
         val headers: List<String> =
             CollUtil.newArrayList(
@@ -43,22 +48,48 @@ class ExcelController(
         val contents: List<List<String>> = results.map {
             listOfNotNull(it.name, it.stock, it.date, it.accountCompanyName, it.amount, decodeTitle(it.title), it.year)
         }
+        val writer = writeRows(headers, contents)
+        createHyperLink(writer, results)
+        flushToResponse(httpServletResponse, writer, "report-(${results.first().year}).xlsx")
 
+    }
+
+    @GetMapping(value = ["/error"])
+    fun downloadError(httpServletResponse: HttpServletResponse) {
+        val errorLogs = noticeDetailFailLogRepository.findAll()
+        val headers: List<String> =
+            CollUtil.newArrayList(
+                "公告代码",
+                "证券代码",
+                "公告标题",
+                "公告内容",
+            )
+        val contents: List<List<String>> = errorLogs.map {
+            listOfNotNull(it.code, it.stock, it.title, it.content)
+        }
+        val writer = writeRows(headers, contents)
+        createHyperLinkForErrorLog(writer, errorLogs)
+        flushToResponse(httpServletResponse, writer, "error-logs-${DateUtil.today()}.xlsx")
+
+    }
+
+    private fun writeRows(
+        headers: List<String>,
+        contents: List<List<String>>
+    ): ExcelWriter {
         val rows: List<List<String>> = listOf(headers, *contents.toTypedArray())
         val writer = ExcelUtil.getWriter(true)
         writer.write(rows, true)
         headers.forEachIndexed { index, _ ->
             writer.sheet.autoSizeColumn(index)
         }
-        createHyperLink(writer, results)
-        flushToResponse(httpServletResponse, results, writer)
-
+        return writer
     }
 
     private fun flushToResponse(
         httpServletResponse: HttpServletResponse,
-        results: List<Result>,
-        writer: ExcelWriter
+        writer: ExcelWriter,
+        fileName: String
     ) {
         httpServletResponse.characterEncoding = "UTF-8";
         httpServletResponse.contentType =
@@ -66,7 +97,7 @@ class ExcelController(
         httpServletResponse.setHeader(
             HttpHeaders.CONTENT_DISPOSITION,
             ContentDisposition
-                .attachment().filename("report-(${results.first().year}).xlsx").build().toString()
+                .attachment().filename(fileName).build().toString()
         )
         httpServletResponse.outputStream.use {
             writer.flush(it)
@@ -75,24 +106,38 @@ class ExcelController(
     }
 
     private fun createHyperLink(writer: ExcelWriter, results: MutableList<Result>) {
+        val (creationHelper, cellStyle) = getCellStyle(writer)
+        results.forEachIndexed { index, result ->
+            val linkAddress = result.title.substringAfter("href='").substringBefore("'")
+            addHyperLinkToCell(creationHelper, linkAddress, writer, index, cellStyle)
+        }
+    }
+
+    private fun createHyperLinkForErrorLog(writer: ExcelWriter, errorLogs: MutableList<NoticeDetailFailLog>) {
+        val (creationHelper, cellStyle) = getCellStyle(writer)
+        errorLogs.forEachIndexed { index, log ->
+            val linkAddress = getDetailPageUrl(log.stock, log.title)
+            addHyperLinkToCell(creationHelper, linkAddress, writer, index, cellStyle)
+        }
+    }
+
+    private fun getCellStyle(writer: ExcelWriter): Pair<CreationHelper, CellStyle?> {
         val workbook = writer.workbook
         val creationHelper = workbook.creationHelper
         val font = getFont(workbook)
         val cellStyle = getCellStyle(workbook, font)
-        results.forEachIndexed { index, result ->
-            addHyperLinkToCell(creationHelper, result, writer, index, cellStyle)
-        }
+        return Pair(creationHelper, cellStyle)
     }
 
     private fun addHyperLinkToCell(
         creationHelper: CreationHelper,
-        result: Result,
+        linkAddress: String,
         writer: ExcelWriter,
         index: Int,
         cellStyle: CellStyle?
     ) {
         val hyperlink = creationHelper.createHyperlink(HyperlinkType.URL)
-        hyperlink.address = result.title.substringAfter("href='").substringBefore("'")
+        hyperlink.address = linkAddress
         val cell = writer.sheet.getRow(index + 1).getCell(5)
         cell.hyperlink = hyperlink
         cell.cellStyle = cellStyle
