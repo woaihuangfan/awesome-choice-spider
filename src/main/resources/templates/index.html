@@ -66,7 +66,7 @@
         });
     });
     if ('WebSocket' in window) {
-        websocket = new WebSocket("ws://" + window.location.host + "/log");
+        websocket = new WebSocket("ws://" + window.location.host + "/log/index");
     } else {
         alert('Dont support websocket')
     }
@@ -78,13 +78,14 @@
 
     //连接成功建立的回调方法
     websocket.onopen = function () {
-        console.log("open");
+        console.log("open 1");
     };
 
     //接收到消息的回调方法
     websocket.onmessage = function (event) {
 
         if (event.data === "job is done") {
+            layer.closeAll();
             layer.alert('采集完成', {
                 skin: 'layui-layer-molv' // 样式类名
             });

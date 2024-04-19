@@ -205,7 +205,7 @@
 
                     //判断当前浏览器是否支持WebSocket
                     if ('WebSocket' in window) {
-                        websocket = new WebSocket("ws://" + window.location.host + "/log");
+                        websocket = new WebSocket("ws://" + window.location.host + "/log/collect");
                     } else {
                         alert('Dont support websocket')
                     }
@@ -222,8 +222,12 @@
 
                     //接收到消息的回调方法
                     websocket.onmessage = function (event) {
-                        layui.$('#logArea').append(event.data + '\n');
-                        scrollToBottom()
+                        if (event.data === "job is done") {
+                            layer.closeAll();
+                        }else{
+                            layui.$('#logArea').append(event.data + '\n');
+                            scrollToBottom()
+                        }
                     };
 
                     //连接关闭的回调方法
