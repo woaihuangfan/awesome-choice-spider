@@ -137,17 +137,19 @@
         });
     }
     function clearData() {
-        console.log(1)
+        var loadIndex = layer.load(2);
         layui.$.ajax({
             url: '/clear',
             type: 'DELETE',
             success: function (data) {
                 // 处理删除成功的逻辑
                 layer.msg(data, {icon: 1});
+                layer.close(loadIndex)
                 reloadTable();
             },
             error: function (xhr, status, error) {
                 // 处理请求失败的逻辑
+                layer.close(loadIndex)
                 layer.msg(xhr.responseText);
             }
         });
