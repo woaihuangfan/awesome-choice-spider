@@ -48,7 +48,6 @@ class WebSocketController {
             try {
                 if (queue.isNotEmpty() && session.isOpen) {
                     val message = queue.take()
-                    sleep(100)
                     session.basicRemote.sendText(message)
                 }
             } catch (e: InterruptedException) {
