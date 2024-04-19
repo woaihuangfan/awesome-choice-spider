@@ -1,6 +1,7 @@
 package com.fan.controller
 
 import cn.hutool.core.date.DateUtil
+import cn.hutool.core.thread.ThreadUtil.sleep
 import jakarta.websocket.OnClose
 import jakarta.websocket.OnOpen
 import jakarta.websocket.Session
@@ -45,8 +46,9 @@ class WebSocketController {
 
         while (isRunning.get()) {
             try {
-                if (queue.isNotEmpty()) {
+                if (queue.isNotEmpty() && session.isOpen) {
                     val message = queue.take()
+                    sleep(100)
                     session.basicRemote.sendText(message)
                 }
             } catch (e: InterruptedException) {
@@ -64,9 +66,6 @@ class WebSocketController {
         private val queue = LinkedBlockingDeque<String>()
         fun letPeopleKnow(message: String) {
             println(message)
-            if (queue.size > 1000000) {
-                queue.pollFirst()
-            }
             queue.put(withTimePrefix(message))
 
         }
@@ -75,7 +74,18 @@ class WebSocketController {
             sessions.values.forEach {
                 it.basicRemote.sendText("job is done")
             }
+        }
 
+        fun notifyClientJobCanceled() {
+            sessions.values.forEach {
+                if (it.isOpen) {
+                    it.basicRemote.sendText("canceled")
+                }
+            }
+        }
+
+        fun clearLog() {
+            queue.clear()
         }
 
         private fun withTimePrefix(message: String): String {

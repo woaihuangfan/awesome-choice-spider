@@ -5,6 +5,7 @@ import com.fan.enums.SearchType
 import com.fan.po.DataCollectParam
 import com.fan.service.ContentAnalysisService
 import com.fan.service.SearchByCodeCollector
+import org.apache.coyote.BadRequestException
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
@@ -20,16 +21,16 @@ class DataController(
 
     @PostMapping
     fun startCollect(
-        @RequestBody dataCollectParam: DataCollectParam
-    ): String {
+        @RequestBody dataCollectParam: DataCollectParam,
+    ): Int {
         try {
             if (DateUtil.parseDate(dataCollectParam.tillDate) > DateUtil.date()) {
-                return "请输入有效日期"
+                throw BadRequestException("请输入有效日期")
             }
-            searchByCodeCollector.startCollect(dataCollectParam, SearchType.CODE)
+            return searchByCodeCollector.startCollect(dataCollectParam, SearchType.CODE)
         } catch (e: Exception) {
-            return e.message.orEmpty()
+            e.printStackTrace()
+            throw e
         }
-        return "开始采集，请稍后查询"
     }
 }

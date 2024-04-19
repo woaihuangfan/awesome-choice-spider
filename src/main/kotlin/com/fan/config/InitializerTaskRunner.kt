@@ -1,6 +1,5 @@
 package com.fan.config
 
-import cn.hutool.core.date.DateUtil
 import cn.hutool.core.io.resource.ClassPathResource
 import cn.hutool.core.util.NumberUtil.isNumber
 import cn.hutool.poi.excel.ExcelUtil
@@ -33,11 +32,11 @@ class InitializerTaskRunner(
     }
 
     private fun getInitialTitleFilterRules(): List<TitleFilterRule> {
-        return getTitleKeywords().map { TitleFilterRule(keyword = it) }
+        return getTitleKeywords().filter { it.isNotEmpty() }.map { TitleFilterRule(keyword = it) }
     }
 
     private fun getTitleKeywords(): List<String> {
-        return listOf("续聘", "会计")
+        return listOf()
     }
 
     private fun addCompany() {

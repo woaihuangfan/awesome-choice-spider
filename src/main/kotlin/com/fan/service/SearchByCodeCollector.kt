@@ -5,7 +5,9 @@ import cn.hutool.core.date.DateUtil
 import cn.hutool.core.util.PageUtil
 import com.fan.client.SearchClient
 import com.fan.controller.WebSocketController.Companion.letPeopleKnow
+import com.fan.controller.WebSocketController.Companion.notifyClientJobCanceled
 import com.fan.controller.WebSocketController.Companion.notifyClientJobIsDone
+import com.fan.db.entity.Company
 import com.fan.db.entity.NoticeSearchHistory
 import com.fan.db.entity.SearchByCodeSource
 import com.fan.db.repository.CompanyRepository
@@ -17,6 +19,7 @@ import com.fan.po.DataCollectParam
 import com.fan.response.Item
 import com.fan.response.SearchByCodeResponse
 import jakarta.transaction.Transactional
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.apache.commons.collections4.CollectionUtils
@@ -24,6 +27,7 @@ import org.springframework.stereotype.Component
 import org.springframework.util.StringUtils
 import java.time.Duration
 import java.time.Instant
+import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
 
 private const val ROWS = 50
@@ -40,6 +44,17 @@ class SearchByCodeCollector(
 
     ) : AbstractDataCollector(searchByCodeSourceRepository, analysisLogService, collectLogService) {
 
+    private val isInterrupted = AtomicBoolean(false)
+
+    fun cancel() {
+        isInterrupted.set(true)
+        letPeopleKnow("操作将被取消，等待进行中任务完成")
+        notifyClientJobCanceled()
+    }
+
+    fun hasFinished(): Boolean {
+        return !isInterrupted.get()
+    }
 
     @Transactional
     override fun doCollect(param: DataCollectParam, type: SearchType, requestId: String) {
@@ -48,32 +63,46 @@ class SearchByCodeCollector(
         val startTime = Instant.now()
         runBlocking {
             val jobs = codeEntities.map { entity ->
-                launch {
-                    val stock = entity.stock
-                    val tillDate = negotiateTillDate(stock, param)
-                    letPeopleKnow(
-                        "==========将采集【${entity.stock}】${tillDate} -${DateUtil.date()} 期间的公告数据=========="
-                    )
-                    val totalPages = getTotalPages(stock)
-
-                    // 单个股票的爬取
-                    for (i in 1..totalPages) {
-                        letPeopleKnow("==========开始爬取第 $i 页, 共【$totalPages】页==========")
-                        if (successfullyCollectDataByPages(stock, i, requestId, tillDate)) break
-                    }
-
-                    // 增加计数器
-                    counter.incrementAndGet()
+                convertToJob(entity, param, requestId, counter)
+            }
+            jobs.forEach {
+                if (!isInterrupted.get()) {
+                    it.join()
                 }
             }
-            jobs.forEach { it.join() }
             val endTime = Instant.now()
             val duration = Duration.between(startTime, endTime)
             letPeopleKnow("所有任务已完成，成功爬取 ${counter.get()} 家公司在【${param.tillDate} - ${DateUtil.today()} 】期间的公告数据。")
             letPeopleKnow("总计用时：${duration.toMinutes()} 分钟 ${duration.seconds % 60} 秒")
-            notifyClientJobIsDone()
+            if (!isInterrupted.get()) {
+                notifyClientJobIsDone()
+            }
+            isInterrupted.set(false)
         }
 
+    }
+
+    private fun CoroutineScope.convertToJob(
+        entity: Company, param: DataCollectParam, requestId: String, counter: AtomicInteger
+    ) = launch {
+        if (!isInterrupted.get()) {
+            val stock = entity.stock
+            val tillDate = negotiateTillDate(stock, param)
+            letPeopleKnow(
+                "==========将采集【${entity.stock}】${tillDate} -${DateUtil.date()} 期间的公告数据=========="
+            )
+            val totalPages = getTotalPages(stock)
+            // 单个股票的爬取
+            for (i in 1..totalPages) {
+                if (!isInterrupted.get()) {
+                    letPeopleKnow("==========开始爬取第 $i 页, 共【$totalPages】页==========")
+                    if (successfullyCollectDataByPages(stock, i, requestId, tillDate)) break
+                }
+
+            }
+            // 增加计数器
+            counter.incrementAndGet()
+        }
     }
 
 
@@ -90,8 +119,7 @@ class SearchByCodeCollector(
             letPeopleKnow(
                 "======== $lastTillDate -${lastUpdatedDate}之间的数据已采集，将自动修正起始日期为${
                     DateUtil.format(
-                        lastUpdatedDate,
-                        "yyyy年MM月dd日 "
+                        lastUpdatedDate, "yyyy年MM月dd日 "
                     )
                 }===== "
             )
@@ -178,9 +206,7 @@ class SearchByCodeCollector(
         val logMessage = "【${item.codes.first().short_name}】${title}"
         if (CollectionUtils.isNotEmpty(
                 searchByCodeSourceRepository.findByStockAndTitleAndCode(
-                    item.codes.first().stock_code,
-                    title,
-                    code
+                    item.codes.first().stock_code, title, code
                 )
             )
         ) {

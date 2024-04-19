@@ -4,5 +4,5 @@ import com.fan.enums.SearchType
 import com.fan.po.DataCollectParam
 
 fun interface DataCollector {
-    fun startCollect(param: DataCollectParam, type: SearchType):String
+    fun startCollect(param: DataCollectParam, type: SearchType): Int
 }
