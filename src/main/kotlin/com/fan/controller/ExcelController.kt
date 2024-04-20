@@ -1,6 +1,5 @@
 package com.fan.controller
 
-import cn.hutool.core.collection.CollUtil
 import cn.hutool.core.date.DateUtil
 import cn.hutool.poi.excel.ExcelUtil
 import cn.hutool.poi.excel.ExcelWriter
@@ -23,81 +22,67 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
-
 @RestController
 @RequestMapping("/excel")
 class ExcelController(
     private val resultRepository: ResultRepository,
     private val noticeDetailFailLogRepository: NoticeDetailFailLogRepository,
 ) {
+    companion object {
+        private const val COMPANY_NAME = "公司名称"
+        private const val STOCK_CODE = "证券代码"
+        private const val ANNOUNCE_DATE = "公告日期"
+        private const val ACCOUNT_COMPANY_NAME = "会计师事务所名称"
+        private const val CONTRACT_AMOUNT = "合同金额"
+        private const val INFO_SOURCE = "信息来源"
+        private const val ANNOUNCE_CODE = "公告代码"
+        private const val ANNOUNCE_TITLE = "公告标题"
+        private const val ANNOUNCE_CONTENT = "公告内容"
+    }
 
-    @GetMapping(value = ["/result"])
+    @GetMapping("/result")
     fun downloadResult(httpServletResponse: HttpServletResponse) {
         val results = resultRepository.findAll()
-        val headers: List<String> =
-            CollUtil.newArrayList(
-                "公司名称",
-                "证券代码",
-                "公告日期",
-                "会计师事务所名称",
-                "合同金额",
-                "信息来源",
-                "年度"
+        val headers = listOf(
+            COMPANY_NAME, STOCK_CODE, ANNOUNCE_DATE,
+            ACCOUNT_COMPANY_NAME, CONTRACT_AMOUNT, INFO_SOURCE
+        )
+        val contents = results.map {
+            listOfNotNull(
+                it.name, it.stock, it.date,
+                it.accountCompanyName, it.amount, decodeTitle(it.title)
             )
-
-        val contents: List<List<String>> = results.map {
-            listOfNotNull(it.name, it.stock, it.date, it.accountCompanyName, it.amount, decodeTitle(it.title), it.year)
         }
         val writer = writeRows(headers, contents)
         createHyperLink(writer, results)
-        flushToResponse(httpServletResponse, writer, "report-(${results.first().year}).xlsx")
-
+        flushToResponse(httpServletResponse, writer, "report-${DateUtil.today()}.xlsx")
     }
 
-    @GetMapping(value = ["/error"])
+    @GetMapping("/error")
     fun downloadError(httpServletResponse: HttpServletResponse) {
         val errorLogs = noticeDetailFailLogRepository.findAll()
-        val headers: List<String> =
-            CollUtil.newArrayList(
-                "公告代码",
-                "证券代码",
-                "公告标题",
-                "公告内容",
-            )
-        val contents: List<List<String>> = errorLogs.map {
-            listOfNotNull(it.code, it.stock, it.title, it.content)
-        }
+        val headers = listOf(ANNOUNCE_CODE, STOCK_CODE, ANNOUNCE_TITLE, ANNOUNCE_CONTENT)
+        val contents = errorLogs.map { listOfNotNull(it.code, it.stock, it.title, it.content) }
         val writer = writeRows(headers, contents)
         createHyperLinkForErrorLog(writer, errorLogs)
         flushToResponse(httpServletResponse, writer, "error-logs-${DateUtil.today()}.xlsx")
-
     }
 
-    private fun writeRows(
-        headers: List<String>,
-        contents: List<List<String>>
-    ): ExcelWriter {
-        val rows: List<List<String>> = listOf(headers, *contents.toTypedArray())
+    private fun writeRows(headers: List<String>, contents: List<List<String>>): ExcelWriter {
+        val rows = listOf(headers, *contents.toTypedArray())
         val writer = ExcelUtil.getWriter(true)
         writer.write(rows, true)
-        headers.forEachIndexed { index, _ ->
-            writer.sheet.autoSizeColumn(index)
-        }
+        headers.forEachIndexed { index, _ -> writer.sheet.autoSizeColumn(index) }
         return writer
     }
 
-    private fun flushToResponse(
-        httpServletResponse: HttpServletResponse,
-        writer: ExcelWriter,
-        fileName: String
-    ) {
-        httpServletResponse.characterEncoding = "UTF-8";
+    private fun flushToResponse(httpServletResponse: HttpServletResponse, writer: ExcelWriter, fileName: String) {
+        httpServletResponse.characterEncoding = "UTF-8"
         httpServletResponse.contentType =
             "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=utf-8"
         httpServletResponse.setHeader(
             HttpHeaders.CONTENT_DISPOSITION,
-            ContentDisposition
-                .attachment().filename(fileName).build().toString()
+            ContentDisposition.attachment().filename(fileName).build().toString()
         )
         httpServletResponse.outputStream.use {
             writer.flush(it)
@@ -105,7 +90,7 @@ class ExcelController(
         }
     }
 
-    private fun createHyperLink(writer: ExcelWriter, results: MutableList<Result>) {
+    private fun createHyperLink(writer: ExcelWriter, results: List<Result>) {
         val (creationHelper, cellStyle) = getCellStyle(writer)
         results.forEachIndexed { index, result ->
             val linkAddress = result.title.substringAfter("href='").substringBefore("'")
@@ -113,11 +98,11 @@ class ExcelController(
         }
     }
 
-    private fun createHyperLinkForErrorLog(writer: ExcelWriter, errorLogs: MutableList<NoticeDetailFailLog>) {
+    private fun createHyperLinkForErrorLog(writer: ExcelWriter, errorLogs: List<NoticeDetailFailLog>) {
         val (creationHelper, cellStyle) = getCellStyle(writer)
         errorLogs.forEachIndexed { index, log ->
             val linkAddress = getDetailPageUrl(log.stock, log.code)
-            addHyperLinkToCell(creationHelper, linkAddress, writer, index, cellStyle,2)
+            addHyperLinkToCell(creationHelper, linkAddress, writer, index, cellStyle, 2)
         }
     }
 
@@ -144,26 +129,20 @@ class ExcelController(
         cell.cellStyle = cellStyle
     }
 
-    private fun getCellStyle(
-        workbook: Workbook,
-        font: Font
-    ): CellStyle {
+    private fun getCellStyle(workbook: Workbook, font: Font): CellStyle {
         val cellStyle = workbook.createCellStyle()
         cellStyle.setFont(font)
         return cellStyle
     }
 
-    private fun getFont(
-        workbook: Workbook,
-    ): Font {
+    private fun getFont(workbook: Workbook): Font {
         return workbook.createFont().apply {
-            this.underline = XSSFFont.U_SINGLE
-            this.color = HSSFColor.HSSFColorPredefined.BLUE.index
+            underline = XSSFFont.U_SINGLE
+            color = HSSFColor.HSSFColorPredefined.BLUE.index
         }
     }
 
     private fun decodeTitle(title: String): String {
         return title.substringAfter(">").substringBeforeLast("<")
-
     }
 }
