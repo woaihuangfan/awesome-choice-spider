@@ -1,7 +1,6 @@
 package com.fan.client
 
 import cn.hutool.core.date.DateUtil
-import cn.hutool.core.thread.ThreadUtil
 import cn.hutool.http.HtmlUtil
 import cn.hutool.http.HttpRequest
 import com.fan.po.NoticeDetailPO
@@ -13,55 +12,61 @@ object NoticeDetailClient {
     private const val DUMMY_CALLBACK = "dummy"
     private const val DETAIL_PAGE_URL = "https://data.eastmoney.com/notices/detail/%s/%s.html"
     private const val WEB_DETAIL_URL =
-        "https://np-cnotice-stock.eastmoney.com/api/content/ann?cb=$DUMMY_CALLBACK&art_code=%s&client_source=web&page_index=%s&_=%s"
+        "https://np-cnotice-stock.eastmoney.com/api/content/ann?cb=%s&art_code=%s&client_source=web&page_index=%s&_=%s"
 
-    private fun getDetailUrl(code: String, timestamp: Long, index: Int? = 1): String {
-        return WEB_DETAIL_URL.format(code, index, timestamp)
-    }
+    /**
+     * 获取详情页URL
+     */
+    fun getDetailPageUrl(stock: String, code: String): String =
+        String.format(DETAIL_PAGE_URL, stock, code)
 
-    fun getDetailPageUrl(stock: String, code: String): String {
-        return DETAIL_PAGE_URL.format(stock, code)
-    }
-
-
+    /**
+     * 获取远程详情信息
+     */
     fun fetchDetailFromRemote(infoCode: String, stock: String): NoticeDetailPO? {
-        ThreadUtil.sleep(300)
-        val index = 1
-        val url = getDetailUrl(infoCode, DateUtil.current(), index)
+        val url = String.format(WEB_DETAIL_URL, DUMMY_CALLBACK, infoCode, 1, DateUtil.current())
         val response = HttpRequest.get(url).execute()
+
         if (response.isOk) {
-            var body = response.body()
-            body = body.replace("dummy(", "").replace(")", "")
-            try {
-                val detail = Gson().fromJson(body, WebNoticeDetailResponse::class.java)
-                val noticeContent = detail.data?.notice_content ?: ""
-                val formattedContent = formatHtml2Text(noticeContent)
-                val unescapedContent = HtmlUtil.unescape(formattedContent)
-                val cleanContent = HtmlUtil.cleanHtmlTag(unescapedContent)
-                return NoticeDetailPO(
-                    code = infoCode,
-                    title = detail.data?.notice_title ?: "<标题未找到>",
-                    content = cleanContent,
-                    stock = extractStock(detail, stock),
-                )
-            } catch (e: Exception) {
-                e.printStackTrace()
-                return null
-            }
+            val body = response.body()?.replace("$DUMMY_CALLBACK(", "")?.replace(")", "") ?: return null
+            return parseResponse(body, stock)
         }
         return null
-
-
     }
 
+    /**
+     * 解析响应内容
+     */
+    private fun parseResponse(body: String, stock: String): NoticeDetailPO? {
+        return try {
+            val detail = Gson().fromJson(body, WebNoticeDetailResponse::class.java)
+            val noticeContent = detail.data?.notice_content.orEmpty()
+            val formattedContent = formatHtml2Text(noticeContent)
+            val cleanContent = HtmlUtil.cleanHtmlTag(HtmlUtil.unescape(formattedContent))
+            NoticeDetailPO(
+                code = detail.data?.art_code ?: "",
+                title = detail.data?.notice_title ?: "<标题未找到>",
+                content = cleanContent,
+                stock = extractStock(detail, stock)
+            )
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
+        }
+    }
+
+    /**
+     * 提取股票代码
+     */
     private fun extractStock(detail: WebNoticeDetailResponse, stock: String): String {
         return detail.data?.security?.first { it.stock == stock }?.stock
             ?: detail.data?.security?.first { it.stock.length == 6 }?.stock.orEmpty()
     }
 
-
+    /**
+     * 格式化HTML为纯文本
+     */
     private fun formatHtml2Text(html: String): String {
         return html
     }
-
 }
