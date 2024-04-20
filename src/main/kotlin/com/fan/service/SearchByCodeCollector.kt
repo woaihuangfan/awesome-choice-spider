@@ -46,10 +46,20 @@ class SearchByCodeCollector(
 
     private val isInterrupted = AtomicBoolean(false)
 
+    fun getStatus(): Status {
+        return if (lock.get() == 1) {
+            Status.RUNNING
+        } else {
+            Status.READY
+        }
+    }
+    
     fun cancel() {
-        isInterrupted.set(true)
-        letPeopleKnow("操作将被取消，等待进行中任务完成")
-        notifyClientJobCanceled()
+        if(getStatus()==Status.RUNNING){
+            isInterrupted.set(true)
+            letPeopleKnow("操作将被取消，等待进行中任务完成")
+            notifyClientJobCanceled()
+        }
     }
 
     fun hasFinished(): Boolean {

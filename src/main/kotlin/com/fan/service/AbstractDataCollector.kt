@@ -13,11 +13,15 @@ abstract class AbstractDataCollector(
     private val analysisLogService: AnalysisLogService,
     private val collectLogService: CollectLogService
 ) : DataCollector {
-    private val lock = AtomicInteger(0)
-    override fun startCollect(param: DataCollectParam, type: SearchType): Int {
-        if (lock.get() == 1) {
-            return 0
-        }
+
+    protected val lock = AtomicInteger(0)
+
+    sealed class Status(val status: String) {
+        data object RUNNING : Status("running")
+        data object READY : Status("ready")
+    }
+
+    override fun startCollect(param: DataCollectParam, type: SearchType) {
         ThreadUtil.execAsync {
             letPeopleKnow("==========开始爬取==========")
             lock.incrementAndGet()
@@ -29,7 +33,6 @@ abstract class AbstractDataCollector(
             lock.decrementAndGet()
         }
 
-        return 1
     }
 
     private fun log(requestId: String, param: DataCollectParam, type: SearchType) {

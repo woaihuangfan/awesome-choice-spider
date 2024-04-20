@@ -140,7 +140,7 @@
     //接收到消息的回调方法
     let messageBuffer = [];  // 消息缓冲数组
     const MAX_LOGS = 1000;   // 最大日志数量
-    function clearData() {
+    function doClearData() {
         var loadIndex = layer.load(2);
         messageBuffer = []
         layui.$.ajax({
@@ -160,6 +160,28 @@
         });
     }
 
+    function clearData() {
+        layui.$.ajax({
+            url: '/data/status',
+            type: 'GET',
+            success: function (data, textStatus, xhr) {
+                if (xhr.responseText === "RUNNING") {
+                    layer.confirm('有采集任务正在进行中，是否终止任务并清除数据？', {icon: 3}, function (index) {
+                        doClearData();
+                        layer.close(index);
+                    });
+                } else {
+                    doClearData();
+                }
+
+            },
+            error: function (xhr, status, error) {
+                // 处理请求失败的逻辑
+                layer.msg(xhr.responseText);
+            }
+        });
+    }
+
     function startCollect() {
         var tillDate = layui.$("#ID-laydate-demo").val()
         if (tillDate === undefined || tillDate === "") {
@@ -171,19 +193,18 @@
             type: 'POST',
             contentType: 'application/json',
             data: JSON.stringify({tillDate: tillDate}),
-            success: function (data) {
-                let message;
-                if (data === 1) {
-                    message = "开始采集，请稍后查询"
+            success: function (data, textStatus, xhr) {
+                if (xhr.status === 200) {
                     // 处理接口返回的数据
-                    layer.msg(message, {
+                    layer.msg("开始采集，请稍后查询", {
                         icon: 1,
                         time: 1000,
                         end: function () {
                             showLog();
                         }
                     });
-                } else {
+                }
+                if (xhr.status === 304) {
                     layer.confirm('正在采集中，是否显示实时日志？', function (index) {
                         showLog();
                     });
@@ -192,8 +213,7 @@
 
             },
             error: function (xhr, status, error) {
-                // 处理请求失败的逻辑
-                layer.msg(xhr.responseText);
+                layer.msg(xhr.responseText, {icon: 5});
             }
         });
 
@@ -244,7 +264,7 @@
                     websocket.onmessage = function (event) {
                         if (event.data === "job is done") {
                             layer.closeAll();
-                        } else if(event.data === "canceled"){
+                        } else if (event.data === "canceled") {
                             layer.closeAll();
                             layer.alert('采集被终止', {
                                 skin: 'layui-layer-molv' // 样式类名
