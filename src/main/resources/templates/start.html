@@ -221,7 +221,7 @@
         var websocket = null;
 
         function showLog() {
-            layer.open({
+            const index = layer.open({
                 type: 1,
                 area: ['1200px', '600px'],
                 resize: true,
@@ -263,13 +263,15 @@
 
                     websocket.onmessage = function (event) {
                         if (event.data === "job is done") {
-                            layer.closeAll();
+                            layer.close(index);
                         } else if (event.data === "canceled") {
-                            layer.closeAll();
-                            layer.alert('采集被终止', {
+                            layer.close(index);
+                            const i = layer.alert('采集被终止', {
                                 skin: 'layui-layer-molv' // 样式类名
+                            }, function() {
+                                reloadTable();
+                                layer.close(i);
                             });
-                            reloadTable();
                         } else {
                             messageBuffer.push(event.data);  // 将消息添加到缓冲数组
                             scheduleUpdate();  // 调度 DOM 更新
@@ -306,7 +308,7 @@
                     //连接关闭的回调方法
                     websocket.onclose = function () {
                         console.log("close");
-                        layer.closeAll();
+                        layer.close(index);
                     };
 
                     //监听窗口关闭事件，当窗口关闭时，主动去关闭websocket连接，防止连接还没断开就关闭窗口，server端会抛异常。
