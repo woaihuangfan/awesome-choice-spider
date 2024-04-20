@@ -269,7 +269,7 @@
                             layer.alert('采集被终止', {
                                 skin: 'layui-layer-molv' // 样式类名
                             });
-
+                            reloadTable();
                         } else {
                             messageBuffer.push(event.data);  // 将消息添加到缓冲数组
                             scheduleUpdate();  // 调度 DOM 更新
