@@ -182,12 +182,7 @@
         });
     }
 
-    function startCollect() {
-        var tillDate = layui.$("#ID-laydate-demo").val()
-        if (tillDate === undefined || tillDate === "") {
-            layer.msg("请输入有效日期", {icon: 5});
-            return
-        }
+    function doCollect(tillDate){
         layui.$.ajax({
             url: '/data',
             type: 'POST',
@@ -204,19 +199,11 @@
                         }
                     });
                 }
-                if (xhr.status === 304) {
-                    layer.confirm('正在采集中，是否显示实时日志？', function (index) {
-                        showLog();
-                    });
-                }
-
-
             },
             error: function (xhr, status, error) {
                 layer.msg(xhr.responseText, {icon: 5});
             }
         });
-
         // 对弹层中的表单进行初始化渲染
         var websocket = null;
 
@@ -343,6 +330,35 @@
                 },
             });
         }
+    }
+    function startCollect() {
+        var tillDate = layui.$("#ID-laydate-demo").val()
+        if (tillDate === undefined || tillDate === "") {
+            layer.msg("请输入有效日期", {icon: 5});
+            return
+        }
+        layui.$.ajax({
+            url: '/data/status',
+            type: 'GET',
+            success: function (data, textStatus, xhr) {
+                if (xhr.responseText === "RUNNING") {
+                    layer.confirm('有采集任务正在进行中，是否终止任务清除数据并重新采集？', {icon: 3}, function (index) {
+                        doCollect(tillDate);
+                        layer.close(index);
+                    });
+                } else {
+                    doCollect(tillDate);
+                }
+
+            },
+            error: function (xhr, status, error) {
+                // 处理请求失败的逻辑
+                layer.msg(xhr.responseText);
+            }
+        });
+
+
+
 
 
     }

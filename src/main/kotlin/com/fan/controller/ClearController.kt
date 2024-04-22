@@ -41,6 +41,14 @@ class ClearController(
 
     @DeleteMapping
     fun start(httpServletResponse: HttpServletResponse): String {
+        cancelAndClear()
+        titleFilterRuleRepository.deleteAll()
+        letPeopleKnow("全部清除成功!")
+        return "清除成功!"
+
+    }
+
+    fun cancelAndClear() {
         searchByCodeCollector.cancel()
         while (!searchByCodeCollector.hasFinished()) {
             Thread.sleep(100)
@@ -56,10 +64,6 @@ class ClearController(
         noticeSearchHistoryRepository.deleteAll()
         searchByCodeSourceRepository.deleteAll()
         sourceRepository.deleteAll()
-        titleFilterRuleRepository.deleteAll()
-        letPeopleKnow("全部清除成功!")
-        return "清除成功!"
-
     }
 
 

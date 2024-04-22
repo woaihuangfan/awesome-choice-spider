@@ -1,6 +1,7 @@
 package com.fan.controller
 
 import cn.hutool.core.date.DateUtil
+import com.fan.controller.WebSocketController.Companion.letPeopleKnow
 import com.fan.db.repository.TitleFilterRuleRepository
 import com.fan.enums.SearchType
 import com.fan.po.DataCollectParam
@@ -20,7 +21,8 @@ import org.springframework.web.bind.annotation.RestController
 @RequestMapping("/data")
 class DataController(
     private val searchByCodeCollector: SearchByCodeCollector,
-    private val titleFilterRuleRepository: TitleFilterRuleRepository
+    private val titleFilterRuleRepository: TitleFilterRuleRepository,
+    private val clearController: ClearController
 ) {
 
     @GetMapping("/status")
@@ -42,7 +44,8 @@ class DataController(
             }
 
             if (searchByCodeCollector.getStatus() == AbstractDataCollector.Status.RUNNING) {
-                return ResponseEntity.status(HttpStatus.NOT_MODIFIED).body("任务正在进行中")
+                letPeopleKnow("有采集任务正在进行中，将终止当前采集任务清除数据并重新采集")
+                clearController.cancelAndClear()
             }
             return ResponseEntity.ok(searchByCodeCollector.startCollect(dataCollectParam, SearchType.CODE).toString())
 
