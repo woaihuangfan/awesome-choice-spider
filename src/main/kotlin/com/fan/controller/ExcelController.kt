@@ -1,9 +1,10 @@
 package com.fan.controller
 
 import cn.hutool.core.date.DateUtil
-import cn.hutool.poi.excel.ExcelUtil
 import cn.hutool.poi.excel.ExcelWriter
 import com.fan.client.NoticeDetailClient.getDetailPageUrl
+import com.fan.controller.ExcelHelper.flushToResponse
+import com.fan.controller.ExcelHelper.writeRows
 import com.fan.db.entity.NoticeDetailFailLog
 import com.fan.db.entity.Result
 import com.fan.db.repository.NoticeDetailFailLogRepository
@@ -16,8 +17,6 @@ import org.apache.poi.ss.usermodel.CreationHelper
 import org.apache.poi.ss.usermodel.Font
 import org.apache.poi.ss.usermodel.Workbook
 import org.apache.poi.xssf.usermodel.XSSFFont
-import org.springframework.http.ContentDisposition
-import org.springframework.http.HttpHeaders
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
@@ -68,27 +67,6 @@ class ExcelController(
         flushToResponse(httpServletResponse, writer, "error-logs-${DateUtil.today()}.xlsx")
     }
 
-    private fun writeRows(headers: List<String>, contents: List<List<String>>): ExcelWriter {
-        val rows = listOf(headers, *contents.toTypedArray())
-        val writer = ExcelUtil.getWriter(true)
-        writer.write(rows, true)
-        headers.forEachIndexed { index, _ -> writer.sheet.autoSizeColumn(index) }
-        return writer
-    }
-
-    private fun flushToResponse(httpServletResponse: HttpServletResponse, writer: ExcelWriter, fileName: String) {
-        httpServletResponse.characterEncoding = "UTF-8"
-        httpServletResponse.contentType =
-            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=utf-8"
-        httpServletResponse.setHeader(
-            HttpHeaders.CONTENT_DISPOSITION,
-            ContentDisposition.attachment().filename(fileName).build().toString()
-        )
-        httpServletResponse.outputStream.use {
-            writer.flush(it)
-            writer.close()
-        }
-    }
 
     private fun createHyperLink(writer: ExcelWriter, results: List<Result>) {
         val (creationHelper, cellStyle) = getCellStyle(writer)

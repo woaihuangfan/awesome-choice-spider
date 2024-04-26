@@ -17,7 +17,7 @@ class InitializerTaskRunner(
     private val companyRepository: CompanyRepository, private val titleFilterRuleRepository: TitleFilterRuleRepository
 ) : ApplicationRunner {
     override fun run(args: ApplicationArguments) {
-        addCompany()
+//        addCompany()
         initDefaultTitleRule()
     }
 
@@ -62,7 +62,6 @@ class InitializerTaskRunner(
                     if (isNumber(code)) {
                         codes.add(code)
                     }
-
                 }
 
             }

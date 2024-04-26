@@ -24,6 +24,10 @@
                 </button>
                 <button type="button" class="layui-btn layui-bg-red " onclick="clearData()">清除全部数据</button>
                 </button>
+                <button type="button" class="layui-btn" id="upload">
+                    <i class="layui-icon">&#xe67c;</i>上传上市公司代码
+                </button>
+                <a style="color:#1E9FFF" href="/company" target="_blank">下载公司代码</a>
             </div>
 
         </div>
@@ -85,6 +89,36 @@
             }
         });
     });
+    layui.use('upload', function () {
+        var upload = layui.upload;
+        var loadIndex
+        //执行实例
+        var uploadInst = upload.render({
+            elem: '#upload' //绑定元素
+            ,
+            url: '/company' //上传接口
+            ,
+            accept: 'file',
+            before: function () {
+                layer.msg("请留意导入将覆盖已有数据")
+                loadIndex = layer.load(2);
+            },
+            done: function (res) {
+                layer.close(loadIndex);
+                //上传完毕回调
+                if (res.count !== 0) {
+                    layer.msg("成功导入" + res.count + "笔数据", {icon: 1})
+                } else {
+                    layer.msg(res.message, {icon: 5, anim: 6});
+                }
+
+            },
+            error: function (res) {
+                layer.close(loadIndex);
+            }
+        });
+
+    });
 
     // 删除行操作
     function deleteRow(id) {
@@ -101,7 +135,7 @@
                 },
                 error: function (xhr, status, error) {
                     // 处理请求失败的逻辑
-                    layer.msg(xhr.responseText);
+                    layer.msg(xhr.responseText, {icon: 5, anim: 6});
                 }
             });
             layer.close(index);
@@ -132,7 +166,7 @@
             },
             error: function (xhr, status, error) {
                 // 处理请求失败的逻辑
-                layer.msg(xhr.responseText);
+                layer.msg(xhr.responseText, {icon: 5, anim: 6});
             }
         });
     }
@@ -155,7 +189,7 @@
             error: function (xhr, status, error) {
                 // 处理请求失败的逻辑
                 layer.close(loadIndex)
-                layer.msg(xhr.responseText);
+                layer.msg(xhr.responseText, {icon: 5, anim: 6});
             }
         });
     }
@@ -177,12 +211,12 @@
             },
             error: function (xhr, status, error) {
                 // 处理请求失败的逻辑
-                layer.msg(xhr.responseText);
+                layer.msg(xhr.responseText, {icon: 5, anim: 6});
             }
         });
     }
 
-    function doCollect(tillDate){
+    function doCollect(tillDate) {
         layui.$.ajax({
             url: '/data',
             type: 'POST',
@@ -255,7 +289,7 @@
                             layer.close(index);
                             const i = layer.alert('采集被终止', {
                                 skin: 'layui-layer-molv' // 样式类名
-                            }, function() {
+                            }, function () {
                                 reloadTable();
                                 layer.close(i);
                             });
@@ -331,6 +365,7 @@
             });
         }
     }
+
     function startCollect() {
         var tillDate = layui.$("#ID-laydate-demo").val()
         if (tillDate === undefined || tillDate === "") {
@@ -353,12 +388,9 @@
             },
             error: function (xhr, status, error) {
                 // 处理请求失败的逻辑
-                layer.msg(xhr.responseText);
+                layer.msg(xhr.responseText, {icon: 5, anim: 6});
             }
         });
-
-
-
 
 
     }
