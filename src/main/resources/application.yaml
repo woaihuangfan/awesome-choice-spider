@@ -10,8 +10,6 @@ spring:
     driver-class-name: org.apache.derby.jdbc.EmbeddedDriver
   sql:
     init:
-      schema-locations: classpath:database/create_tables.sql
-      #      data-locations: classpath:database/init_data.sql
       mode: always
       continue-on-error: true
 

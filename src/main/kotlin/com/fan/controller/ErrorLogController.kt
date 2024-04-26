@@ -6,6 +6,7 @@ import com.fan.service.DetailAnalysisErrorLogService
 import com.fan.service.NoticeDetailService
 import com.fan.service.NoticeService
 import com.fan.service.ResultService
+import org.springframework.util.StringUtils
 import org.springframework.web.bind.annotation.PatchMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestBody
@@ -28,24 +29,31 @@ class ErrorLogController(
     fun edit(
         @PathVariable id: Long, @RequestBody editResultParam: EditResultParam
     ): String {
-        val errorLogOptional = detailAnalysisErrorLogService.getFailLogById(id)
-        errorLogOptional.ifPresent {
-            val errorLog = errorLogOptional.get()
-            val noticeId = errorLog.noticeId
-            val noticeOptional = noticeService.getNoticeById(noticeId)
-            noticeOptional.ifPresent {
-                val notice = noticeOptional.get()
-                val noticeDetail = noticeDetailService.getNoticeDetailByFailLog(errorLog)
-                noticeDetail?.let {
-                    resultService.attachToResult(
-                        notice, noticeDetail, editResultParam.accountCompanyName, editResultParam.amount.orEmpty()
-                    )
-                    detailAnalysisErrorLogService.removeErrorLog(errorLog)
+        val accountCompanyName = editResultParam.accountCompanyName
+        val ignored = editResultParam.ignored
+        if (StringUtils.hasText(accountCompanyName) && !ignored) {
+            val errorLogOptional = detailAnalysisErrorLogService.getFailLogById(id)
+            errorLogOptional.ifPresent {
+                val errorLog = errorLogOptional.get()
+                val noticeId = errorLog.noticeId
+                val noticeOptional = noticeService.getNoticeById(noticeId)
+                noticeOptional.ifPresent {
+                    val notice = noticeOptional.get()
+                    val noticeDetail = noticeDetailService.getNoticeDetailByFailLog(errorLog)
+                    noticeDetail?.let {
+                        resultService.attachToResult(
+                            notice, noticeDetail, accountCompanyName.orEmpty(), editResultParam.amount.orEmpty()
+                        )
+                        detailAnalysisErrorLogService.removeErrorLog(errorLog)
+                        analysisLogService.saveAnalysisLog("手动提取修正", UUID.randomUUID().toString())
+                    }
 
-                    analysisLogService.saveAnalysisLog("手动提取修正", UUID.randomUUID().toString(),)
                 }
-
             }
+        }
+
+        if (ignored) {
+            detailAnalysisErrorLogService.ignoreErrorLog(id)
         }
 
         return "修改成功"

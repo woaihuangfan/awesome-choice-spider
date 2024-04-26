@@ -24,7 +24,7 @@ class ResultController(
     ): String {
         val resultOptional = resultService.findById(id)
         val result = resultOptional.orElseThrow()
-        result.accountCompanyName = editResultParam.accountCompanyName
+        result.accountCompanyName = editResultParam.accountCompanyName.orEmpty()
         resultService.save(result)
         analysisLogService.saveAnalysisLog("手动调整提取结果", UUID.randomUUID().toString(),)
         return "修改成功"

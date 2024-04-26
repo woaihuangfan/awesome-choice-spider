@@ -51,8 +51,13 @@
                 {field: 'content', title: '公告内容', event: 'viewContent', templet: '#contentTpl'},
                 // {title: '操作', toolbar: '#toolbarDemo'}
                 {
-                    title: '操作', width: 100, templet: function (d) {
-                        return '<button class="layui-btn layui-btn-warm layui-btn-xs edit-btn" onclick="edit(\'' + d.id + '\')">手动修正</button>';
+                    title: '操作', width: 150, templet: function (d) {
+                        if (d.ignored === true) {
+                            return '<button class="layui-btn layui-btn-warm layui-btn-xs edit-btn layui-bg-gray" onclick="edit(\'' + d.id + '\')">是否修正</button>';
+                        } else {
+                            return '<button class="layui-btn layui-btn-warm layui-btn-xs edit-btn" onclick="edit(\'' + d.id + '\')">是否修正</button>';
+                        }
+
                     }
                 }
             ]]
@@ -75,6 +80,7 @@
             layer.closeAll();
         }
     };
+
     function edit(id) {
 
         // 刷新表格
@@ -87,28 +93,50 @@
         layui.use(['layer'], function () {
             var layer = layui.layer;
             var util = layui.util
-            layer.prompt({title: '请输入手动修正结果', formType: 0}, function (value, index, elem) {
-                if (value === '') return elem.focus();
-                layui.$.ajax({
-                    url: '/error/' + id,
-                    type: 'PATCH',
-                    contentType: 'application/json',
-                    data: JSON.stringify({accountCompanyName: util.escape(value)}),
-                    success: function (data) {
-                        // 处理成功的逻辑
-                        layer.msg(data, {icon: 1});
-                        reloadTable();
-                        // 关闭 prompt
-                        layer.close(index);
-                    },
-                    error: function (xhr, status, error) {
-                        // 处理失败的逻辑
-                        layer.msg(xhr.responseText, {icon: 5, anim: 6});
+            layer.prompt({
+                    title: '请输入手动修正结果',
+                    formType: 0,
+                    btn2: function () {
+                        layui.$.ajax({
+                            url: '/error/' + id,
+                            type: 'PATCH',
+                            contentType: 'application/json',
+                            data: JSON.stringify({ignored: true}),
+                            success: function (data) {
+                                // 处理成功的逻辑
+                                layer.msg('已阅');
+                                reloadTable();
+                                // 关闭 prompt
+                                layer.close(index);
+                            },
+                            error: function (xhr, status, error) {
+                                // 处理失败的逻辑
+                                layer.msg(xhr.responseText, {icon: 5, anim: 6});
+                            }
+                        });
                     }
-                });
-
-
-            });
+                },
+                function (value, index, elem) {
+                    if (value === '') return elem.focus();
+                    layui.$.ajax({
+                        url: '/error/' + id,
+                        type: 'PATCH',
+                        contentType: 'application/json',
+                        data: JSON.stringify({accountCompanyName: util.escape(value)}),
+                        success: function (data) {
+                            // 处理成功的逻辑
+                            layer.msg(data, {icon: 1});
+                            reloadTable();
+                            // 关闭 prompt
+                            layer.close(index);
+                        },
+                        error: function (xhr, status, error) {
+                            // 处理失败的逻辑
+                            layer.msg(xhr.responseText, {icon: 5, anim: 6});
+                        }
+                    });
+                }
+            );
         });
     }
 

@@ -48,6 +48,16 @@ class DetailAnalysisErrorLogService(
         noticeDetailFailLogRepository.deleteByCodeAndStock(detail.code, detail.stock)
     }
 
+    @Transactional
+    fun ignoreErrorLog(id: Long) {
+        val detailFailLogOptional = noticeDetailFailLogRepository.findById(id)
+        detailFailLogOptional.ifPresent {
+            val errorLog = detailFailLogOptional.get()
+            errorLog.ignored = true
+            noticeDetailFailLogRepository.save(errorLog)
+        }
+    }
+
     fun getFailLogById(id: Long) = noticeDetailFailLogRepository.findById(id)
 
 }

@@ -36,7 +36,8 @@ class NoticeDetailFailLog(
     val accountCompanyName: String,
 
     @Column(name = "`amount`", nullable = false)
-    val amount: String
-) {
+    val amount: String,
 
-}
+    @Column(name = "ignored", columnDefinition = "BOOLEAN not null default false")
+    var ignored: Boolean = false
+)
