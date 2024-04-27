@@ -1,6 +1,5 @@
 package com.fan.controller
 
-import cn.hutool.core.date.DateUtil
 import cn.hutool.poi.excel.ExcelUtil
 import com.fan.controller.WebSocketController.Companion.letPeopleKnow
 import com.fan.db.entity.Company
@@ -31,11 +30,15 @@ class CompanyController(
 
     @GetMapping("fileName")
     fun getUploadedFileName(): ResponseEntity<String> {
+        return ResponseEntity.ok().body(getFileName())
+    }
+
+    private fun getFileName(): String {
         val files = companyFileRepository.findAll()
         if (files.isNotEmpty()) {
-            return ResponseEntity.ok().body(files.first().fileName)
+            return files.first().fileName
         }
-        return ResponseEntity.ok().build()
+        return ""
     }
 
     @PostMapping
@@ -102,6 +105,6 @@ class CompanyController(
             )
         }
         val writer = ExcelHelper.writeRows(headers, contents)
-        ExcelHelper.flushToResponse(httpServletResponse, writer, "company-${DateUtil.today()}.xlsx")
+        ExcelHelper.flushToResponse(httpServletResponse, writer, getFileName())
     }
 }
