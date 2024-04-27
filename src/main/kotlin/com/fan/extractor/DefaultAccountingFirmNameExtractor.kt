@@ -18,6 +18,8 @@ object DefaultAccountingFirmNameExtractor {
                 "续聘会计师事务所的情况说明(.*?)事务所）",
                 "经审核，(.*?)事务所）",
                 "经核查，(.*?)事务所）",
+                "对(.*?)事务所）",
+                "对(.*?)（特殊普通合伙）",
                 "(?<=会计师事务所名称：)[\\u4e00-\\u9fa5]+事务所",
                 "事务所名称：(.*?)（特殊普通合伙）",
                 "事务所名称(.*?)（特殊普通合伙）",
@@ -70,8 +72,11 @@ object DefaultAccountingFirmNameExtractor {
 
     private fun replace(name: String): String {
         var result = name
-        AccountCompanyNameFilter.getReplaceableWords().forEach {
+        AccountCompanyNameFilter.getAllReplaceableWords().forEach {
             result = result.replace(it, "")
+        }
+        AccountCompanyNameFilter.getFirstReplaceableWords().forEach {
+            result = result.replaceFirst(it, "")
         }
         return result
     }

@@ -19,7 +19,13 @@ object AccountCompanyNameFilter {
     }
 
     private fun isNotReplaceable(name: String): Boolean {
-        getReplaceableWords().forEach {
+        getAllReplaceableWords().forEach {
+            if (name.contains(it)) {
+                return false
+            }
+        }
+
+        getFirstReplaceableWords().forEach {
             if (name.contains(it)) {
                 return false
             }
@@ -27,7 +33,11 @@ object AccountCompanyNameFilter {
         return true
     }
 
-    fun getReplaceableWords(): List<String> {
+    fun getFirstReplaceableWords(): List<String> {
+        return listOf("对")
+    }
+
+    fun getAllReplaceableWords(): List<String> {
         return listOf(
             "事务所名称",
             "拟续聘的会计师事务所",
@@ -53,6 +63,8 @@ object AccountCompanyNameFilter {
             "拟续聘的会计师事务所名称",
             "经审核，",
             "经核查，",
+            "鉴于",
+            "续聘",
             ":"
         )
     }
