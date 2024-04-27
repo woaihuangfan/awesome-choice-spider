@@ -52,4 +52,4 @@ spring:
 #  level:
 #    root: debug
 server:
-  port: 8081
+  port: 8080

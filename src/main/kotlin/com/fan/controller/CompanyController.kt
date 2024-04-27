@@ -7,7 +7,6 @@ import com.fan.db.entity.CompanyFile
 import com.fan.db.repository.CompanyFileRepository
 import com.fan.db.repository.CompanyRepository
 import jakarta.servlet.http.HttpServletResponse
-import jakarta.transaction.Transactional
 import org.apache.coyote.BadRequestException
 import org.springframework.data.domain.Sort
 import org.springframework.http.ResponseEntity
@@ -42,7 +41,6 @@ class CompanyController(
     }
 
     @PostMapping
-    @Transactional
     fun import(@RequestParam("file") file: MultipartFile): ResponseEntity<Map<String, Any>> {
         var count = 0L
         try {

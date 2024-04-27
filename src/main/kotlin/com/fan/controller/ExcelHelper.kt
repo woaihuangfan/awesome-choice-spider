@@ -5,6 +5,7 @@ import cn.hutool.poi.excel.ExcelWriter
 import jakarta.servlet.http.HttpServletResponse
 import org.springframework.http.ContentDisposition
 import org.springframework.http.HttpHeaders
+import java.nio.charset.StandardCharsets
 
 object ExcelHelper {
     fun writeRows(headers: List<String>, contents: List<List<String>>): ExcelWriter {
@@ -21,7 +22,7 @@ object ExcelHelper {
             "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=utf-8"
         httpServletResponse.setHeader(
             HttpHeaders.CONTENT_DISPOSITION,
-            ContentDisposition.attachment().filename(fileName).build().toString()
+            ContentDisposition.attachment().filename(fileName, StandardCharsets.UTF_8).build().toString()
         )
         httpServletResponse.outputStream.use {
             writer.flush(it)
