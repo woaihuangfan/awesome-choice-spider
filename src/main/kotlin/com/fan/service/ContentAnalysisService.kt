@@ -11,6 +11,9 @@ import com.fan.extractor.DefaultAccountingAmountExtractor.extractAccountingAmoun
 import com.fan.extractor.DefaultAccountingFirmNameExtractor.extractAccountingFirmName
 import com.fan.filter.TitleFilter
 import jakarta.transaction.Transactional
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import org.springframework.stereotype.Component
 import java.util.UUID
 
@@ -115,20 +118,30 @@ class ContentAnalysisService(
         val stocks = filteredResult.map { it.stock }
         val todo = allDetails.filter { !(codes.contains(it.code) && stocks.contains(it.stock)) }
         letPeopleKnow("==========待分析公告数目:${todo.size}=======")
-        todo.forEach {
-            try {
-                val analysisResult = doAnalysisDetailAndSaveResult(it)
-                if (analysisResult.first) {
-                    detailAnalysisErrorLogService.removeErrorLogByDetail(it)
-                } else {
-                    detailAnalysisErrorLogService.logErrorRecord(it, analysisResult.second)
-                }
-            } catch (e: Exception) {
-                e.printStackTrace()
+        runBlocking {
+            val jobs = todo.map { detail ->
+                convertToJob(detail)
+            }
+            jobs.forEach {
+                it.join()
             }
         }
     }
 
+    private fun CoroutineScope.convertToJob(
+        detail: NoticeDetail
+    ) = launch {
+        try {
+            val analysisResult = doAnalysisDetailAndSaveResult(detail)
+            if (analysisResult.first) {
+                detailAnalysisErrorLogService.removeErrorLogByDetail(detail)
+            } else {
+                detailAnalysisErrorLogService.logErrorRecord(detail, analysisResult.second)
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
 
     private fun filterResult(results: List<Result>): List<Result> {
         return results.filter {

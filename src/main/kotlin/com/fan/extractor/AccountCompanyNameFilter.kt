@@ -30,7 +30,7 @@ object AccountCompanyNameFilter {
     }
 
     private fun getRandomCheckWords(): List<String> {
-        return listOf("审计机构", "20", "，", "一")
+        return listOf("审计机构", "20", "，", "一", "任")
     }
 
     private fun isNotReplaceable(name: String): Boolean {
