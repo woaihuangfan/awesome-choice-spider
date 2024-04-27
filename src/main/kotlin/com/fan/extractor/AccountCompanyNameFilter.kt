@@ -26,7 +26,7 @@ object AccountCompanyNameFilter {
         }
 
         getFirstReplaceableWords().forEach {
-            if (name.contains(it)) {
+            if (name.startsWith(it)) {
                 return false
             }
         }
@@ -34,13 +34,34 @@ object AccountCompanyNameFilter {
     }
 
     fun getFirstReplaceableWords(): List<String> {
-        return listOf("对")
+        return listOf(
+            "对",
+            "会计师事务所",
+            "基本",
+            "名称",
+            "任具有证券从业资格的",
+            "拟继续聘请",
+            "公司",
+            "原审计机构",
+            "事项",
+            "情况",
+            "的",
+            "说明",
+            "公司",
+            "拟聘",
+            "同意",
+            "聘任",
+        )
     }
 
     fun getAllReplaceableWords(): List<String> {
         return listOf(
-            "事务所名称",
+            "拟聘任的境内会计师事务所",
+            "会计师事务所的情况说明",
             "拟续聘的会计师事务所",
+            "事务所名称",
+            "基本情况",
+            "名称",
             "审核委员会对",
             "基本信息",
             "1、",
@@ -52,20 +73,21 @@ object AccountCompanyNameFilter {
             "机构名称",
             "1．",
             "1. ",
-            "拟聘任的境内会计师事务所",
             "：",
-            "会计师事务所的情况说明",
             "公司拟续聘",
             "会计师事务所事项的基本情况",
             "会计师事务所事项的情况说明",
             "会计师事务所的基本情况",
             "。",
             "拟续聘的会计师事务所名称",
+            "拟续聘的会计师事务所名称",
             "经审核，",
             "经核查，",
+            "（特殊普通合伙）",
             "鉴于",
             "续聘",
+            "\\n",
             ":"
-        )
+        ).sortedByDescending { it.length }
     }
 }
