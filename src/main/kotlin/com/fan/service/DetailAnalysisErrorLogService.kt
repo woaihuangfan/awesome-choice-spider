@@ -45,7 +45,9 @@ class DetailAnalysisErrorLogService(
 
     @Transactional
     fun removeErrorLogByDetail(detail: NoticeDetail) {
-        noticeDetailFailLogRepository.deleteByCodeAndStock(detail.code, detail.stock)
+        noticeDetailFailLogRepository.findByCodeAndStock(detail.code, detail.stock)?.let {
+            noticeDetailFailLogRepository.delete(it)
+        }
     }
 
     @Transactional
