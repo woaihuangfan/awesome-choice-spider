@@ -9,4 +9,6 @@ import org.springframework.stereotype.Repository
 interface NoticeSearchHistoryRepository : JpaRepository<NoticeSearchHistory, Long> {
 
     fun findByStockOrderByDateDesc(stock: String): List<NoticeSearchHistory>
+
+    fun findFirstByOrderByIdDesc(): NoticeSearchHistory?
 }

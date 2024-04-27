@@ -142,6 +142,22 @@
         });
 
     });
+    getLastTillDate()
+
+    function getLastTillDate() {
+        layui.$.ajax({
+            url: '/data/lastTillDate',
+            type: 'GET',
+            success: function (data, textStatus, xhr) {
+                if (xhr.responseText && xhr.responseText !== "") {
+                    $('#ID-laydate-demo').val(xhr.responseText)
+                }
+            },
+            error: function (xhr, status, error) {
+                layer.msg(xhr.responseText, {icon: 5, anim: 6});
+            }
+        });
+    }
 
     // 删除行操作
     function deleteRow(id) {

@@ -2,6 +2,7 @@ package com.fan.controller
 
 import cn.hutool.core.date.DateUtil
 import com.fan.controller.WebSocketController.Companion.letPeopleKnow
+import com.fan.db.repository.NoticeSearchHistoryRepository
 import com.fan.db.repository.TitleFilterRuleRepository
 import com.fan.enums.SearchType
 import com.fan.po.DataCollectParam
@@ -22,12 +23,22 @@ import org.springframework.web.bind.annotation.RestController
 class DataController(
     private val searchByCodeCollector: SearchByCodeCollector,
     private val titleFilterRuleRepository: TitleFilterRuleRepository,
-    private val clearController: ClearController
+    private val clearController: ClearController,
+    private val noticeSearchHistoryRepository: NoticeSearchHistoryRepository,
 ) {
 
     @GetMapping("/status")
     fun getStatus(): ResponseEntity<String> {
         return ResponseEntity.ok(searchByCodeCollector.getStatus().toString())
+    }
+
+    @GetMapping("/lastTillDate")
+    fun getLastTillDate(): ResponseEntity<String> {
+        val noticeSearchHistory = noticeSearchHistoryRepository.findFirstByOrderByIdDesc()
+        noticeSearchHistory?.let {
+            return ResponseEntity.ok().body(it.tillDate.substring(0, 10))
+        }
+        return ResponseEntity.ok().build()
     }
 
     @PostMapping
