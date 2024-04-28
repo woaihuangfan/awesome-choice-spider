@@ -13,6 +13,7 @@ import com.fan.db.repository.NoticeRepository
 import com.fan.db.repository.ResultRepository
 import com.fan.db.repository.SourceRepository
 import com.fan.dto.PageResult
+import com.fan.util.LinkHelper.addHyperLinkAndReturn
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.PageRequest
@@ -90,7 +91,11 @@ class QueryController(
         @RequestParam limit: Int,
     ): PageResult {
         val pageable: PageRequest = PageRequest.of(page - 1, limit)
-        return PageResult.success(noticeDetailFailLogRepository.findAll(pageable))
+        val pageResult = noticeDetailFailLogRepository.findAll(pageable)
+        pageResult.forEach {
+            it.title = addHyperLinkAndReturn(it.stock, it.code, it.title)
+        }
+        return PageResult.success(pageResult)
     }
 
     @GetMapping(value = ["/fetchErrors"])

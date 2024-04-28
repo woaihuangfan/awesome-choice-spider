@@ -1,4 +1,4 @@
-package com.fan.controller
+package com.fan.util
 
 import cn.hutool.poi.excel.ExcelUtil
 import cn.hutool.poi.excel.ExcelWriter

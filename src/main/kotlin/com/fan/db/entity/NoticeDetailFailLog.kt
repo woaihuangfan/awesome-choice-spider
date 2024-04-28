@@ -20,7 +20,7 @@ class NoticeDetailFailLog(
     val code: String,
 
     @Column(name = "title", nullable = false, length = 8196)
-    val title: String,
+    var title: String,
 
     @Lob
     @Column(name = "content", nullable = false)

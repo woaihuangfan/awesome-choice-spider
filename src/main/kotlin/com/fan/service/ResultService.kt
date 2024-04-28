@@ -1,12 +1,12 @@
 package com.fan.service
 
 import cn.hutool.core.date.DateUtil
-import com.fan.client.NoticeDetailClient.getDetailPageUrl
 import com.fan.controller.WebSocketController.Companion.letPeopleKnow
 import com.fan.db.entity.Notice
 import com.fan.db.entity.NoticeDetail
 import com.fan.db.entity.Result
 import com.fan.db.repository.ResultRepository
+import com.fan.util.LinkHelper.addHyperLinkAndReturn
 import jakarta.transaction.Transactional
 import org.springframework.stereotype.Service
 import java.util.Optional
@@ -60,9 +60,7 @@ class ResultService(
     fun getAllResults(): MutableList<Result> = resultRepository.findAll()
 
     private fun encodeTitle(notice: Notice) =
-        "<a target='_blank' style='color: blue; text-decoration: none; font-weight: bold;' href='%s'>《%s》</a>".format(
-            getDetailPageUrl(notice.stock, notice.code), notice.title
-        )
+        addHyperLinkAndReturn(notice.stock, notice.code, notice.title)
 
     fun findById(id: Long): Optional<Result> {
         return resultRepository.findById(id)

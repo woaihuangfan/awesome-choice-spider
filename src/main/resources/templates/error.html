@@ -34,6 +34,9 @@
 </script>
 
 <script>
+    var addlink = function (d) {
+        return d.title
+    };
     var tableIns
     layui.use(['table', 'layer'], function () {
         const table = layui.table;
@@ -47,7 +50,7 @@
                 {field: 'LAY_NUM', title: '序号', type: "number", width: 80},
                 {field: 'code', title: '公告代码', width: 180},
                 {field: 'stock', title: '证券代码', width: 120},
-                {field: 'title', title: '公告标题', width: 200},
+                {field: 'title', title: '公告标题', width: 200, templet: addlink},
                 {field: 'content', title: '公告内容', event: 'viewContent', templet: '#contentTpl'},
                 // {title: '操作', toolbar: '#toolbarDemo'}
                 {

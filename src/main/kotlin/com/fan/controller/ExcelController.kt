@@ -3,8 +3,8 @@ package com.fan.controller
 import cn.hutool.core.date.DateUtil
 import cn.hutool.poi.excel.ExcelWriter
 import com.fan.client.NoticeDetailClient.getDetailPageUrl
-import com.fan.controller.ExcelHelper.flushToResponse
-import com.fan.controller.ExcelHelper.writeRows
+import com.fan.util.ExcelHelper.flushToResponse
+import com.fan.util.ExcelHelper.writeRows
 import com.fan.db.entity.NoticeDetailFailLog
 import com.fan.db.entity.Result
 import com.fan.db.repository.NoticeDetailFailLogRepository
