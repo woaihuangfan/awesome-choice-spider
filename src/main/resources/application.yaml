@@ -53,3 +53,8 @@ spring:
 #    root: debug
 server:
   port: 8080
+  servlet:
+    encoding:
+      charset: UTF-8
+      enabled: true
+      force: true

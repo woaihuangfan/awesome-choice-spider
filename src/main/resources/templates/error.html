@@ -142,23 +142,32 @@
             );
         });
     }
+    function extractFilename(contentDispositionHeader) {
+        // 正则表达式模式匹配 filename*=UTF-8''filename
+        var pattern = /filename\*=UTF-8''([^;]*)/;
+        var match = contentDispositionHeader.match(pattern);
+
+        // 如果匹配成功，提取 filename
+        if (match) {
+            // 解码并返回 filename
+            return decodeURIComponent(match[1]);
+        } else {
+            return null; // 如果没有找到匹配的 filename，则返回 null
+        }
+    }
 
     function exportExcel() {
+        var loadIndex = layer.load(3);
         var xhr = new XMLHttpRequest();
         xhr.open('GET', '/excel/error', true);
         xhr.responseType = 'blob'; // 设置响应类型为 Blob
         xhr.onload = function () {
+            layer.close(loadIndex)
             if (this.status === 200) {
                 var blob = this.response;
-                var disposition = xhr.getResponseHeader('Content-Disposition'); // 获取 Content-Disposition 头字段
+                var disposition = xhr.getResponseHeader('Content-Disposition').toString();
                 var filename = '';
-                if (disposition && disposition.indexOf('attachment') !== -1) {
-                    var filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
-                    var matches = filenameRegex.exec(disposition);
-                    if (matches != null && matches[1]) {
-                        filename = matches[1].replace(/['"]/g, '');
-                    }
-                }
+                filename = extractFilename(disposition)
                 var url = window.URL.createObjectURL(blob); // 创建临时 URL
                 var a = document.createElement('a');
                 a.href = url;
