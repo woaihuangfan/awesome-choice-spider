@@ -18,7 +18,7 @@ class CollectLogService(
     fun saveCollectLog(param: DataCollectParam, type: SearchType, collectedCount: Int, requestId: String) {
         val titleFilterRules = titleRulesService.getCurrentRules()
         val titleFilterRuleNames =
-            if (titleFilterRules.isNotEmpty()) titleFilterRules.joinToString("-") else ""
+            if (titleFilterRules.isNotEmpty()) titleFilterRules.joinToString("、") else ""
         collectLogRepository.save(
             CollectLog(
                 tillDate = param.tillDate,

@@ -3,12 +3,13 @@ package com.fan.controller
 import cn.hutool.core.date.DateUtil
 import cn.hutool.poi.excel.ExcelWriter
 import com.fan.client.NoticeDetailClient.getDetailPageUrl
-import com.fan.util.ExcelHelper.flushToResponse
-import com.fan.util.ExcelHelper.writeRows
 import com.fan.db.entity.NoticeDetailFailLog
 import com.fan.db.entity.Result
 import com.fan.db.repository.NoticeDetailFailLogRepository
 import com.fan.db.repository.ResultRepository
+import com.fan.service.TitleRulesService
+import com.fan.util.ExcelHelper.flushToResponse
+import com.fan.util.ExcelHelper.writeRows
 import jakarta.servlet.http.HttpServletResponse
 import org.apache.poi.common.usermodel.HyperlinkType
 import org.apache.poi.hssf.util.HSSFColor
@@ -26,6 +27,7 @@ import org.springframework.web.bind.annotation.RestController
 class ExcelController(
     private val resultRepository: ResultRepository,
     private val noticeDetailFailLogRepository: NoticeDetailFailLogRepository,
+    private val titleRulesService: TitleRulesService
 ) {
     companion object {
         private const val COMPANY_NAME = "公司名称"
@@ -54,7 +56,15 @@ class ExcelController(
         }
         val writer = writeRows(headers, contents)
         createHyperLink(writer, results)
-        flushToResponse(httpServletResponse, writer, "report-${DateUtil.today()}.xlsx")
+        flushToResponse(httpServletResponse, writer, getResultFileName())
+    }
+
+    private fun getResultFileName() = "结果汇总(关键字：${getCurrentTitleRules()}) - ${DateUtil.today()}.xlsx"
+
+    private fun getCurrentTitleRules(): String {
+        val currentRules = titleRulesService.getCurrentRules()
+        val keywords = if (currentRules.isNotEmpty()) currentRules.joinToString("、") else ""
+        return keywords
     }
 
     @GetMapping("/error")
@@ -64,8 +74,10 @@ class ExcelController(
         val contents = errorLogs.map { listOfNotNull(it.code, it.stock, it.title, it.content) }
         val writer = writeRows(headers, contents)
         createHyperLinkForErrorLog(writer, errorLogs)
-        flushToResponse(httpServletResponse, writer, "error-logs-${DateUtil.today()}.xlsx")
+        flushToResponse(httpServletResponse, writer, getErrorsFileName())
     }
+
+    private fun getErrorsFileName() = "错误记录(关键字：${getCurrentTitleRules()}) - ${DateUtil.today()}.xlsx"
 
 
     private fun createHyperLink(writer: ExcelWriter, results: List<Result>) {
