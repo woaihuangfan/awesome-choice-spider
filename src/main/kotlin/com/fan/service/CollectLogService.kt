@@ -11,17 +11,23 @@ import org.springframework.stereotype.Service
 @Service
 class CollectLogService(
     private val collectLogRepository: CollectLogRepository,
+    private val titleRulesService: TitleRulesService
 ) {
 
     @Transactional
-    fun saveSearchLog(param: DataCollectParam, type: SearchType, collectedCount: Int) {
+    fun saveCollectLog(param: DataCollectParam, type: SearchType, collectedCount: Int, requestId: String) {
+        val titleFilterRules = titleRulesService.getCurrentRules()
+        val titleFilterRuleNames =
+            if (titleFilterRules.isNotEmpty()) titleFilterRules.joinToString("-") else ""
         collectLogRepository.save(
             CollectLog(
                 tillDate = param.tillDate,
                 date = DateUtil.now(),
                 type = type.typeName,
                 count = collectedCount,
-                keyword = param.keyword
+                keyword = param.keyword,
+                titleFilteredWords = titleFilterRuleNames,
+                requestId = requestId,
             )
         )
     }

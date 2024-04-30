@@ -39,5 +39,8 @@ class NoticeDetailFailLog(
     val amount: String,
 
     @Column(name = "ignored", columnDefinition = "BOOLEAN not null default false")
-    var ignored: Boolean = false
+    var ignored: Boolean = false,
+
+    @Column(name = "requestId", columnDefinition = "VARCHAR(8192) not null default ''")
+    var requestId: String,
 )

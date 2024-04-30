@@ -13,7 +13,8 @@ import jakarta.persistence.Table
     name = "search_by_code_source",
     indexes = [
         Index(name = "idx_year", columnList = "year", unique = true),
-        Index(name = "idx_stock", columnList = "stock", unique = true)
+        Index(name = "idx_stock", columnList = "stock", unique = true),
+        Index(name = "idx_request_id", columnList = "request_id", unique = true),
     ]
 )
 class SearchByCodeSource(

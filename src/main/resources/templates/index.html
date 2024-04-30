@@ -83,7 +83,6 @@
 
     //接收到消息的回调方法
     websocket.onmessage = function (event) {
-
         if (event.data === "job is done") {
             layer.closeAll();
             layer.alert('采集完成', {

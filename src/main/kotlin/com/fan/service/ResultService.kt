@@ -37,6 +37,7 @@ class ResultService(
             code = notice.code,
             year = noticeYear,
             title = encodeTitle(notice),
+            requestId = notice.requestId
         )
         exist?.let {
             letPeopleKnow("========更新分析结果======")

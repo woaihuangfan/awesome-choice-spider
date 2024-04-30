@@ -37,7 +37,7 @@ abstract class AbstractDataCollector(
 
     private fun log(requestId: String, param: DataCollectParam, type: SearchType) {
         val collectedCount = countByRequestIdRepository.countByRequestId(requestId)
-        collectLogService.saveSearchLog(param, type, collectedCount)
+        collectLogService.saveCollectLog(param, type, collectedCount, requestId)
         analysisLogService.saveAnalysisLog("采集数据并分析", requestId)
     }
 

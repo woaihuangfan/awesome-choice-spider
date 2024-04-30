@@ -6,9 +6,18 @@ import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
+import jakarta.persistence.Index
+import jakarta.persistence.Table
 import org.springframework.data.domain.DomainEvents
 
 @Entity(name = "result")
+@Table(
+    name = "result",
+    indexes = [
+        Index(name = "idx_stock", columnList = "stock", unique = true),
+        Index(name = "idx_request_id", columnList = "request_id", unique = true),
+    ]
+)
 class Result(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -33,6 +42,8 @@ class Result(
     val year: String,
     @Column(name = "title", nullable = false, length = 8196)
     var title: String,
+    @Column(name = "request_id", columnDefinition = "VARCHAR(8192) not null default ''")
+    var requestId: String,
 ) {
 
     @DomainEvents

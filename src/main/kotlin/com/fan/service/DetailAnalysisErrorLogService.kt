@@ -29,7 +29,8 @@ class DetailAnalysisErrorLogService(
                     noticeId = detail.noticeId,
                     year = year,
                     accountCompanyName = errResult.first,
-                    amount = errResult.second
+                    amount = errResult.second,
+                    requestId = detail.requestId
                 )
             )
         }

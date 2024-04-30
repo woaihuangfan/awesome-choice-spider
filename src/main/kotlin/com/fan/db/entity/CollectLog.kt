@@ -19,7 +19,11 @@ class CollectLog(
     var tillDate: String,
     @Column(name = "keyword", nullable = false)
     var keyword: String,
+    @Column(name = "title_filtered_words", columnDefinition = "VARCHAR(8192) not null default ''")
+    var titleFilteredWords: String,
     @Column(name = "type", nullable = false)
     var type: String,
+    @Column(name = "requestId", columnDefinition = "VARCHAR(8192) not null default ''")
+    var requestId: String,
 
     )
