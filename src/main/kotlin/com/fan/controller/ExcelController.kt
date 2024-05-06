@@ -14,6 +14,7 @@ import com.fan.util.ExcelHelper.writeRows
 import jakarta.servlet.http.HttpServletResponse
 import org.apache.poi.common.usermodel.HyperlinkType
 import org.apache.poi.hssf.util.HSSFColor
+import org.apache.poi.ss.usermodel.BorderStyle
 import org.apache.poi.ss.usermodel.CellStyle
 import org.apache.poi.ss.usermodel.CreationHelper
 import org.apache.poi.ss.usermodel.Font
@@ -102,7 +103,7 @@ class ExcelController(
 
 
     private fun createHyperLink(writer: ExcelWriter, results: List<Result>) {
-        val (creationHelper, cellStyle) = getCellStyle(writer)
+        val (creationHelper, cellStyle) = getCreationHelperAndCellStyle(writer)
         results.forEachIndexed { index, result ->
             val linkAddress = result.title.substringAfter("href='").substringBefore("'")
             addHyperLinkToCell(creationHelper, linkAddress, writer, index, cellStyle, 5)
@@ -110,14 +111,14 @@ class ExcelController(
     }
 
     private fun createHyperLinkForErrorLog(writer: ExcelWriter, errorLogs: List<NoticeDetailFailLog>) {
-        val (creationHelper, cellStyle) = getCellStyle(writer)
+        val (creationHelper, cellStyle) = getCreationHelperAndCellStyle(writer)
         errorLogs.forEachIndexed { index, log ->
             val linkAddress = getDetailPageUrl(log.stock, log.code)
             addHyperLinkToCell(creationHelper, linkAddress, writer, index, cellStyle, 2)
         }
     }
 
-    private fun getCellStyle(writer: ExcelWriter): Pair<CreationHelper, CellStyle> {
+    private fun getCreationHelperAndCellStyle(writer: ExcelWriter): Pair<CreationHelper, CellStyle> {
         val workbook = writer.workbook
         val creationHelper = workbook.creationHelper
         val font = getFont(workbook)
@@ -143,6 +144,10 @@ class ExcelController(
     private fun getCellStyle(workbook: Workbook, font: Font): CellStyle {
         val cellStyle = workbook.createCellStyle()
         cellStyle.setFont(font)
+        cellStyle.borderTop = BorderStyle.THIN
+        cellStyle.borderBottom = BorderStyle.THIN
+        cellStyle.borderLeft = BorderStyle.THIN
+        cellStyle.borderRight = BorderStyle.THIN
         return cellStyle
     }
 

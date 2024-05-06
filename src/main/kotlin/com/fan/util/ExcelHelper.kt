@@ -12,7 +12,12 @@ object ExcelHelper {
         val rows = listOf(headers, *contents.toTypedArray())
         val writer = ExcelUtil.getWriter(true)
         writer.write(rows, true)
-        headers.forEachIndexed { index, _ -> writer.sheet.autoSizeColumn(index) }
+        headers.forEachIndexed { index, _ ->
+            val sheet = writer.sheet
+            sheet.autoSizeColumn(index)
+            sheet.setColumnWidth(index, sheet.getColumnWidth(index) * 15 / 10);
+        }
+
         return writer
     }
 
