@@ -236,6 +236,7 @@
             success: function (data) {
                 // 处理接口返回的数据
                 layer.msg(data, {icon: 1});
+                $('#keyword').val('')
                 reloadTable(); // 调用全局的 reloadTable 函数
             },
             error: function (xhr, status, error) {

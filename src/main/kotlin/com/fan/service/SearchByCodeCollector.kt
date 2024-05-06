@@ -189,10 +189,12 @@ class SearchByCodeCollector(
     }
 
     private fun saveValidNoticeFilteredByTitleRule(item: Item, requestId: String) {
+        val logMessage = "【${item.codes.first().short_name}】${item.title}"
         if (searchFilterChain.doFilter(item)) {
-            val logMessage = "【${item.codes.first().short_name}】${item.title}"
             letPeopleKnow("======== $logMessage 符合标题筛选条件，将进入待分析列表========")
             noticeService.saveOrUpdateNotice(item, requestId)
+        }else{
+            letPeopleKnow("======== $logMessage 不符合标题筛选条件========")
         }
     }
 
