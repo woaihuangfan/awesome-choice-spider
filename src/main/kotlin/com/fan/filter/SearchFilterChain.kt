@@ -14,15 +14,6 @@ class SearchFilterChain(
         searchFilters.add(titleFilter)
     }
 
-    fun doFilter(content: NoticeItem): Boolean {
-        for (filter in searchFilters) {
-            if (!filter.doFilter(content)) {
-                return false
-            }
-        }
-        return true
-    }
-
     fun doFilter(content: Item): Boolean {
         for (filter in searchFilters) {
             if (!filter.doFilter(content)) {

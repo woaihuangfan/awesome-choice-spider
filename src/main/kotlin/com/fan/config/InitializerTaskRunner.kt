@@ -7,6 +7,7 @@ import com.fan.db.entity.Company
 import com.fan.db.entity.TitleFilterRule
 import com.fan.db.repository.CompanyRepository
 import com.fan.db.repository.TitleFilterRuleRepository
+import com.fan.po.Type
 import org.springframework.boot.ApplicationArguments
 import org.springframework.boot.ApplicationRunner
 import org.springframework.stereotype.Component
@@ -32,7 +33,8 @@ class InitializerTaskRunner(
     }
 
     private fun getInitialTitleFilterRules(): List<TitleFilterRule> {
-        return getTitleKeywords().filter { it.isNotEmpty() }.map { TitleFilterRule(keyword = it) }
+        return getTitleKeywords().filter { it.isNotEmpty() }
+            .map { TitleFilterRule(keyword = it, type = Type.INCLUDE.typeName) }
     }
 
     private fun getTitleKeywords(): List<String> {

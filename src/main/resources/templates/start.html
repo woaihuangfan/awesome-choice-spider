@@ -12,7 +12,12 @@
         <div class="layui-input-group">
             <input id="keyword" type="text" placeholder="请输入关键字" class="layui-input">
             <div class="layui-input-suffix">
-                <button class="layui-btn" lay-submit lay-filter="demo-table-export" onclick="add()">添加关键字</button>
+                <button class="layui-btn" lay-submit lay-filter="demo-table-export" onclick="add('include')">
+                    include关键字
+                </button>
+                <button class="layui-btn" lay-submit lay-filter="demo-table-export" onclick="add('exclude')">
+                    exclude关键字
+                </button>
             </div>
 
             <div class="layui-inline">
@@ -33,22 +38,25 @@
         </div>
     </div>
     <div class="layui-card layui-panel">
-        <table class="layui-table" lay-data="{height:'auto', url:'/rule', page:true,limit:20}"
-               id="ID-table-demo-init">
-            <thead>
-            <tr>
-                <th lay-data="{field:'id', width:80}">ID</th>
-                <th lay-data="{field:'keyword'}">关键字</th>
-                <th>操作</th>
-            </tr>
-            </thead>
-        </table>
+        <blockquote class="layui-elem-quote">
+            include关键字:
+        </blockquote>
+        <!--        <p>include关键字:</p>-->
+        <table class="layui-table" id="ID-table-include"></table>
+    </div>
+    <br><br>
+    <div class="layui-card layui-panel">
+        <blockquote class="layui-elem-quote">
+            exclude关键字:
+        </blockquote>
+        <table class="layui-table" id="ID-table-exclude"></table>
     </div>
     <br><br>
 </div>
 <script src="layui/layui.js"></script>
 <script>
-    var tableIns; // 全局变量用于存储表格实例
+    var includeTableIns; // 全局变量用于存储表格实例
+    var excludeTableIns; // 全局变量用于存储表格实例
     var $ = layui.jquery;
     layui.use(function () {
         var laydate = layui.laydate;
@@ -63,14 +71,11 @@
             }
         });
     });
-    layui.use(['table', 'jquery'], function () {
-        var table = layui.table;
-        $ = layui.jquery;
 
-        // 渲染表格
-        tableIns = table.render({
-            elem: '#ID-table-demo-init',
-            url: '/rule', // 模拟接口地址
+    function renderIncludesTable(table) {
+        includeTableIns = table.render({
+            elem: '#ID-table-include',
+            url: '/rule?type=include', // 模拟接口地址
             page: true,
             limit: 20,
             cols: [[
@@ -80,14 +85,43 @@
             ]]
         });
 
-
         // 监听工具栏事件
-        table.on('tool(ID-table-demo-init)', function (obj) {
+        table.on('tool(ID-table-include)', function (obj) {
             var data = obj.data;
             if (obj.event === 'delete') {
                 deleteRow(data.id);
             }
         });
+    }
+
+    function renderExcludesTable(table) {
+        excludeTableIns = table.render({
+            elem: '#ID-table-exclude',
+            url: '/rule?type=exclude', // 模拟接口地址
+            page: true,
+            limit: 20,
+            cols: [[
+                {field: 'LAY_NUM', title: '序号', type: "number"},
+                {field: 'keyword', title: '关键字'},
+                {title: '操作', toolbar: '#toolbarDemo'}
+            ]]
+        });
+        // 监听工具栏事件
+        table.on('tool(ID-table-exclude)', function (obj) {
+            var data = obj.data;
+            if (obj.event === 'delete') {
+                deleteRow(data.id);
+            }
+        });
+    }
+
+    layui.use(['table', 'jquery'], function () {
+        var table = layui.table;
+        $ = layui.jquery;
+        // 渲染表格
+        renderIncludesTable(table);
+        renderExcludesTable(table);
+
     });
     layui.use('upload', function () {
         var upload = layui.upload;
@@ -183,11 +217,12 @@
 
     // 刷新表格
     function reloadTable() {
-        tableIns.reload();
+        includeTableIns.reload();
+        excludeTableIns.reload();
     }
 
     // 添加关键字
-    function add() {
+    function add(type) {
         var keyword = $('#keyword').val();
         if (keyword === undefined || keyword === "") {
             layer.msg("请输入关键字", {icon: 5});
@@ -197,7 +232,7 @@
             url: '/rule',
             type: 'POST',
             contentType: 'application/json',
-            data: JSON.stringify({keyword: keyword}),
+            data: JSON.stringify({keyword: keyword, type: type}),
             success: function (data) {
                 // 处理接口返回的数据
                 layer.msg(data, {icon: 1});

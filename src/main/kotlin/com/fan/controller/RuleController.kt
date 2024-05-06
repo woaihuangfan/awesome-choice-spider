@@ -4,7 +4,11 @@ import com.fan.db.entity.TitleFilterRule
 import com.fan.db.repository.TitleFilterRuleRepository
 import com.fan.dto.PageResult
 import com.fan.po.TitleFilterRulePO
+import com.fan.po.Type
+import org.apache.coyote.BadRequestException
 import org.springframework.data.domain.PageRequest
+import org.springframework.http.ResponseEntity
+import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -23,10 +27,23 @@ class RuleController(
 
     @PostMapping
     fun add(
-        @RequestBody titleFilterRulePO: TitleFilterRulePO
-    ): String {
-        titleFilterRuleRepository.save(TitleFilterRule(keyword = titleFilterRulePO.keyword))
-        return "添加成功"
+        @RequestBody @Validated titleFilterRulePO: TitleFilterRulePO
+    ): ResponseEntity<String> {
+        titleFilterRuleRepository.save(
+            TitleFilterRule(
+                keyword = titleFilterRulePO.keyword,
+                type = parseType(titleFilterRulePO.type)
+            )
+        )
+        return ResponseEntity.ok().body("添加成功")
+    }
+
+    private fun parseType(type: String): String {
+        return when (type) {
+            Type.INCLUDE.typeName -> Type.INCLUDE.typeName
+            Type.EXCLUDE.typeName -> Type.EXCLUDE.typeName
+            else -> throw BadRequestException("invalid type: $type")
+        }
     }
 
     @DeleteMapping("/{id}")
@@ -41,8 +58,9 @@ class RuleController(
     fun list(
         @RequestParam page: Int,
         @RequestParam limit: Int,
+        @RequestParam type: String,
     ): PageResult {
         val pageable: PageRequest = PageRequest.of(page - 1, limit)
-        return PageResult.success(titleFilterRuleRepository.findAll(pageable))
+        return PageResult.success(titleFilterRuleRepository.findByTypeIs(type.lowercase(), pageable))
     }
 }

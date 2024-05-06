@@ -14,4 +14,7 @@ class TitleFilterRule(
 
     @Column(name = "keyword", nullable = false)
     val keyword: String,
+
+    @Column(name = "type", columnDefinition = "VARCHAR(32) not null default ''")
+    val type: String,
 )
