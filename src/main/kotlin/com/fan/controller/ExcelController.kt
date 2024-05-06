@@ -18,6 +18,8 @@ import org.apache.poi.ss.usermodel.BorderStyle
 import org.apache.poi.ss.usermodel.CellStyle
 import org.apache.poi.ss.usermodel.CreationHelper
 import org.apache.poi.ss.usermodel.Font
+import org.apache.poi.ss.usermodel.HorizontalAlignment
+import org.apache.poi.ss.usermodel.VerticalAlignment
 import org.apache.poi.ss.usermodel.Workbook
 import org.apache.poi.xssf.usermodel.XSSFFont
 import org.springframework.web.bind.annotation.GetMapping
@@ -148,6 +150,8 @@ class ExcelController(
         cellStyle.borderBottom = BorderStyle.THIN
         cellStyle.borderLeft = BorderStyle.THIN
         cellStyle.borderRight = BorderStyle.THIN
+        cellStyle.alignment = HorizontalAlignment.CENTER
+        cellStyle.verticalAlignment = VerticalAlignment.CENTER
         return cellStyle
     }
 
