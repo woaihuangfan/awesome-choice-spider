@@ -8,4 +8,5 @@ import org.springframework.stereotype.Repository
 @Repository
 interface ResultRepository : JpaRepository<Result, Long> {
     fun findByStockAndCode(stock: String, code: String): Result?
+    fun findAllByRequestIdIn(requestIds: List<String>): List<Result>
 }

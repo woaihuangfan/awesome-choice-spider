@@ -13,15 +13,18 @@
         分析结果汇总查询。
     </blockquote>
     <div class="layui-form-item">
-        <div class="layui-inline">
-            <div class="layui-btn-container">
+        <div class="layui-input-group">
+            <button class="layui-btn layui-btn-primary demo-dropdown-base" id="ID-dropdown-demo-base-input">
+                <span>采集回溯日期</span>
+                <i class="layui-icon layui-icon-down layui-font-12"></i>
+            </button>
+            <div class="layui-input-suffix">
                 <button type="button" class="layui-btn" lay-submit lay-filter="demo-table-export"
                         onclick="exportExcel()">导出Excel
                 </button>
             </div>
         </div>
     </div>
-
     <div class="layui-card layui-panel">
         <table class="layui-table" lay-data="{height:'auto', url:'/query/result', page:true,limit:20}"
                id="ID-table-demo-init">
@@ -30,9 +33,41 @@
     <br><br>
 </div>
 <script>
-    var addlink = function (d) {
+    let selectedDate = ''
+    async function getTillDates() {
+        try {
+            return await layui.$.ajax({
+                url: '/result/tillDates',
+                type: 'GET'
+            });
+        } catch (error) {
+            // 处理请求失败的逻辑
+            layer.msg(error.responseText, {icon: 5, anim: 6});
+            throw error; // 可选择抛出错误
+        }
+    }
+
+    layui.use(async function () {
+        const data = await getTillDates()
+        console.log("=========")
+        console.log(data)
+        console.log("=========")
+        const dropdown = layui.dropdown;
+        // 绑定输入框
+        dropdown.render({
+            elem: '#ID-dropdown-demo-base-input',
+            data: data,
+            click: function(obj){
+                this.elem.find('span').text(obj.title);
+                selectedDate = obj.id
+            },
+            style: 'min-width: 235px;'
+        });
+    })
+
+    const addlink = function (d) {
         //这里是拼接三个字符串拼接成一个完整的a标签，中间的字符串是url
-        var html = d.title
+        const html = d.title
         return html
     };
 
@@ -40,8 +75,8 @@
 
     function extractFilename(contentDispositionHeader) {
         // 正则表达式模式匹配 filename*=UTF-8''filename
-        var pattern = /filename\*=UTF-8''([^;]*)/;
-        var match = contentDispositionHeader.match(pattern);
+        const pattern = /filename\*=UTF-8''([^;]*)/;
+        const match = contentDispositionHeader.match(pattern);
 
         // 如果匹配成功，提取 filename
         if (match) {
@@ -53,19 +88,19 @@
     }
 
     function exportExcel() {
-        var loadIndex = layer.load(3);
-        var xhr = new XMLHttpRequest();
-        xhr.open('GET', '/excel/result', true);
+        const loadIndex = layer.load(3);
+        const xhr = new XMLHttpRequest();
+        xhr.open('GET', '/excel/result?tillDate='+selectedDate, true);
         xhr.responseType = 'blob'; // 设置响应类型为 Blob
         xhr.onload = function () {
             layer.close(loadIndex)
             if (this.status === 200) {
-                var blob = this.response;
-                var disposition = xhr.getResponseHeader('Content-Disposition').toString();
-                var filename = '';
+                const blob = this.response;
+                const disposition = xhr.getResponseHeader('Content-Disposition').toString();
+                let filename = '';
                 filename = extractFilename(disposition)
-                var url = window.URL.createObjectURL(blob); // 创建临时 URL
-                var a = document.createElement('a');
+                const url = window.URL.createObjectURL(blob); // 创建临时 URL
+                const a = document.createElement('a');
                 a.href = url;
                 a.download = filename !== '' ? filename : 'filename.xlsx'; // 设置文件名，如果无法从响应头中获取则使用默认文件名
                 document.body.appendChild(a);
@@ -79,7 +114,7 @@
     }
 
     layui.use(['table', 'jquery'], function () {
-        var table = layui.table;
+        const table = layui.table;
         $ = layui.jquery;
 
         // 渲染表格
@@ -111,6 +146,7 @@
         function reloadTable() {
             tableIns.reload();
         }
+
         document.onkeydown = function (event) {
             if (event.keyCode === 27) { // ESC 键的 keyCode 是 27
                 layer.closeAll();
@@ -118,9 +154,13 @@
         };
         // 手动修正结果
         layui.use(['layer'], function () {
-            var layer = layui.layer;
-            var util = layui.util
-            layer.prompt({title: '请输入手动调整结果', formType: 0,offset:['36%','36%']}, function (value, index, elem) {
+            const layer = layui.layer;
+            const util = layui.util
+            layer.prompt({
+                title: '请输入手动调整结果',
+                formType: 0,
+                offset: ['36%', '36%']
+            }, function (value, index, elem) {
                 if (value === '') return elem.focus();
                 layui.$.ajax({
                     url: '/result/' + id,

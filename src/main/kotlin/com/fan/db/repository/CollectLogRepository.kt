@@ -7,4 +7,6 @@ import org.springframework.stereotype.Repository
 
 @Repository
 interface CollectLogRepository : JpaRepository<CollectLog, Long> {
+    fun findAllByTillDateIs(tillDate: String): List<CollectLog>
+    fun findTop1ByOrderByIdDesc(): CollectLog
 }

@@ -260,6 +260,7 @@
                 layer.msg(data, {icon: 1});
                 layer.close(loadIndex)
                 reloadTable();
+                $('#keyword').val('')
             },
             error: function (xhr, status, error) {
                 // 处理请求失败的逻辑

@@ -5,6 +5,7 @@ import cn.hutool.poi.excel.ExcelWriter
 import com.fan.client.NoticeDetailClient.getDetailPageUrl
 import com.fan.db.entity.NoticeDetailFailLog
 import com.fan.db.entity.Result
+import com.fan.db.repository.CollectLogRepository
 import com.fan.db.repository.NoticeDetailFailLogRepository
 import com.fan.db.repository.ResultRepository
 import com.fan.service.TitleRulesService
@@ -20,6 +21,7 @@ import org.apache.poi.ss.usermodel.Workbook
 import org.apache.poi.xssf.usermodel.XSSFFont
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
@@ -27,7 +29,8 @@ import org.springframework.web.bind.annotation.RestController
 class ExcelController(
     private val resultRepository: ResultRepository,
     private val noticeDetailFailLogRepository: NoticeDetailFailLogRepository,
-    private val titleRulesService: TitleRulesService
+    private val titleRulesService: TitleRulesService,
+    private val collectLogRepository: CollectLogRepository
 ) {
     companion object {
         private const val COMPANY_NAME = "公司名称"
@@ -42,8 +45,11 @@ class ExcelController(
     }
 
     @GetMapping("/result")
-    fun downloadResult(httpServletResponse: HttpServletResponse) {
-        val results = resultRepository.findAll()
+    fun downloadResult(httpServletResponse: HttpServletResponse, @RequestParam(required = false) tillDate: String?) {
+        val requestIds = getRequestIds(tillDate)
+        val results = if (requestIds.isEmpty()) {
+            resultRepository.findAll()
+        } else resultRepository.findAllByRequestIdIn(requestIds)
         val headers = listOf(
             COMPANY_NAME, STOCK_CODE, ANNOUNCE_DATE,
             ACCOUNT_COMPANY_NAME, CONTRACT_AMOUNT, INFO_SOURCE
@@ -56,10 +62,25 @@ class ExcelController(
         }
         val writer = writeRows(headers, contents)
         createHyperLink(writer, results)
-        flushToResponse(httpServletResponse, writer, getResultFileName())
+        flushToResponse(httpServletResponse, writer, getResultFileName(tillDate))
     }
 
-    private fun getResultFileName() = "结果汇总(关键字：${getCurrentTitleRules()}) - ${DateUtil.today()}.xlsx"
+    private fun getRequestIds(tillDate: String?): List<String> {
+        return if (tillDate.isNullOrBlank()) emptyList() else collectLogRepository.findAllByTillDateIs(tillDate)
+            .map { it.requestId }.filter { it.isNotBlank() }
+    }
+
+    private fun getResultFileName(tillDate: String?): String {
+        val date = if (tillDate.isNullOrBlank()) collectLogRepository.findTop1ByOrderByIdDesc().tillDate else tillDate
+        return "结果汇总(关键字：${getCurrentTitleRules()})_${
+            formatDate(date)
+        }_${formatDate(DateUtil.today())}.xlsx"
+    }
+
+    private fun formatDate(date: String): String? = DateUtil.format(
+        DateUtil.parseDate(date),
+        "yyyyMMdd"
+    )
 
     private fun getCurrentTitleRules(): String {
         val currentRules = titleRulesService.getCurrentRules()
@@ -77,7 +98,7 @@ class ExcelController(
         flushToResponse(httpServletResponse, writer, getErrorsFileName())
     }
 
-    private fun getErrorsFileName() = "错误记录(关键字：${getCurrentTitleRules()}) - ${DateUtil.today()}.xlsx"
+    private fun getErrorsFileName() = "错误记录(关键字：${getCurrentTitleRules()})_${DateUtil.today()}.xlsx"
 
 
     private fun createHyperLink(writer: ExcelWriter, results: List<Result>) {

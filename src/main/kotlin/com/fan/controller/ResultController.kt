@@ -1,8 +1,12 @@
 package com.fan.controller
 
+import com.fan.db.repository.CollectLogRepository
+import com.fan.dto.TillDateDTO
 import com.fan.po.EditResultParam
 import com.fan.service.AnalysisLogService
 import com.fan.service.ResultService
+import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PatchMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestBody
@@ -15,7 +19,8 @@ import java.util.UUID
 @RequestMapping("/result")
 class ResultController(
     private val resultService: ResultService,
-    private val analysisLogService: AnalysisLogService
+    private val analysisLogService: AnalysisLogService,
+    private val collectLogRepository: CollectLogRepository,
 ) {
 
     @PatchMapping("/{id}")
@@ -30,5 +35,12 @@ class ResultController(
         return "修改成功"
     }
 
+    @GetMapping(value = ["/tillDates"])
+    fun getTillDates(): ResponseEntity<List<TillDateDTO>> {
+        val collectLogs = collectLogRepository.findAll()
+        val tillDateDTOS =
+            collectLogs.filter { it.tillDate.isNotBlank() }.map { it.tillDate }.distinct().map { TillDateDTO(it, it) }
+        return ResponseEntity.ok(tillDateDTOS)
+    }
 
 }
