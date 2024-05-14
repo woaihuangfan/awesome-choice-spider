@@ -21,9 +21,7 @@ class CollectLogService(
         collectedCount: Int,
         context: RequestContext,
     ) {
-        val titleFilterRules = titleRulesService.getCurrentRules()
-        val titleFilterRuleNames =
-            if (titleFilterRules.isNotEmpty()) titleFilterRules.joinToString("、") else ""
+        val titleFilterRuleNames = titleRulesService.getCurrentRules()
         collectLogRepository.save(
             CollectLog(
                 tillDate = param.tillDate,

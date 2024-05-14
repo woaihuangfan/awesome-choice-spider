@@ -101,7 +101,7 @@ class ExcelController(
 
     private fun getResultFileName(tillDate: String?): String {
         val date = if (tillDate.isNullOrBlank()) collectLogRepository.findTop1ByOrderByIdDesc().tillDate else tillDate
-        return "结果汇总(关键字：${getCurrentTitleRules()})_${
+        return "结果汇总(${titleRulesService.getCurrentRules()})_${
             formatDate(date)
         }_${formatDate(DateUtil.today())}.xlsx"
     }
@@ -111,12 +111,6 @@ class ExcelController(
             DateUtil.parseDate(date),
             "yyyyMMdd",
         )
-
-    private fun getCurrentTitleRules(): String {
-        val currentRules = titleRulesService.getCurrentRules()
-        val keywords = if (currentRules.isNotEmpty()) currentRules.joinToString("、") else ""
-        return keywords
-    }
 
     @GetMapping("/error")
     fun downloadError(httpServletResponse: HttpServletResponse) {
@@ -128,7 +122,7 @@ class ExcelController(
         flushToResponse(httpServletResponse, writer, getErrorsFileName())
     }
 
-    private fun getErrorsFileName() = "错误记录(关键字：${getCurrentTitleRules()})_${DateUtil.today()}.xlsx"
+    private fun getErrorsFileName() = "错误记录(关键字：${titleRulesService.getCurrentRules()})_${DateUtil.today()}.xlsx"
 
     private fun createHyperLink(
         writer: ExcelWriter,
