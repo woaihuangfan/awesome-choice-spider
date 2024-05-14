@@ -12,14 +12,15 @@
         <div class="layui-input-group">
             <input id="keyword" type="text" placeholder="请输入关键字" class="layui-input">
             <div class="layui-input-suffix">
-                <button class="layui-btn" lay-submit lay-filter="demo-table-export" onclick="add('include')">
+                <button class="layui-btn layui-bg-blue" lay-submit lay-filter="demo-table-export"
+                        onclick="add('include')">
                     include关键字
                 </button>
-                <button class="layui-btn" lay-submit lay-filter="demo-table-export" onclick="add('exclude')">
+                <button class="layui-btn layui-bg-green" lay-submit lay-filter="demo-table-export"
+                        onclick="add('exclude')">
                     exclude关键字
                 </button>
             </div>
-
             <div class="layui-inline">
                 <label class="layui-form-label">回溯日期</label>
                 <div class="layui-input-inline">
@@ -27,9 +28,15 @@
                 </div>
                 <button type="button" class="layui-btn " onclick="startCollect()">开始采集</button>
                 </button>
+            </div>
+        </div>
+        <div class="layui-input-group" style="margin-top: 20px">
+            <div>
+
+
                 <button type="button" class="layui-btn layui-bg-red " onclick="clearData()">清除全部数据</button>
                 </button>
-                <button type="button" class="layui-btn" id="upload">
+                <button type="button" class="layui-btn layui-bg-cyan" id="upload">
                     <i class="layui-icon">&#xe67c;</i>上传上市公司代码
                 </button>
                 <a style="color:#1E9FFF; display: none" href="/company" target="_blank" id="fileLink"></a>

@@ -54,7 +54,8 @@ class CompanyController(
                 val companies =
                     sources.map {
                         val code = it.toString().substring(0, 6)
-                        Company(stock = code)
+                        val block = it.toString().substring(7)
+                    Company(stock = code, block = block)
                     }
                 count = save(companies)
             }
@@ -101,7 +102,7 @@ class CompanyController(
         val contents =
             results.map {
                 listOfNotNull(
-                    it.stock,
+                    it.stock + "." + it.block,
                 )
             }
         val writer = ExcelHelper.writeRows(headers, contents)

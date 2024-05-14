@@ -21,6 +21,10 @@ class Company(
     val id: Long? = null,
     @Column(name = "stock", nullable = false, unique = true)
     val stock: String,
+
+    @Column(name = "block", columnDefinition = "VARCHAR(16) not null default ''")
+    val block: String,
+
     @Column(name = "company_name", nullable = true)
     var companyName: String? = "",
 //    @Column(name = "market_type", nullable = false, unique = true)
