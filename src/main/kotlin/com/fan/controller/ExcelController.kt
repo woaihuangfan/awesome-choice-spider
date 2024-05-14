@@ -6,6 +6,7 @@ import com.fan.client.NoticeDetailClient.getDetailPageUrl
 import com.fan.db.entity.NoticeDetailFailLog
 import com.fan.db.entity.Result
 import com.fan.db.repository.CollectLogRepository
+import com.fan.db.repository.CompanyRepository
 import com.fan.db.repository.NoticeDetailFailLogRepository
 import com.fan.db.repository.ResultRepository
 import com.fan.service.TitleRulesService
@@ -34,6 +35,7 @@ class ExcelController(
     private val noticeDetailFailLogRepository: NoticeDetailFailLogRepository,
     private val titleRulesService: TitleRulesService,
     private val collectLogRepository: CollectLogRepository,
+    private val companyRepository: CompanyRepository
 ) {
     companion object {
         private const val COMPANY_NAME = "公司名称"
@@ -68,11 +70,10 @@ class ExcelController(
                 CONTRACT_AMOUNT,
                 INFO_SOURCE,
             )
-        val contents =
-            results.map {
-                listOfNotNull(
-                    it.name,
-                    it.stock,
+        val companyMap = getCompanyMap()
+        val contents = results.map {
+            listOfNotNull(
+                it.name, companyMap[it.stock],
                     it.date,
                     it.accountCompanyName,
                     it.amount,
@@ -82,6 +83,10 @@ class ExcelController(
         val writer = writeRows(headers, contents)
         createHyperLink(writer, results)
         flushToResponse(httpServletResponse, writer, getResultFileName(tillDate))
+    }
+
+    private fun getCompanyMap(): Map<String, String> {
+        return companyRepository.findAll().map { it.stock to it.stock + "." + it.block }.toMap()
     }
 
     private fun getRequestIds(tillDate: String?): List<String> =
