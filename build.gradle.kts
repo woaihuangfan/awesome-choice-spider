@@ -12,14 +12,12 @@ plugins {
 group = "com.fan"
 version = "0.0.1-SNAPSHOT"
 
-
 val hutoolVersion = "5.8.26"
 val gsonVersion = "2.8.8"
 val poiVersion = "5.2.5"
 val coroutinesVersion = "1.7.2"
 val mockkVersion = "1.12.0"
 val junitVersion = "5.8.1"
-
 
 java {
     sourceCompatibility = JavaVersion.VERSION_21
@@ -48,11 +46,10 @@ dependencies {
     implementation("com.google.code.gson:gson")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion")
 
-
     implementation("org.apache.derby:derby")
     implementation("org.apache.derby:derbytools")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
-    testImplementation("io.mockk:mockk:${mockkVersion}")
+    testImplementation("io.mockk:mockk:$mockkVersion")
     testImplementation("org.junit.jupiter:junit-jupiter-api:$junitVersion")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:$junitVersion")
 }
@@ -60,7 +57,6 @@ dependencies {
 tasks.test {
     useJUnitPlatform()
 }
-
 
 tasks.withType<KotlinCompile> {
     kotlinOptions {

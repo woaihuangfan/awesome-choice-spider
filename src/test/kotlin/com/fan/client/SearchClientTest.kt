@@ -15,7 +15,6 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
 class SearchClientTest {
-
     private val mockkHttpRequest = mockk<HttpRequest>()
 
     @BeforeEach
@@ -31,18 +30,31 @@ class SearchClientTest {
 
         every { mockkHttpRequest.execute() } returns response
         every { response.isOk } returns true
-        every { response.body() } returns """
+        every { response.body() } returns
+            """
             dummy($noticeList)
-        """.trimIndent()
+            """.trimIndent()
 
         val searchByCodeResponse = SearchClient.searchByCode(NOTICE_CODE, 1, 10)
         assertThat(searchByCodeResponse).isNotNull
         assertThat(searchByCodeResponse.data).isNotNull
         assertThat(searchByCodeResponse.data.list).isNotEmpty
         assertThat(searchByCodeResponse.data.list[0].title).isEqualTo("平安银行:监事会决议公告")
-        assertThat(searchByCodeResponse.data.list[0].codes[0].stock_code).isEqualTo(STOCK)
-        assertThat(searchByCodeResponse.data.list[0].codes[0].short_name).isEqualTo("平安银行")
-        assertThat(searchByCodeResponse.data.list[0].columns[0].column_name).isEqualTo("监事会决议公告")
+        assertThat(
+            searchByCodeResponse.data.list[0]
+                .codes[0]
+                .stock_code,
+        ).isEqualTo(STOCK)
+        assertThat(
+            searchByCodeResponse.data.list[0]
+                .codes[0]
+                .short_name,
+        ).isEqualTo("平安银行")
+        assertThat(
+            searchByCodeResponse.data.list[0]
+                .columns[0]
+                .column_name,
+        ).isEqualTo("监事会决议公告")
         assertThat(searchByCodeResponse.data.list[0].art_code).isEqualTo("AN202404191630666628")
     }
 
@@ -53,11 +65,11 @@ class SearchClientTest {
 
         every { mockkHttpRequest.execute() } returns response
         every { response.isOk } returns true
-        every { response.body() } returns """
+        every { response.body() } returns
+            """
             test($noticeList)
-        """.trimIndent()
+            """.trimIndent()
         assertThrows<JsonSyntaxException> { SearchClient.searchByCode(NOTICE_CODE, 1, 10) }
-
     }
 
     @Test
@@ -68,7 +80,6 @@ class SearchClientTest {
         every { response.status } returns 500
         val exception = assertThrows<IllegalStateException> { SearchClient.searchByCode(NOTICE_CODE, 1, 10) }
         assertThat(exception.message).isEqualTo("HTTP request failed with status: 500")
-
     }
 
     @Test
@@ -79,6 +90,5 @@ class SearchClientTest {
         every { response.body() } returns null
         val exception = assertThrows<IllegalStateException> { SearchClient.searchByCode(NOTICE_CODE, 1, 10) }
         assertThat(exception.message).isEqualTo("Failed to parse JSON response")
-
     }
 }

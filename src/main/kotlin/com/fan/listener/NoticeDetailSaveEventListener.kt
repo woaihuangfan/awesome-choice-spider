@@ -22,7 +22,7 @@ class NoticeDetailSaveEventListener(
             val notice = noticeRepository.findById(detail.noticeId)
             val analysisResult = contentAnalysisService.doAnalysisDetailAndSaveResult(detail, detail.context)
             if (!(notice.isPresent && analysisResult.first)) {
-                detailAnalysisErrorLogService.logErrorRecord(detail, analysisResult.second,  detail.context)
+                detailAnalysisErrorLogService.logErrorRecord(detail, analysisResult.second, detail.context)
             }
         } catch (ex: Exception) {
             ex.printStackTrace()

@@ -4,7 +4,6 @@ import com.google.gson.Gson
 import java.io.File
 
 object JsonFileReader {
-
     private val gson = Gson()
 
     /**
@@ -14,7 +13,10 @@ object JsonFileReader {
      * @param clazz 类型的Class对象
      * @return 转换后的对象
      */
-    fun <T> readJsonFileFromResources(fileName: String, clazz: Class<T>): T {
+    fun <T> readJsonFileFromResources(
+        fileName: String,
+        clazz: Class<T>,
+    ): T {
         val fileContent = readFileContentFromResources(fileName)
         return gson.fromJson(fileContent, clazz)
     }

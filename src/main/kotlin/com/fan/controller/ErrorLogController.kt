@@ -45,7 +45,7 @@ class ErrorLogController(
                             noticeDetail,
                             accountCompanyName.orEmpty(),
                             editResultParam.amount.orEmpty(),
-                            RequestContext.get()
+                            RequestContext.get(),
                         )
                         detailAnalysisErrorLogService.removeErrorLog(errorLog)
                         analysisLogService.saveAnalysisLog("手动提取修正", RequestContext.get())

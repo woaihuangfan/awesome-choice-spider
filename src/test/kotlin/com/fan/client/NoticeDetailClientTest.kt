@@ -14,7 +14,6 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
 class NoticeDetailClientTest {
-
     private val mockkHttpRequest = mockk<HttpRequest>()
 
     @BeforeEach
@@ -34,13 +33,12 @@ class NoticeDetailClientTest {
         val response = mockk<HttpResponse>()
         val mockedDetail = JsonFileReader.readFileContentFromResources("stub/noticeDetail.json")
 
-
-
         every { mockkHttpRequest.execute() } returns response
         every { response.isOk } returns true
-        every { response.body() } returns """
+        every { response.body() } returns
+            """
             dummy($mockedDetail)
-        """.trimIndent()
+            """.trimIndent()
 
         val noticeDetailPO = NoticeDetailClient.fetchDetailFromRemote(NOTICE_CODE, STOCK)
 
@@ -70,9 +68,10 @@ class NoticeDetailClientTest {
 
         every { mockkHttpRequest.execute() } returns response
         every { response.isOk } returns true
-        every { response.body() } returns """
+        every { response.body() } returns
+            """
             dummy($mockedDetail)
-        """.trimIndent()
+            """.trimIndent()
         val noticeDetailPO = NoticeDetailClient.fetchDetailFromRemote("whatever", "whatever")
         assertThat(noticeDetailPO).isNull()
     }
