@@ -19,7 +19,6 @@ import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
-
 @RestController
 @RequestMapping("/clear")
 class ClearController(
@@ -34,18 +33,14 @@ class ClearController(
     private val searchByCodeSourceRepository: SearchByCodeSourceRepository,
     private val sourceRepository: SourceRepository,
     private val titleFilterRuleRepository: TitleFilterRuleRepository,
-    private val searchByCodeCollector: SearchByCodeCollector
-
-
+    private val searchByCodeCollector: SearchByCodeCollector,
 ) {
-
     @DeleteMapping
     fun start(httpServletResponse: HttpServletResponse): String {
         cancelAndClear()
         titleFilterRuleRepository.deleteAll()
         letPeopleKnow("全部清除成功!")
         return "清除成功!"
-
     }
 
     fun cancelAndClear() {
@@ -65,6 +60,4 @@ class ClearController(
         searchByCodeSourceRepository.deleteAll()
         sourceRepository.deleteAll()
     }
-
-
 }

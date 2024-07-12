@@ -33,7 +33,7 @@ class ExcelController(
     private val resultRepository: ResultRepository,
     private val noticeDetailFailLogRepository: NoticeDetailFailLogRepository,
     private val titleRulesService: TitleRulesService,
-    private val collectLogRepository: CollectLogRepository
+    private val collectLogRepository: CollectLogRepository,
 ) {
     companion object {
         private const val COMPANY_NAME = "公司名称"
@@ -48,30 +48,51 @@ class ExcelController(
     }
 
     @GetMapping("/result")
-    fun downloadResult(httpServletResponse: HttpServletResponse, @RequestParam(required = false) tillDate: String?) {
+    fun downloadResult(
+        httpServletResponse: HttpServletResponse,
+        @RequestParam(required = false) tillDate: String?,
+    ) {
         val requestIds = getRequestIds(tillDate)
-        val results = if (requestIds.isEmpty()) {
-            resultRepository.findAll()
-        } else resultRepository.findAllByRequestIdIn(requestIds)
-        val headers = listOf(
-            COMPANY_NAME, STOCK_CODE, ANNOUNCE_DATE,
-            ACCOUNT_COMPANY_NAME, CONTRACT_AMOUNT, INFO_SOURCE
-        )
-        val contents = results.map {
-            listOfNotNull(
-                it.name, it.stock, it.date,
-                it.accountCompanyName, it.amount, decodeTitle(it.title)
+        val results =
+            if (requestIds.isEmpty()) {
+                resultRepository.findAll()
+            } else {
+                resultRepository.findAllByRequestIdIn(requestIds)
+            }
+        val headers =
+            listOf(
+                COMPANY_NAME,
+                STOCK_CODE,
+                ANNOUNCE_DATE,
+                ACCOUNT_COMPANY_NAME,
+                CONTRACT_AMOUNT,
+                INFO_SOURCE,
             )
-        }
+        val contents =
+            results.map {
+                listOfNotNull(
+                    it.name,
+                    it.stock,
+                    it.date,
+                    it.accountCompanyName,
+                    it.amount,
+                    decodeTitle(it.title),
+                )
+            }
         val writer = writeRows(headers, contents)
         createHyperLink(writer, results)
         flushToResponse(httpServletResponse, writer, getResultFileName(tillDate))
     }
 
-    private fun getRequestIds(tillDate: String?): List<String> {
-        return if (tillDate.isNullOrBlank()) emptyList() else collectLogRepository.findAllByTillDateIs(tillDate)
-            .map { it.requestId }.filter { it.isNotBlank() }
-    }
+    private fun getRequestIds(tillDate: String?): List<String> =
+        if (tillDate.isNullOrBlank()) {
+            emptyList()
+        } else {
+            collectLogRepository
+                .findAllByTillDateIs(tillDate)
+                .map { it.requestId }
+                .filter { it.isNotBlank() }
+        }
 
     private fun getResultFileName(tillDate: String?): String {
         val date = if (tillDate.isNullOrBlank()) collectLogRepository.findTop1ByOrderByIdDesc().tillDate else tillDate
@@ -80,10 +101,11 @@ class ExcelController(
         }_${formatDate(DateUtil.today())}.xlsx"
     }
 
-    private fun formatDate(date: String): String? = DateUtil.format(
-        DateUtil.parseDate(date),
-        "yyyyMMdd"
-    )
+    private fun formatDate(date: String): String? =
+        DateUtil.format(
+            DateUtil.parseDate(date),
+            "yyyyMMdd",
+        )
 
     private fun getCurrentTitleRules(): String {
         val currentRules = titleRulesService.getCurrentRules()
@@ -103,8 +125,10 @@ class ExcelController(
 
     private fun getErrorsFileName() = "错误记录(关键字：${getCurrentTitleRules()})_${DateUtil.today()}.xlsx"
 
-
-    private fun createHyperLink(writer: ExcelWriter, results: List<Result>) {
+    private fun createHyperLink(
+        writer: ExcelWriter,
+        results: List<Result>,
+    ) {
         val (creationHelper, cellStyle) = getCreationHelperAndCellStyle(writer)
         results.forEachIndexed { index, result ->
             val linkAddress = result.title.substringAfter("href='").substringBefore("'")
@@ -112,7 +136,10 @@ class ExcelController(
         }
     }
 
-    private fun createHyperLinkForErrorLog(writer: ExcelWriter, errorLogs: List<NoticeDetailFailLog>) {
+    private fun createHyperLinkForErrorLog(
+        writer: ExcelWriter,
+        errorLogs: List<NoticeDetailFailLog>,
+    ) {
         val (creationHelper, cellStyle) = getCreationHelperAndCellStyle(writer)
         errorLogs.forEachIndexed { index, log ->
             val linkAddress = getDetailPageUrl(log.stock, log.code)
@@ -134,7 +161,7 @@ class ExcelController(
         writer: ExcelWriter,
         index: Int,
         cellStyle: CellStyle,
-        cellIndex: Int
+        cellIndex: Int,
     ) {
         val hyperlink = creationHelper.createHyperlink(HyperlinkType.URL)
         hyperlink.address = linkAddress
@@ -143,7 +170,10 @@ class ExcelController(
         cell.cellStyle = cellStyle
     }
 
-    private fun getCellStyle(workbook: Workbook, font: Font): CellStyle {
+    private fun getCellStyle(
+        workbook: Workbook,
+        font: Font,
+    ): CellStyle {
         val cellStyle = workbook.createCellStyle()
         cellStyle.setFont(font)
         cellStyle.borderTop = BorderStyle.THIN
@@ -155,14 +185,11 @@ class ExcelController(
         return cellStyle
     }
 
-    private fun getFont(workbook: Workbook): Font {
-        return workbook.createFont().apply {
+    private fun getFont(workbook: Workbook): Font =
+        workbook.createFont().apply {
             underline = XSSFFont.U_SINGLE
             color = HSSFColor.HSSFColorPredefined.BLUE.index
         }
-    }
 
-    private fun decodeTitle(title: String): String {
-        return title.substringAfter(">").substringBeforeLast("<")
-    }
+    private fun decodeTitle(title: String): String = title.substringAfter(">").substringBeforeLast("<")
 }

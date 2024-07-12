@@ -1,7 +1,10 @@
 package com.fan.extractor
 
 object AccountCompanyExtractor {
-    fun extractAccountCompanyName(notice: String, code: String): String {
+    fun extractAccountCompanyName(
+        notice: String,
+        code: String,
+    ): String {
         var result = notice.substringAfter("会计师事务所名称：").substringBefore("成立日期：")
         if (result.length > 30 || result.length < 5) {
             result = notice.substringAfter("机构名称：").substringBefore("成立日期：")

@@ -6,12 +6,11 @@ import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry
 import org.springframework.web.servlet.config.annotation.ViewControllerRegistry
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
 
-
 @Configuration
 class MyWebMvcConfigurer : WebMvcConfigurer {
-
     override fun addResourceHandlers(registry: ResourceHandlerRegistry) {
-        registry.addResourceHandler("/**")
+        registry
+            .addResourceHandler("/**")
             .addResourceLocations("classpath:/templates/")
             .addResourceLocations("classpath:/static/")
             .addResourceLocations("classpath:/static/layui")
@@ -24,5 +23,4 @@ class MyWebMvcConfigurer : WebMvcConfigurer {
         registry.setOrder(Ordered.HIGHEST_PRECEDENCE)
         super.addViewControllers(registry)
     }
-
 }

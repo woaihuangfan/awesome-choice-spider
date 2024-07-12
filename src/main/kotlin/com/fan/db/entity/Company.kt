@@ -13,7 +13,7 @@ import jakarta.persistence.Table
     name = "company",
     indexes = [
         Index(name = "idx_stock", columnList = "stock", unique = true),
-    ]
+    ],
 )
 class Company(
     @Id
@@ -21,11 +21,8 @@ class Company(
     val id: Long? = null,
     @Column(name = "stock", nullable = false, unique = true)
     val stock: String,
-
     @Column(name = "company_name", nullable = true)
     var companyName: String? = "",
 //    @Column(name = "market_type", nullable = false, unique = true)
 //    val marketType: String
-) {
-
-}
+)

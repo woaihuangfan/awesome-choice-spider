@@ -7,6 +7,7 @@ import com.fan.db.repository.TitleFilterRuleRepository
 import com.fan.enums.SearchType
 import com.fan.po.DataCollectParam
 import com.fan.service.AbstractDataCollector
+import com.fan.service.RequestContext
 import com.fan.service.SearchByCodeCollector
 import org.apache.coyote.BadRequestException
 import org.springframework.http.HttpStatus
@@ -17,7 +18,6 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
-
 @RestController
 @RequestMapping("/data")
 class DataController(
@@ -26,11 +26,8 @@ class DataController(
     private val clearController: ClearController,
     private val noticeSearchHistoryRepository: NoticeSearchHistoryRepository,
 ) {
-
     @GetMapping("/status")
-    fun getStatus(): ResponseEntity<String> {
-        return ResponseEntity.ok(searchByCodeCollector.getStatus().toString())
-    }
+    fun getStatus(): ResponseEntity<String> = ResponseEntity.ok(searchByCodeCollector.getStatus().toString())
 
     @GetMapping("/lastTillDate")
     fun getLastTillDate(): ResponseEntity<String> {
@@ -58,8 +55,7 @@ class DataController(
                 letPeopleKnow("有采集任务正在进行中，将终止当前采集任务清除数据并重新采集")
                 clearController.cancelAndClear()
             }
-            return ResponseEntity.ok(searchByCodeCollector.startCollect(dataCollectParam, SearchType.CODE).toString())
-
+            return ResponseEntity.ok(searchByCodeCollector.startCollect(dataCollectParam, SearchType.CODE, RequestContext.get()).toString())
         } catch (e: BadRequestException) {
             e.printStackTrace()
             return ResponseEntity.badRequest().body(e.message)

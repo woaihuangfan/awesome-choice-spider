@@ -18,37 +18,34 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 
-
 @RestController
 @RequestMapping("/rule")
 class RuleController(
-    private val titleFilterRuleRepository: TitleFilterRuleRepository
+    private val titleFilterRuleRepository: TitleFilterRuleRepository,
 ) {
-
     @PostMapping
     fun add(
-        @RequestBody @Validated titleFilterRulePO: TitleFilterRulePO
+        @RequestBody @Validated titleFilterRulePO: TitleFilterRulePO,
     ): ResponseEntity<String> {
         titleFilterRuleRepository.save(
             TitleFilterRule(
                 keyword = titleFilterRulePO.keyword,
-                type = parseType(titleFilterRulePO.type)
-            )
+                type = parseType(titleFilterRulePO.type),
+            ),
         )
         return ResponseEntity.ok().body("添加成功")
     }
 
-    private fun parseType(type: String): String {
-        return when (type) {
+    private fun parseType(type: String): String =
+        when (type) {
             Type.INCLUDE.typeName -> Type.INCLUDE.typeName
             Type.EXCLUDE.typeName -> Type.EXCLUDE.typeName
             else -> throw BadRequestException("invalid type: $type")
         }
-    }
 
     @DeleteMapping("/{id}")
     fun delete(
-        @PathVariable("id") id: Long
+        @PathVariable("id") id: Long,
     ): String {
         titleFilterRuleRepository.deleteById(id)
         return "删除成功"

@@ -5,17 +5,21 @@ import com.fan.db.entity.NoticeDetail
 import com.fan.db.entity.NoticeDetailFailLog
 import com.fan.db.repository.NoticeDetailFailLogRepository
 import com.fan.db.repository.NoticeRepository
+import com.fan.service.RequestContext.Key.getRequestId
 import jakarta.transaction.Transactional
 import org.springframework.stereotype.Service
 
 @Service
 class DetailAnalysisErrorLogService(
     private val noticeDetailFailLogRepository: NoticeDetailFailLogRepository,
-    private val noticeRepository: NoticeRepository
+    private val noticeRepository: NoticeRepository,
 ) {
-
     @Transactional
-    fun logErrorRecord(detail: NoticeDetail, errResult: Pair<String, String>) {
+    fun logErrorRecord(
+        detail: NoticeDetail,
+        errResult: Pair<String, String>,
+        context: RequestContext,
+    ) {
         val exist = noticeDetailFailLogRepository.findByCodeAndStock(detail.code, detail.stock)
         if (exist == null) {
             val notice = noticeRepository.findById(detail.noticeId)
@@ -30,11 +34,10 @@ class DetailAnalysisErrorLogService(
                     year = year,
                     accountCompanyName = errResult.first,
                     amount = errResult.second,
-                    requestId = detail.requestId
-                )
+                    requestId = getRequestId(context),
+                ),
             )
         }
-
     }
 
     fun getFailedRecords(): List<NoticeDetailFailLog> = noticeDetailFailLogRepository.findAll()
@@ -62,5 +65,4 @@ class DetailAnalysisErrorLogService(
     }
 
     fun getFailLogById(id: Long) = noticeDetailFailLogRepository.findById(id)
-
 }

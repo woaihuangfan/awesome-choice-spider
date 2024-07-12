@@ -1,4 +1,3 @@
 package com.fan.event
 
-class BaseEvent {
-}
+class BaseEvent

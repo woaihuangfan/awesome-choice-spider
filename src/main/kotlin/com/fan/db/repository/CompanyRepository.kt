@@ -7,24 +7,26 @@ import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 import org.springframework.stereotype.Repository
 
-
 @Repository
 interface CompanyRepository : JpaRepository<Company, Long> {
-
     fun findByStock(stock: String): Company?
 
     @Query(
-        value = "SELECT c.stock, c.company_name, n.title, n.content " +
+        value =
+            "SELECT c.stock, c.company_name, n.title, n.content " +
                 "FROM company c, " +
                 "notice_detail n " +
                 "WHERE  n.stock = c.stock " +
-                "AND c.stock NOT IN (SELECT r.stock FROM result r WHERE r.\"year\" = ?1)", nativeQuery = true
+                "AND c.stock NOT IN (SELECT r.stock FROM result r WHERE r.\"year\" = ?1)",
+        nativeQuery = true,
     )
-    fun findCompanyNoticeDetails(year: String, pageable: Pageable): Page<Any>
-
+    fun findCompanyNoticeDetails(
+        year: String,
+        pageable: Pageable,
+    ): Page<Any>
 
     @Query(
-        value ="""
+        value = """
     SELECT 
         C.stock ,
         C.company_name,
@@ -39,12 +41,8 @@ interface CompanyRepository : JpaRepository<Company, Long> {
     GROUP BY 
         C.stock, C.company_name, N."year"
     ORDER BY N."year" DESC, C.stock ASC
-    """, nativeQuery = true
+    """,
+        nativeQuery = true,
     )
     fun findCompanyNotice(pageable: Pageable): Page<Map<String, String>>
-
-
 }
-
-
-

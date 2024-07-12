@@ -1,9 +1,7 @@
 package com.fan.extractor
 
 object AccountCompanyNameFilter {
-
     fun filter(names: List<String>): String? {
-
         try {
             return names.distinct().first { isValidAccountName(it) }
         } catch (e: NoSuchElementException) {
@@ -12,9 +10,8 @@ object AccountCompanyNameFilter {
         return null
     }
 
-    fun isValidAccountName(name: String): Boolean {
-        return lengthCheck(name) && mustHaveCheck(name) && isNotReplaceable(name) && shouldNotContainsCheck(name)
-    }
+    fun isValidAccountName(name: String): Boolean =
+        lengthCheck(name) && mustHaveCheck(name) && isNotReplaceable(name) && shouldNotContainsCheck(name)
 
     private fun lengthCheck(name: String) = name.length in 8..50
 
@@ -29,9 +26,7 @@ object AccountCompanyNameFilter {
         return true
     }
 
-    private fun getRandomCheckWords(): List<String> {
-        return listOf("审计机构", "20", "，", "一", "任","股份有限","聘")
-    }
+    private fun getRandomCheckWords(): List<String> = listOf("审计机构", "20", "，", "一", "任", "股份有限", "聘")
 
     private fun isNotReplaceable(name: String): Boolean {
         getAllReplaceableWords().forEach {
@@ -48,41 +43,41 @@ object AccountCompanyNameFilter {
         return true
     }
 
-    fun getFirstReplaceableWords(): List<String> {
-        return getAllReplaceableWords() + listOf(
-            "同意续聘任",
-            "对",
-            "会计师事务所",
-            "基本",
-            "名称",
-            "任具有证券从业资格的",
-            "拟继续聘请",
-            "拟继续聘用",
-            "继续聘用",
-            "公司",
-            "原审计机构",
-            "事项",
-            "情况",
-            "具有证券从业资格",
-            "的",
-            "说明",
-            "公司",
-            "拟聘",
-            "同意",
-            "聘任",
-            "审阅了",
-            "关于聘任",
-            "请",
-            "信息",
-            "为",
-            "根据",
-            "拟",
-            "审计",
-        )
-    }
+    fun getFirstReplaceableWords(): List<String> =
+        getAllReplaceableWords() +
+            listOf(
+                "同意续聘任",
+                "对",
+                "会计师事务所",
+                "基本",
+                "名称",
+                "任具有证券从业资格的",
+                "拟继续聘请",
+                "拟继续聘用",
+                "继续聘用",
+                "公司",
+                "原审计机构",
+                "事项",
+                "情况",
+                "具有证券从业资格",
+                "的",
+                "说明",
+                "公司",
+                "拟聘",
+                "同意",
+                "聘任",
+                "审阅了",
+                "关于聘任",
+                "请",
+                "信息",
+                "为",
+                "根据",
+                "拟",
+                "审计",
+            )
 
-    fun getAllReplaceableWords(): List<String> {
-        return listOf(
+    fun getAllReplaceableWords(): List<String> =
+        listOf(
             "拟聘任的境内会计师事务所",
             "拟聘任会计师事务所事项的情况说明",
             "续聘会计师事务所的情况说明",
@@ -143,5 +138,4 @@ object AccountCompanyNameFilter {
             "：",
             "“",
         ).sortedByDescending { it.length }
-    }
 }

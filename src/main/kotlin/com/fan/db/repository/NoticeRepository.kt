@@ -4,10 +4,10 @@ import com.fan.db.entity.Notice
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Repository
 
-
 @Repository
 interface NoticeRepository : JpaRepository<Notice, Long> {
-
-    fun findByStockAndCode(stock: String, code: String): Notice?
-
+    fun findByStockAndCode(
+        stock: String,
+        code: String,
+    ): Notice?
 }

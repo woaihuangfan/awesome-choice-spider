@@ -25,5 +25,4 @@ class CollectLog(
     var type: String,
     @Column(name = "requestId", columnDefinition = "VARCHAR(8192) not null default ''")
     var requestId: String,
-
-    )
+)

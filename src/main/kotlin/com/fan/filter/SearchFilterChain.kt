@@ -1,12 +1,11 @@
 package com.fan.filter
 
 import com.fan.response.Item
-import com.fan.response.NoticeItem
 import org.springframework.stereotype.Component
 
 @Component
 class SearchFilterChain(
-    titleFilter: TitleFilter
+    titleFilter: TitleFilter,
 ) {
     private val searchFilters: MutableList<SearchFilter> = mutableListOf()
 

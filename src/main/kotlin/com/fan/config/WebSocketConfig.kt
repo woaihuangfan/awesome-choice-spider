@@ -6,9 +6,6 @@ import org.springframework.web.socket.server.standard.ServerEndpointExporter
 
 @Configuration
 class WebSocketConfig {
-
     @Bean
-    fun serverEndpointExporter(): ServerEndpointExporter {
-        return ServerEndpointExporter()
-    }
+    fun serverEndpointExporter(): ServerEndpointExporter = ServerEndpointExporter()
 }

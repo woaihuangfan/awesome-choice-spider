@@ -3,14 +3,14 @@ package com.fan.response
 data class SearchByCodeResponse(
     val data: SearchByCodeData,
     val error: String,
-    val success: Int
+    val success: Int,
 )
 
 data class SearchByCodeData(
     val list: List<Item>,
     val page_index: Int,
     val page_size: Int,
-    val total_hits: Int
+    val total_hits: Int,
 )
 
 data class Item(
@@ -27,7 +27,7 @@ data class Item(
     val source_type: String,
     val title: String,
     val title_ch: String,
-    val title_en: String
+    val title_en: String,
 )
 
 data class Code(
@@ -35,10 +35,10 @@ data class Code(
     val inner_code: String,
     val market_code: String,
     val short_name: String,
-    val stock_code: String
+    val stock_code: String,
 )
 
 data class Column(
     val column_code: String,
-    val column_name: String
+    val column_name: String,
 )

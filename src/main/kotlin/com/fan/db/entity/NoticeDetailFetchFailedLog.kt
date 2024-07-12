@@ -13,5 +13,4 @@ class NoticeDetailFetchFailedLog(
     val id: Long? = null,
     @Column(name = "code", nullable = false)
     val code: String,
-
-    )
+)

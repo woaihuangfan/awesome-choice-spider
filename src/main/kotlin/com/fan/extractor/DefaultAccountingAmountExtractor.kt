@@ -1,7 +1,5 @@
 package com.fan.extractor
 
 object DefaultAccountingAmountExtractor {
-    fun extractAccountingAmount(): String {
-        return ""
-    }
+    fun extractAccountingAmount(): String = ""
 }

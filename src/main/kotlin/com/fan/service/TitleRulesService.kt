@@ -5,10 +5,7 @@ import org.springframework.stereotype.Service
 
 @Service
 class TitleRulesService(
-    private val titleFilterRuleRepository: TitleFilterRuleRepository
+    private val titleFilterRuleRepository: TitleFilterRuleRepository,
 ) {
-
-    fun getCurrentRules(): List<String> {
-        return titleFilterRuleRepository.findAll().map { it.keyword }
-    }
+    fun getCurrentRules(): List<String> = titleFilterRuleRepository.findAll().map { it.keyword }
 }

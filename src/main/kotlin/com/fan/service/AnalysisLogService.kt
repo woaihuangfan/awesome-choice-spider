@@ -8,6 +8,7 @@ import com.fan.db.repository.NoticeDetailRepository
 import com.fan.db.repository.NoticeRepository
 import com.fan.db.repository.ResultRepository
 import com.fan.db.repository.SearchByCodeSourceRepository
+import com.fan.service.RequestContext.Key.getRequestId
 import jakarta.transaction.Transactional
 import org.springframework.stereotype.Service
 
@@ -21,7 +22,10 @@ class AnalysisLogService(
     private val searchByCodeSourceRepository: SearchByCodeSourceRepository,
 ) {
     @Transactional
-    fun saveAnalysisLog(type: String, requestId: String) {
+    fun saveAnalysisLog(
+        type: String,
+        context: RequestContext,
+    ) {
         val thisYear = DateUtil.thisYear()
         val validTitles = noticeRepository.count()
         val detailsCounts = noticeDetailRepository.count()
@@ -31,17 +35,14 @@ class AnalysisLogService(
             AnalysisLog(
                 date = DateUtil.now(),
                 type = type,
-                new = getCollectedCount(requestId),
+                new = getCollectedCount(context),
                 validTitles = validTitles,
                 validDetails = detailsCounts,
                 successAccounts = validAccountNameCounts,
-                failedAccounts = failedAccounts
-            )
+                failedAccounts = failedAccounts,
+            ),
         )
-
     }
 
-    fun getCollectedCount(requestId: String): Int {
-        return searchByCodeSourceRepository.countByRequestId(requestId)
-    }
+    private fun getCollectedCount(context: RequestContext): Int = searchByCodeSourceRepository.countByRequestId(getRequestId(context))
 }

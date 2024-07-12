@@ -8,10 +8,8 @@ import org.springframework.stereotype.Component
 
 @Component
 class TitleFilter(
-    private val titleFilterRuleRepository: TitleFilterRuleRepository
+    private val titleFilterRuleRepository: TitleFilterRuleRepository,
 ) : SearchFilter {
-
-
     override fun doFilter(item: Item): Boolean {
         getIncludeKeywords().map { it.keyword }.forEach {
             if (!item.title.contains(it)) {
@@ -27,11 +25,9 @@ class TitleFilter(
         return true
     }
 
-    private fun getIncludeKeywords(): List<TitleFilterRule> =
-        titleFilterRuleRepository.findAllByTypeIs(Type.INCLUDE.typeName)
+    private fun getIncludeKeywords(): List<TitleFilterRule> = titleFilterRuleRepository.findAllByTypeIs(Type.INCLUDE.typeName)
 
-    private fun getExcludeKeywords(): List<TitleFilterRule> =
-        titleFilterRuleRepository.findAllByTypeIs(Type.EXCLUDE.typeName)
+    private fun getExcludeKeywords(): List<TitleFilterRule> = titleFilterRuleRepository.findAllByTypeIs(Type.EXCLUDE.typeName)
 
     fun doFilter(title: String): Boolean {
         getIncludeKeywords().forEach {
@@ -41,6 +37,4 @@ class TitleFilter(
         }
         return true
     }
-
-
 }

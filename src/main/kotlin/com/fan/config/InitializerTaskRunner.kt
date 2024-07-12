@@ -15,7 +15,8 @@ import org.springframework.util.CollectionUtils
 
 @Component
 class InitializerTaskRunner(
-    private val companyRepository: CompanyRepository, private val titleFilterRuleRepository: TitleFilterRuleRepository
+    private val companyRepository: CompanyRepository,
+    private val titleFilterRuleRepository: TitleFilterRuleRepository,
 ) : ApplicationRunner {
     override fun run(args: ApplicationArguments) {
 //        addCompany()
@@ -29,17 +30,14 @@ class InitializerTaskRunner(
                 titleFilterRuleRepository.save(it)
             }
         }
-
     }
 
-    private fun getInitialTitleFilterRules(): List<TitleFilterRule> {
-        return getTitleKeywords().filter { it.isNotEmpty() }
+    private fun getInitialTitleFilterRules(): List<TitleFilterRule> =
+        getTitleKeywords()
+            .filter { it.isNotEmpty() }
             .map { TitleFilterRule(keyword = it, type = Type.INCLUDE.typeName) }
-    }
 
-    private fun getTitleKeywords(): List<String> {
-        return listOf()
-    }
+    private fun getTitleKeywords(): List<String> = listOf()
 
     private fun addCompany() {
         val stocks = readStocks()
@@ -55,7 +53,8 @@ class InitializerTaskRunner(
         val codeStream = ClassPathResource("classpath:codes.xlsx").stream
         val codes = ArrayList<String>()
         ExcelUtil.readBySax(
-            codeStream, 0
+            codeStream,
+            0,
         ) { _, rowIndex, rowCells ->
             if (rowIndex > 0) {
                 val cell = rowCells.first() as String
@@ -65,7 +64,6 @@ class InitializerTaskRunner(
                         codes.add(code)
                     }
                 }
-
             }
         }
         return codes

@@ -2,7 +2,7 @@ package com.fan.response
 
 data class WebNoticeDetailResponse(
     val data: DetailData?,
-    val success: Int?
+    val success: Int?,
 )
 
 data class DetailData(
@@ -27,14 +27,14 @@ data class DetailData(
     val page_size_cht: Int,
     val page_size_en: Int,
     val security: List<Security>,
-    val short_name: String
+    val short_name: String,
 )
 
 data class AttachItem(
     val attach_size: Int,
     val attach_type: String,
     val attach_url: String,
-    val seq: Int
+    val seq: Int,
 )
 
 data class Security(
@@ -43,5 +43,5 @@ data class Security(
     val short_name_ch: String,
     val short_name_cht: String,
     val short_name_en: String,
-    val stock: String
+    val stock: String,
 )

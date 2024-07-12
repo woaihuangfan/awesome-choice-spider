@@ -24,7 +24,6 @@ import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.ResponseBody
 import org.springframework.web.bind.annotation.RestController
 
-
 @RestController
 @RequestMapping("/query")
 class QueryController(
@@ -38,7 +37,6 @@ class QueryController(
     private val noticeDetailRepository: NoticeDetailRepository,
     private val analysisLogRepository: AnalysisLogRepository,
 ) {
-
     @GetMapping(value = ["/sources"])
     fun source(): Int {
         val all = sourceRepository.findAll()
@@ -50,31 +48,30 @@ class QueryController(
     fun query(
         @RequestParam page: Int,
         @RequestParam limit: Int,
-        @RequestParam year: String = DateUtil.thisYear().toString()
+        @RequestParam year: String = DateUtil.thisYear().toString(),
     ): PageResult {
         val pageable: PageRequest = PageRequest.of(page - 1, limit)
         val (sourcePage, data) = convertData(pageable)
         return PageResult.success(
-            PageImpl(data, sourcePage.pageable, sourcePage.totalElements)
+            PageImpl(data, sourcePage.pageable, sourcePage.totalElements),
         )
     }
 
     private fun convertData(pageable: PageRequest): Pair<Page<Map<String, String>>, List<MutableMap<String, String>>> {
         val sourcePage = companyRepository.findCompanyNotice(pageable)
-        val data = sourcePage.content.map {
-            val map = mutableMapOf<String, String>()
-            it.entries.forEach { entry ->
-                map.put(entry.key.lowercase(), entry.value)
+        val data =
+            sourcePage.content.map {
+                val map = mutableMapOf<String, String>()
+                it.entries.forEach { entry ->
+                    map.put(entry.key.lowercase(), entry.value)
+                }
+                map
             }
-            map
-        }
         return Pair(sourcePage, data)
     }
 
     @GetMapping(value = ["/notices"])
-    fun all(): List<Notice> {
-        return noticeRepository.findAll()
-    }
+    fun all(): List<Notice> = noticeRepository.findAll()
 
     @GetMapping(value = ["/result"])
     fun result(
@@ -99,9 +96,7 @@ class QueryController(
     }
 
     @GetMapping(value = ["/fetchErrors"])
-    fun fetchErrors(): MutableList<NoticeDetailFetchFailedLog> {
-        return noticeDetailFetchFailedLogRepository.findAll()
-    }
+    fun fetchErrors(): MutableList<NoticeDetailFetchFailedLog> = noticeDetailFetchFailedLogRepository.findAll()
 
     @GetMapping(value = ["/fetchErrors/count"])
     fun countFetchErrors(): Int {
@@ -117,7 +112,6 @@ class QueryController(
         val pageable: PageRequest = PageRequest.of(page - 1, limit)
         return PageResult.success(collectLogRepository.findAll(pageable))
     }
-
 
     @GetMapping(value = ["/notConcluded"])
     fun notConcluded(

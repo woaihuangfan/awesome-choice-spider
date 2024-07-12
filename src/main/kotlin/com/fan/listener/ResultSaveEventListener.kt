@@ -4,16 +4,15 @@ import cn.hutool.core.thread.ThreadUtil
 import com.fan.db.repository.NoticeRepository
 import com.fan.event.ResultSaveEvent
 import jakarta.transaction.Transactional
-import org.springframework.context.event.EventListener
 import org.springframework.stereotype.Component
+import org.springframework.transaction.event.TransactionalEventListener
 
 @Component
 class ResultSaveEventListener(
-    private val noticeRepository: NoticeRepository
+    private val noticeRepository: NoticeRepository,
 ) {
-
     @Transactional
-    @EventListener
+    @TransactionalEventListener
     fun handleEvent(event: ResultSaveEvent) {
         try {
             ThreadUtil.sleep(100)
@@ -23,6 +22,5 @@ class ResultSaveEventListener(
         } catch (ex: Exception) {
             ex.printStackTrace()
         }
-
     }
 }

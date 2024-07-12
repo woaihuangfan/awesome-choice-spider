@@ -16,7 +16,6 @@ class Source(
     val code: String,
     @Column(name = "columnCode", nullable = false)
     var columnCode: String,
-
     @Column(name = "title", nullable = false, length = 8196)
     var title: String,
     @Lob
@@ -31,8 +30,5 @@ class Source(
     @Column(name = "status", nullable = true)
     var status: String? = "",
     @Column(name = "request_id", nullable = false)
-    var requestId: String
-
-) {
-
-}
+    var requestId: String,
+)

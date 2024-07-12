@@ -16,16 +16,14 @@ import org.springframework.data.domain.DomainEvents
     indexes = [
         Index(name = "idx_stock", columnList = "stock", unique = true),
         Index(name = "idx_request_id", columnList = "request_id", unique = true),
-    ]
+    ],
 )
 class Result(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long? = null,
-
     @Column(name = "notice_id", nullable = false)
     val noticeId: Long,
-
     @Column(name = "name", nullable = false)
     val name: String,
     @Column(name = "stock", nullable = false)
@@ -45,9 +43,6 @@ class Result(
     @Column(name = "request_id", columnDefinition = "VARCHAR(8192) not null default ''")
     var requestId: String,
 ) {
-
     @DomainEvents
-    fun domainEvents(): Collection<ResultSaveEvent> {
-        return listOf(ResultSaveEvent(this));
-    }
+    fun domainEvents(): Collection<ResultSaveEvent> = listOf(ResultSaveEvent(this))
 }

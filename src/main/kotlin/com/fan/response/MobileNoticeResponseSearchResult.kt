@@ -2,23 +2,21 @@ package com.fan.response
 
 import com.fasterxml.jackson.annotation.JsonProperty
 
-
 data class NoticeResponseSearchResult(
     val code: Int,
     val message: String,
-    val data: Data
+    val data: Data,
 )
-
 
 data class NoticeResponse(
     @JsonProperty("code") val code: Int,
     @JsonProperty("message") val message: String,
-    @JsonProperty("data") val data: Data
+    @JsonProperty("data") val data: Data,
 )
 
 data class Data(
     @JsonProperty("hasNext") val hasNext: Boolean,
-    @JsonProperty("searchResultList") val searchResultList: List<SearchResult>
+    @JsonProperty("searchResultList") val searchResultList: List<SearchResult>,
 )
 
 data class SearchResult(
@@ -49,14 +47,14 @@ data class SearchResult(
     @JsonProperty("highlightMap") val highlightmap: Any?,
     @JsonProperty("infocode") val infocode: String,
     @JsonProperty("eutime") val eutime: String,
-    @JsonProperty("columnName") val columnname: String
+    @JsonProperty("columnName") val columnname: String,
 )
 
 data class Secu(
     @JsonProperty("secuSName") val secusname: String,
     @JsonProperty("secuTypeCode") val secutypecode: String,
     @JsonProperty("secuVarietyCode") val secuvarietycode: String,
-    @JsonProperty("secuFullCode") val secufullcode: String
+    @JsonProperty("secuFullCode") val secufullcode: String,
 )
 
 data class Attach(
@@ -69,6 +67,5 @@ data class Attach(
     @JsonProperty("content") val content: String,
     @JsonProperty("key") val key: String,
     @JsonProperty("seq") val seq: Int,
-    @JsonProperty("sourcePath") val sourcepath: String
+    @JsonProperty("sourcePath") val sourcepath: String,
 )
-

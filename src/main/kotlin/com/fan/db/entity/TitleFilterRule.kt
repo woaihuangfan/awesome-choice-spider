@@ -11,10 +11,8 @@ class TitleFilterRule(
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     val id: Long? = null,
-
     @Column(name = "keyword", nullable = false)
     val keyword: String,
-
     @Column(name = "type", columnDefinition = "VARCHAR(32) not null default ''")
     val type: String,
 )

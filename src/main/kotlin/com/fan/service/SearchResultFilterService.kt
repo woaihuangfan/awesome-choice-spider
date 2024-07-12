@@ -1,4 +1,3 @@
 package com.fan.service
 
-class SearchResultFilterService {
-}
+class SearchResultFilterService

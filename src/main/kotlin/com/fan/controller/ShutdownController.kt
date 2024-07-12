@@ -10,17 +10,15 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 @RequestMapping("/ops")
 class ShutdownController : ApplicationContextAware {
-
     private lateinit var context: ApplicationContext
 
     @GetMapping("/shutdown")
     fun shutdownContext() {
         val configurableApplicationContext = context as ConfigurableApplicationContext
-        configurableApplicationContext.close();
+        configurableApplicationContext.close()
     }
 
     override fun setApplicationContext(applicationContext: ApplicationContext) {
         this.context = applicationContext
     }
-
 }

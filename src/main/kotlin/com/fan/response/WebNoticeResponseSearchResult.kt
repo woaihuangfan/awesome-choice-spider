@@ -8,11 +8,11 @@ data class WebNoticeResponseSearchResult(
     val hitsTotal: Int,
     val msg: String,
     val result: Result,
-    val searchId: String
+    val searchId: String,
 )
 
 data class Result(
-    val noticeWeb: List<NoticeItem>
+    val noticeWeb: List<NoticeItem>,
 )
 
 data class NoticeItem(
@@ -22,5 +22,5 @@ data class NoticeItem(
     val content: String,
     val date: String,
     val securityFullName: String,
-    val url: String
+    val url: String,
 )

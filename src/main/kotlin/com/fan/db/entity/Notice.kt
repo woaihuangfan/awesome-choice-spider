@@ -1,6 +1,7 @@
 package com.fan.db.entity
 
 import com.fan.event.NoticeSaveEvent
+import com.fan.service.RequestContext
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue
@@ -13,10 +14,8 @@ class Notice(
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     var id: Long? = null,
-
     @Column(name = "code", nullable = false)
     val code: String,
-
     @Column(name = "stock", nullable = false)
     val stock: String,
     @Column(name = "columnCode", nullable = false)
@@ -35,15 +34,11 @@ class Notice(
     var requestId: String,
     @Column(name = "`year`", nullable = false)
     val year: String,
-
+    @Transient
+    val context: RequestContext,
 ) {
-
     @DomainEvents
-    fun domainEvents(): Collection<NoticeSaveEvent> {
-        return listOf(NoticeSaveEvent(this));
-    }
+    fun domainEvents(): Collection<NoticeSaveEvent> = listOf(NoticeSaveEvent(this))
 
-    fun isDone(): Boolean {
-        return this.status.equals("Done", ignoreCase = true)
-    }
+    fun isDone(): Boolean = this.status.equals("Done", ignoreCase = true)
 }
