@@ -22,7 +22,7 @@ class ResultService(
         detail: NoticeDetail,
         accountCompanyName: String,
         amount: String,
-        context:RequestContext
+        context: RequestContext,
     ) {
         val noticeYear = DateUtil.parseDate(notice.date).year().toString()
         val exist = resultRepository.findByStockAndCode(notice.stock, notice.code)
@@ -47,11 +47,7 @@ class ResultService(
             letPeopleKnow("========更新分析结果======")
             result.id = exist.id
         }
-        try {
-            resultRepository.save(result)
-        } catch (e: Exception) {
-            throw e
-        }
+        resultRepository.save(result)
     }
 
     fun removeFromResultIfAny(detail: NoticeDetail) {

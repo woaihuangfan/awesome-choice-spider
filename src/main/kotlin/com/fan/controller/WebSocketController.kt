@@ -68,7 +68,9 @@ class WebSocketController {
         private const val SESSION_ID_COLLECT = "collect"
         private val sessions = mutableMapOf<String, Session>()
         private val queue = LinkedBlockingDeque<String>()
-        private val logger = LoggerFactory.getLogger(WebSocketController::class.java)
+        private val logger = LoggerFactory.getLogger(Message::class.java)
+
+        class Message
 
         fun letPeopleKnow(message: String) {
             logger.info(message)
