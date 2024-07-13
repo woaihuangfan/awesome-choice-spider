@@ -118,10 +118,15 @@ class ExcelController(
         val errorLogs = noticeDetailFailLogRepository.findAll()
         val headers = listOf(ANNOUNCE_CODE, STOCK_CODE, ANNOUNCE_TITLE, ANNOUNCE_CONTENT)
         val companyMap = getCompanyMap()
-        val contents = errorLogs.map { listOfNotNull(it.code, companyMap[it.stock], it.title, it.content) }
+        val contents = errorLogs.map { listOfNotNull(it.code, companyMap[it.stock], it.title, tidy(it.content)) }
         val writer = writeRows(headers, contents)
         createHyperLinkForErrorLog(writer, errorLogs)
         flushToResponse(httpServletResponse, writer, getErrorsFileName())
+    }
+
+    private fun tidy(content: String): String {
+        return  content.replace("\n","").replace("\r","").replace(" ","")
+
     }
 
     private fun getErrorsFileName() = "错误记录(关键字：${titleRulesService.getCurrentRules()})_${DateUtil.today()}.xlsx"
