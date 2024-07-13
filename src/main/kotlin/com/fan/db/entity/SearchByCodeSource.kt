@@ -12,9 +12,9 @@ import jakarta.persistence.Table
 @Table(
     name = "search_by_code_source",
     indexes = [
-        Index(name = "idx_year", columnList = "year", unique = true),
-        Index(name = "idx_stock", columnList = "stock", unique = true),
-        Index(name = "idx_request_id", columnList = "request_id", unique = true),
+        Index(name = "idx_search_by_code_source_year", columnList = "year", unique = false),
+        Index(name = "idx_search_by_code_source_stock", columnList = "stock", unique = false),
+        Index(name = "idx_search_by_code_source_request_id", columnList = "request_id", unique = false),
     ],
 )
 class SearchByCodeSource(

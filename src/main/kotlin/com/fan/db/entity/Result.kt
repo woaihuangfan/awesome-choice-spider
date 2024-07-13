@@ -15,8 +15,8 @@ import org.springframework.data.domain.DomainEvents
 @Table(
     name = "result",
     indexes = [
-        Index(name = "idx_stock", columnList = "stock", unique = true),
-        Index(name = "idx_request_id", columnList = "request_id", unique = true),
+        Index(name = "idx_result_stock", columnList = "stock", unique = false),
+        Index(name = "idx_result_request_id", columnList = "request_id", unique = false),
     ],
 )
 class Result(

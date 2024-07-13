@@ -31,11 +31,17 @@ abstract class AbstractDataCollector(
         ThreadUtil.execAsync {
             letPeopleKnow("==========开始爬取==========")
             lock.incrementAndGet()
-            doCollect(param, type, context)
+            try {
+                doCollect(param, type, context)
 
-            letPeopleKnow("==========爬取结束==========")
-            log(param, type, context)
-            lock.decrementAndGet()
+                letPeopleKnow("==========爬取结束==========")
+                log(param, type, context)
+            }catch (e:Exception){
+                e.printStackTrace()
+            }finally {
+                lock.decrementAndGet()
+            }
+
         }
     }
 

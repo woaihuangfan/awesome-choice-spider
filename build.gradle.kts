@@ -45,6 +45,7 @@ dependencies {
     implementation("org.apache.poi:poi-ooxml:$poiVersion")
     implementation("com.google.code.gson:gson")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion")
+    implementation("org.flywaydb:flyway-core")
 
     implementation("org.apache.derby:derby")
     implementation("org.apache.derby:derbytools")

@@ -33,6 +33,10 @@ spring:
     resources:
       static-locations: classpath:/static/  #静态资源映射目录
 
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: true
 #management:
 #  endpoint:
 #    shutdown:
@@ -48,9 +52,10 @@ spring:
 #      exposure:
 #        include: info, health, shutdown
 
-#logging:
-#  level:
-#    root: debug
+logging:
+  level:
+    root: INFO
+#    org.springframework.transaction: info
 server:
   port: 8080
   servlet:
