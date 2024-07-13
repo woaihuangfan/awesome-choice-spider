@@ -49,6 +49,7 @@ dependencies {
 
     implementation("org.apache.derby:derby")
     implementation("org.apache.derby:derbytools")
+    implementation("org.springframework.boot:spring-boot-starter-actuator")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("io.mockk:mockk:$mockkVersion")
     testImplementation("org.junit.jupiter:junit-jupiter-api:$junitVersion")

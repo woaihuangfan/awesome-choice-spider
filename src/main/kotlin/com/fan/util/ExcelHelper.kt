@@ -8,6 +8,8 @@ import org.springframework.http.ContentDisposition
 import org.springframework.http.HttpHeaders
 import java.nio.charset.StandardCharsets
 
+private const val MAX_WIDTH = 255 * 256
+
 object ExcelHelper {
     fun writeRows(
         headers: List<String>,
@@ -30,7 +32,7 @@ object ExcelHelper {
         index: Int,
     ): Int {
         val target = sheet.getColumnWidth(index) * 15 / 10
-        return if (target > 255) 255 else target
+        return if (target > MAX_WIDTH) MAX_WIDTH else target
     }
 
     fun flushToResponse(

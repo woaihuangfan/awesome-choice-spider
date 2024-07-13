@@ -67,26 +67,27 @@ class ExcelController(
                 STOCK_CODE,
                 ANNOUNCE_DATE,
                 ACCOUNT_COMPANY_NAME,
-                CONTRACT_AMOUNT,
+//                CONTRACT_AMOUNT,
                 INFO_SOURCE,
             )
         val companyMap = getCompanyMap()
         val contents = results.map {
             listOfNotNull(
-                it.name, companyMap[it.stock],
-                    it.date,
-                    it.accountCompanyName,
-                    it.amount,
-                    decodeTitle(it.title),
-                )
-            }
+                it.name,
+                companyMap[it.stock],
+                it.date,
+                it.accountCompanyName,
+//                it.amount,
+                decodeTitle(it.title),
+            )
+        }
         val writer = writeRows(headers, contents)
         createHyperLink(writer, results)
         flushToResponse(httpServletResponse, writer, getResultFileName(tillDate))
     }
 
     private fun getCompanyMap(): Map<String, String> {
-        return companyRepository.findAll().map { it.stock to it.stock + "." + it.block }.toMap()
+        return companyRepository.findAll().associate { it.stock to it.stock + "." + it.block }
     }
 
     private fun getRequestIds(tillDate: String?): List<String> =
@@ -116,7 +117,8 @@ class ExcelController(
     fun downloadError(httpServletResponse: HttpServletResponse) {
         val errorLogs = noticeDetailFailLogRepository.findAll()
         val headers = listOf(ANNOUNCE_CODE, STOCK_CODE, ANNOUNCE_TITLE, ANNOUNCE_CONTENT)
-        val contents = errorLogs.map { listOfNotNull(it.code, it.stock, it.title, it.content) }
+        val companyMap = getCompanyMap()
+        val contents = errorLogs.map { listOfNotNull(it.code, companyMap[it.stock], it.title, it.content) }
         val writer = writeRows(headers, contents)
         createHyperLinkForErrorLog(writer, errorLogs)
         flushToResponse(httpServletResponse, writer, getErrorsFileName())
@@ -131,7 +133,7 @@ class ExcelController(
         val (creationHelper, cellStyle) = getCreationHelperAndCellStyle(writer)
         results.forEachIndexed { index, result ->
             val linkAddress = result.title.substringAfter("href='").substringBefore("'")
-            addHyperLinkToCell(creationHelper, linkAddress, writer, index, cellStyle, 5)
+            addHyperLinkToCell(creationHelper, linkAddress, writer, index, cellStyle, 4)
         }
     }
 
