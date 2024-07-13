@@ -1,6 +1,7 @@
 package com.fan.db.entity
 
 import com.fan.event.ResultSaveEvent
+import com.fan.service.RequestContext
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue
@@ -20,7 +21,7 @@ import org.springframework.data.domain.DomainEvents
 )
 class Result(
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     var id: Long? = null,
     @Column(name = "notice_id", nullable = false)
     val noticeId: Long,
@@ -42,6 +43,8 @@ class Result(
     var title: String,
     @Column(name = "request_id", columnDefinition = "VARCHAR(8192) not null default ''")
     var requestId: String,
+    @Transient
+    val context: RequestContext,
 ) {
     @DomainEvents
     fun domainEvents(): Collection<ResultSaveEvent> = listOf(ResultSaveEvent(this))

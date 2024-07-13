@@ -11,7 +11,6 @@ import com.fan.db.repository.NoticeDetailFetchFailedLogRepository
 import com.fan.db.repository.NoticeDetailRepository
 import com.fan.filter.DetailFilterChain
 import com.fan.service.RequestContext.Key.getRequestId
-import jakarta.transaction.Transactional
 import org.springframework.stereotype.Service
 import org.thymeleaf.util.StringUtils
 import java.util.Objects
@@ -22,7 +21,7 @@ class NoticeDetailService(
     private val noticeDetailRepository: NoticeDetailRepository,
     private val noticeDetailFetchFailedLogRepository: NoticeDetailFetchFailedLogRepository,
 ) {
-    @Transactional
+
     fun fetchOrUpdateNoticeDetail(
         notice: Notice,
         context: RequestContext,
@@ -59,11 +58,12 @@ class NoticeDetailService(
                             requestId = getRequestId(context),
                             context = context,
                         )
-                    letPeopleKnow("======== 保存公告详情 ========")
                     noticeDetailRepository.save(noticeDetail)
+                    letPeopleKnow("======== 保存公告详情 ========")
                 }
             } else {
-//                noticeDetailRepository.save(exist)
+                exist.context = context
+                noticeDetailRepository.save(exist)
                 letPeopleKnow("========$noticeTitle 已存在 ========")
             }
         } catch (ex: Exception) {

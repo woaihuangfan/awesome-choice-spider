@@ -8,7 +8,6 @@ import com.fan.db.entity.Result
 import com.fan.db.repository.ResultRepository
 import com.fan.service.RequestContext.Key.getRequestId
 import com.fan.util.LinkHelper.addHyperLinkAndReturn
-import jakarta.transaction.Transactional
 import org.springframework.stereotype.Service
 import java.util.Optional
 
@@ -16,7 +15,7 @@ import java.util.Optional
 class ResultService(
     private val resultRepository: ResultRepository,
 ) {
-    @Transactional
+
     fun attachToResult(
         notice: Notice,
         detail: NoticeDetail,
@@ -42,11 +41,13 @@ class ResultService(
                 year = noticeYear,
                 title = encodeTitle(notice),
                 requestId = getRequestId(context),
+                context = context
             )
         exist?.let {
             letPeopleKnow("========更新分析结果======")
             result.id = exist.id
-        }
+        }?:letPeopleKnow("========保存分析结果======")
+
         resultRepository.save(result)
     }
 

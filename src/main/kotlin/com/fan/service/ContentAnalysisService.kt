@@ -10,7 +10,6 @@ import com.fan.extractor.AccountCompanyNameFilter.isValidAccountName
 import com.fan.extractor.DefaultAccountingAmountExtractor.extractAccountingAmount
 import com.fan.extractor.DefaultAccountingFirmNameExtractor.extractAccountingFirmName
 import com.fan.filter.TitleFilter
-import jakarta.transaction.Transactional
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -26,13 +25,13 @@ class ContentAnalysisService(
     private val detailAnalysisErrorLogService: DetailAnalysisErrorLogService,
     private val noticeDetailService: NoticeDetailService,
 ) {
-    @Transactional
+
     fun reAnalysisErrors(context: RequestContext) {
         analysisErrors(context)
         analysisLogService.saveAnalysisLog("分析错误数据", context)
     }
 
-    @Transactional
+
     fun reAnalysisDetail(context: RequestContext) {
         letPeopleKnow("==========开始分析数据库中存储的全部公告内容，不会重新从网上加载")
         analysisDetail(context)
@@ -41,7 +40,7 @@ class ContentAnalysisService(
         analysisLogService.saveAnalysisLog("分析已有公告详情", context)
     }
 
-    @Transactional
+
     fun reAnalysisAll(context: RequestContext) {
         ThreadUtil.execAsync {
             fetchDetail(context)

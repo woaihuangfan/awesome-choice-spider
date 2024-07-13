@@ -13,8 +13,8 @@ import org.springframework.data.domain.DomainEvents
 @Entity(name = "notice_detail")
 class NoticeDetail(
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    var id: Long? = null,
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    var id: Long?=null,
     @Column(name = "notice_id", nullable = false)
     val noticeId: Long,
     @Column(name = "code", nullable = false)
@@ -29,7 +29,7 @@ class NoticeDetail(
     @Column(name = "requestId", nullable = false)
     var requestId: String,
     @Transient
-    val context: RequestContext,
+    var context: RequestContext,
 ) {
     @DomainEvents
     fun domainEvents(): Collection<NoticeDetailSaveEvent> = listOf(NoticeDetailSaveEvent(this))

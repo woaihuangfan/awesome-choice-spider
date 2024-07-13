@@ -10,7 +10,7 @@ import jakarta.persistence.Lob
 @Entity(name = "source")
 class Source(
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     val id: Long? = null,
     @Column(name = "code", nullable = false)
     val code: String,

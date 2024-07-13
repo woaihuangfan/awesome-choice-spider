@@ -35,7 +35,7 @@ class Notice(
     @Column(name = "`year`", nullable = false)
     val year: String,
     @Transient
-    val context: RequestContext,
+    var context: RequestContext,
 ) {
     @DomainEvents
     fun domainEvents(): Collection<NoticeSaveEvent> = listOf(NoticeSaveEvent(this))

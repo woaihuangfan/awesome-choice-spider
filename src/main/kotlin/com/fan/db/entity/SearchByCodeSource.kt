@@ -19,7 +19,7 @@ import jakarta.persistence.Table
 )
 class SearchByCodeSource(
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     val id: Long? = null,
     @Column(name = "code", nullable = false)
     val code: String,

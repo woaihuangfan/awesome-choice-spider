@@ -19,7 +19,6 @@ import com.fan.po.DataCollectParam
 import com.fan.response.Item
 import com.fan.response.SearchByCodeResponse
 import com.fan.service.RequestContext.Key.getRequestId
-import jakarta.transaction.Transactional
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
@@ -63,7 +62,7 @@ class SearchByCodeCollector(
 
     fun hasFinished(): Boolean = !isInterrupted.get()
 
-    @Transactional
+
     override fun doCollect(
         param: DataCollectParam,
         type: SearchType,

@@ -55,7 +55,7 @@ class DataController(
                 letPeopleKnow("有采集任务正在进行中，将终止当前采集任务清除数据并重新采集")
                 clearController.cancelAndClear()
             }
-            return ResponseEntity.ok(searchByCodeCollector.startCollect(dataCollectParam, SearchType.CODE, RequestContext.get()).toString())
+             return ResponseEntity.ok(searchByCodeCollector.startCollect(dataCollectParam, SearchType.CODE, RequestContext.get()).toString())
         } catch (e: BadRequestException) {
             e.printStackTrace()
             return ResponseEntity.badRequest().body(e.message)

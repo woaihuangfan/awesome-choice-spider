@@ -6,7 +6,6 @@ import com.fan.db.entity.NoticeDetailFailLog
 import com.fan.db.repository.NoticeDetailFailLogRepository
 import com.fan.db.repository.NoticeRepository
 import com.fan.service.RequestContext.Key.getRequestId
-import jakarta.transaction.Transactional
 import org.springframework.stereotype.Service
 
 @Service
@@ -14,7 +13,7 @@ class DetailAnalysisErrorLogService(
     private val noticeDetailFailLogRepository: NoticeDetailFailLogRepository,
     private val noticeRepository: NoticeRepository,
 ) {
-    @Transactional
+
     fun logErrorRecord(
         detail: NoticeDetail,
         errResult: Pair<String, String>,
@@ -42,19 +41,19 @@ class DetailAnalysisErrorLogService(
 
     fun getFailedRecords(): List<NoticeDetailFailLog> = noticeDetailFailLogRepository.findAll()
 
-    @Transactional
+
     fun removeErrorLog(record: NoticeDetailFailLog) {
         noticeDetailFailLogRepository.delete(record)
     }
 
-    @Transactional
+
     fun removeErrorLogByDetail(detail: NoticeDetail) {
         noticeDetailFailLogRepository.findByCodeAndStock(detail.code, detail.stock)?.let {
             noticeDetailFailLogRepository.delete(it)
         }
     }
 
-    @Transactional
+
     fun ignoreErrorLog(id: Long) {
         val detailFailLogOptional = noticeDetailFailLogRepository.findById(id)
         detailFailLogOptional.ifPresent {

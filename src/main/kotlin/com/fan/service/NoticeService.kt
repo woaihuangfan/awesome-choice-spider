@@ -9,15 +9,13 @@ import com.fan.db.repository.NoticeRepository
 import com.fan.enums.SearchType
 import com.fan.response.Item
 import com.fan.service.RequestContext.Key.getRequestId
-import jakarta.transaction.Transactional
 import org.springframework.stereotype.Service
 
 @Service
 class NoticeService(
     private val noticeRepository: NoticeRepository,
-    private val noticeDetailService: NoticeDetailService,
 ) {
-    @Transactional
+
     fun saveOrUpdateNotice(
         item: Item,
         context: RequestContext,
@@ -26,12 +24,6 @@ class NoticeService(
         val stock = codes.stock_code
         val code = item.art_code
         val logMessage = "【${item.codes.first().short_name}】${item.title}"
-        noticeRepository
-            .findByStockAndCode(stock, code)
-            ?.let {
-                letPeopleKnow("======== $logMessage 在待分析列表中已存在 ========")
-                return
-            }
         val columnCode = if (item.columns.isNotEmpty()) item.columns.first().column_code else ""
         val notice =
             Notice(
@@ -46,11 +38,19 @@ class NoticeService(
                 year = DateUtil.parseDate(item.notice_date).year().toString(),
                 context = context,
             )
+
+        noticeRepository
+            .findByStockAndCode(stock, code)
+            ?.apply {
+                letPeopleKnow("======== $logMessage 在待分析列表中已存在 ========")
+                notice.id = this.id
+            }?:letPeopleKnow("======== 待分析列表新收录 $logMessage======")
+
         noticeRepository.save(notice)
-        letPeopleKnow("======== 待分析列表新收录 $logMessage======")
+
     }
 
-    @Transactional
+
     fun saveOrUpdateNotice(
         searchByCodeSource: SearchByCodeSource,
         context: RequestContext,
